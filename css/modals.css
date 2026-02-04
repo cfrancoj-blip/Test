@@ -1,0 +1,547 @@
+
+/* --- MODAIS --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: var(--z-index-modal-overlay);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-duration-slow), visibility var(--transition-duration-slow);
+    /* UX: Evita scroll chaining */
+    overscroll-behavior: contain;
+}
+.modal-overlay.visible { opacity: 1; visibility: visible; }
+
+.modal-content {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--space-lg);
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-xl);
+    overflow-y: auto;
+    z-index: var(--z-index-modal-content);
+    /* UX: Evita scroll chaining */
+    overscroll-behavior: contain;
+}
+#edit-habit-modal .modal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+/* NEW: Layout for modals with sticky headers/footers */
+.modal-content--sticky-header {
+    padding: 0;
+    overflow: hidden; /* Disable scroll on the main container */
+    position: relative; /* Stacking context for the scrim effect */
+}
+
+/* REATORAÇÃO DE LAYOUT: Modal de Configurações Gerais com rodapé flutuante */
+#manage-modal .modal-content {
+    position: relative; /* Contexto de posicionamento para o rodapé flutuante */
+    padding: 0; /* Remove o padding para que o scroll vá até as bordas */
+}
+#manage-modal .modal-scroll-wrapper {
+    /* Adiciona espaço na parte inferior para que o último item não seja ocultado pelo rodapé */
+    padding: var(--space-sm) var(--space-xl) 100px;
+}
+
+.modal-content--sticky-header > .modal-header {
+    padding: var(--space-xl) var(--space-xl) var(--space-lg);
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(to bottom, var(--surface-color) 70%, transparent);
+}
+
+.modal-content--sticky-header > .modal-scroll-wrapper {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 var(--space-xl);
+    flex: 1;
+    min-height: 0; /* Crucial for flex child scrolling */
+}
+
+.modal-header h2 {
+    font-size: 17px;
+    font-weight: 600;
+    text-align: center;
+    flex: 1;
+    margin: 0;
+}
+
+/* HIDE TITLE FOR EDIT HABIT MODAL [2025-06-02]: The input field serves as the title now */
+#edit-habit-modal .modal-header h2 {
+    display: none;
+}
+
+#icon-picker-modal .modal-header h2 {
+    padding: 0;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    margin-bottom: var(--space-lg);
+}
+
+.modal-back-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    padding: var(--space-xs);
+    border-radius: var(--border-radius-pill);
+    transition: background-color var(--transition-duration);
+}
+.modal-back-btn:hover {
+    background-color: var(--surface-hover);
+}
+.modal-back-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.modal-header-spacer {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+}
+
+#icon-picker-modal .modal-header .icon-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 22px;
+    color: var(--text-secondary);
+}
+
+#change-color-from-picker-btn::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: var(--border-radius-pill);
+    background-color: transparent;
+    /* VISUAL UPDATE [2025-02-26]: Reduced glow effect size from 10px to 5px */
+    box-shadow: 0 0 5px var(--accent-blue);
+    opacity: 0;
+    animation: glow-pulse 2.5s infinite ease-in-out;
+    pointer-events: none;
+}
+
+.modal-subtitle {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-block-start: var(--space-md);
+    margin-block-end: var(--space-lg);
+    text-align: center;
+}
+.modal-settings-section {
+    margin-block-end: var(--space-lg); padding-block-end: var(--space-lg);
+    border-block-end: 1px solid var(--border-color);
+    display: flex; flex-direction: column; gap: var(--space-lg);
+}
+
+.modal-actions {
+    display: flex;
+    gap: var(--space-md);
+    margin-block-start: var(--space-lg);
+    padding-top: var(--space-lg);
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-color);
+}
+.modal-content--sticky-header > .modal-actions {
+    margin-block-start: 0;
+    padding: var(--space-lg) var(--space-xl) var(--space-xl);
+}
+.modal-actions .btn {
+    flex-grow: 1;
+    padding: var(--space-md);
+    font-size: 15px;
+    font-weight: 600;
+}
+#edit-habit-modal .modal-actions {
+    margin-block-start: 0;
+}
+/* REATORAÇÃO DE CONSISTÊNCIA: Generaliza o estilo para botões secundários em modais (Cancelar, Editar) para um visual mais limpo e "sem bordas", unificando a aparência em toda a aplicação. */
+.modal-actions .btn:not(.btn--primary):not(.btn--danger) {
+    border-color: var(--surface-color);
+}
+.modal-actions .btn:not(.btn--primary):not(.btn--danger):hover {
+    background-color: var(--surface-hover);
+}
+
+#manage-modal .modal-content {
+    padding-bottom: 0;
+}
+
+/* Modal: Gerenciar Hábitos */
+#habit-list { list-style: none; margin-block-end: var(--space-lg); }
+#habit-list li.habit-list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-block: var(--space-md);
+}
+.habit-main-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-grow: 1;
+    min-width: 0;
+}
+#habit-list li svg { width: 20px; height: 20px; flex-shrink: 0; }
+.habit-list-item.ended { opacity: 0.6; }
+.habit-list-item.graduated { opacity: 0.8; }
+.habit-list-actions { display: flex; gap: var(--space-sm); }
+/* MELHORIA DE MANUTENIBILIDADE [2024-10-29]: Agrupa estilos comuns para botões de ação na lista de hábitos usando :is() para reduzir a repetição de código. */
+.habit-list-actions :is(.end-habit-btn, .permanent-delete-habit-btn, .graduate-habit-btn, .edit-habit-btn) {
+    background: none; border: none; cursor: pointer; font-size: 20px;
+    display: flex; align-items: center; justify-content: center;
+    padding: var(--space-xs); border-radius: var(--border-radius-pill);
+    transition: background-color var(--transition-duration);
+}
+.habit-list-actions :is(.end-habit-btn, .permanent-delete-habit-btn, .graduate-habit-btn, .edit-habit-btn):hover {
+    background-color: var(--surface-hover);
+}
+.end-habit-btn, .edit-habit-btn { color: var(--text-secondary); }
+.permanent-delete-habit-btn { color: var(--color-red); }
+.graduate-habit-btn { color: var(--color-yellow); }
+
+/* CORREÇÃO VISUAL [2024-12-21]: Adiciona estilo para o status de hábito (Encerrado/Graduado) no modal de gerenciamento. Este elemento era renderizado mas não estilizado, tornando-o visualmente inconsistente. */
+.habit-name-status {
+    font-size: 11px;
+    font-style: italic;
+    color: var(--text-tertiary);
+    margin-inline-start: var(--space-md);
+    flex-shrink: 0; /* Previne quebras de linha indesejadas */
+}
+
+.empty-list-message {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    text-align: center;
+    font-style: italic;
+    padding: var(--space-lg) 0;
+    margin-top: var(--space-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.setting-item { display: flex; justify-content: space-between; align-items: center; }
+.setting-item-header { display: flex; justify-content: space-between; align-items: baseline; width: 100%; margin-block-end: var(--space-sm); }
+.setting-item.setting-item--column { flex-direction: column; align-items: stretch; gap: var(--space-sm); }
+.setting-item label { font-size: 14px; color: var(--text-secondary); }
+/* STYLE UPDATE: Aligned to match sync status style for consistency */
+.setting-item-desc {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-style: italic;
+    line-height: 1.5;
+    text-align: right;
+    width: 100%;
+    margin-top: var(--space-xs);
+}
+
+/* Modal: Sincronização */
+#sync-section {
+    background: var(--bg-color); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-base); padding: var(--space-lg);
+}
+.sync-view { display: flex; flex-direction: column; gap: var(--space-md); }
+.sync-view p { font-size: 13px; line-height: 1.5; color: var(--text-secondary); text-align: center; }
+.sync-actions { display: flex; gap: var(--space-md); justify-content: center; }
+.sync-actions .btn { flex-grow: 1; }
+.sync-key-display {
+    background-color: var(--bg-color); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small); padding: var(--space-sm) var(--space-md);
+    display: flex; align-items: center; justify-content: space-between; gap: var(--space-md);
+}
+#sync-key-text {
+    font-family: monospace; font-size: 14px; color: var(--text-primary);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+#copy-key-btn { width: 32px; height: 32px; }
+.sync-warning { color: var(--color-yellow) !important; font-weight: 500; }
+#sync-status {
+    font-size: 11px; color: var(--text-tertiary); font-style: italic;
+    transition: opacity var(--transition-duration-slow); text-align: right;
+}
+
+/* --- Modal: Explorar Hábitos (Layout Mobile-First) --- */
+#explore-modal .modal-content {
+    width: 96vw;
+    max-width: 96vw;
+}
+#explore-habit-list {
+    display: grid;
+    grid-template-columns: 1fr; /* Mobile: 1 coluna */
+    gap: var(--space-md); /* Espaçamento entre itens */
+    overflow-y: auto;
+    margin-block-end: var(--space-lg);
+    overscroll-behavior: contain;
+    content-visibility: auto;
+    contain-intrinsic-size: 100px 500px;
+}
+.explore-habit-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: var(--space-lg);
+    padding: var(--space-md);
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius-large);
+    cursor: pointer;
+    transition: background-color var(--transition-duration);
+}
+.explore-habit-item:hover { background-color: var(--surface-hover); }
+
+.explore-habit-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-base);
+}
+.explore-habit-icon svg { width: 60%; height: 60%; }
+.explore-habit-details .name {
+    font-size: 15px; /* Tamanho maior para melhor leitura em 1 coluna */
+    font-weight: 600;
+    line-height: 1.2;
+}
+.explore-habit-details .subtitle {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    line-height: 1.3;
+}
+#create-custom-habit-btn { width: 100%; padding: var(--space-md); margin-top: var(--space-lg); }
+
+/* Layout Responsivo para Tablet e Telas Maiores no Modal Explorar */
+@media (min-width: 768px) {
+    #explore-modal .modal-content {
+        max-width: 700px; /* Aumenta a largura máxima do modal */
+    }
+
+    #explore-habit-list {
+        grid-template-columns: repeat(2, 1fr); /* Volta para 2 colunas */
+        gap: var(--space-lg); /* Aumenta o espaçamento */
+    }
+}
+
+
+/* Modal: Resposta da IA e Confirmação */
+#ai-response { margin-block-end: var(--space-lg); max-height: 300px; overflow-y: auto; color: var(--text-secondary); line-height: 1.6; overscroll-behavior: contain; }
+#ai-response strong { color: var(--text-primary); font-weight: 600; }
+#ai-response p { margin-block-end: var(--space-sm); }
+#ai-response p:last-child { margin-block-end: 0; }
+#ai-response ul { list-style: none; padding-inline-start: 0; margin-block-start: var(--space-sm); }
+#ai-response li { margin-block-end: var(--space-sm); }
+#confirm-modal-text { color: var(--text-secondary); line-height: 1.6; margin-block-end: var(--space-sm); }
+
+/* AI Error Styling */
+.ai-error-message {
+    background-color: rgba(231, 76, 60, 0.1);
+    border: 1px solid var(--color-red);
+    border-radius: var(--border-radius-base);
+    padding: var(--space-md);
+    text-align: center;
+}
+.ai-error-message h3 {
+    color: var(--color-red);
+    margin: 0 0 var(--space-sm) 0;
+    font-size: 16px;
+}
+.debug-info {
+    margin-top: var(--space-md);
+    padding: var(--space-sm);
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: var(--border-radius-small);
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    word-break: break-all;
+    text-align: left;
+}
+
+/* Modal: Mensagem Offline */
+.offline-header { text-align: center; margin-bottom: var(--space-xl); }
+.offline-title { margin-bottom: var(--space-md); color: var(--text-primary); font-size: 18px; font-weight: 600; }
+.offline-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+.offline-quote-box {
+    border-top: 1px solid var(--border-color);
+    padding-top: var(--space-xl);
+    margin-top: var(--space-md);
+}
+.offline-quote-text {
+    border-left: 3px solid var(--accent-blue);
+    padding-left: var(--space-lg);
+    margin: 0;
+    font-style: italic;
+    color: var(--text-primary);
+    font-size: 15px;
+    line-height: 1.5;
+}
+.offline-quote-author {
+    text-align: right;
+    margin-top: var(--space-md);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Modal: Opções da IA */
+#ai-options-modal .modal-content { gap: var(--space-section); }
+.ai-options-list { display: flex; flex-direction: column; gap: var(--space-md); }
+.ai-option-btn {
+    display: flex; flex-direction: column; align-items: flex-start;
+    padding: var(--space-lg); border: 1px solid var(--border-color);
+    background-color: var(--surface-color); border-radius: var(--border-radius-large);
+    text-align: left; cursor: pointer;
+    transition: background-color var(--transition-duration), border-color var(--transition-duration);
+    width: 100%;
+}
+.ai-option-btn:hover { background-color: var(--surface-hover); border-color: var(--text-tertiary); }
+.ai-option-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-block-end: var(--space-xs); }
+.ai-option-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+
+/* Modal: Notas */
+#notes-modal .modal-content { gap: var(--space-lg); }
+#notes-modal h2, #notes-modal p { margin: 0; text-align: center; }
+#notes-modal-subtitle { color: var(--text-secondary); }
+#notes-textarea {
+    background: var(--bg-color); border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-base); padding: var(--space-md); color: var(--text-primary);
+    /* BLINDAGEM IOS: 16px previne zoom */
+    font-size: 16px; 
+    resize: vertical; width: 100%; min-height: 100px;
+}
+
+/* Modal: Seletor de Ícones */
+#icon-picker-modal .modal-content {
+    max-width: 480px;
+    padding: 0;
+}
+
+#icon-picker-modal .modal-header {
+    padding: var(--space-xl) var(--space-xl) var(--space-xl);
+    position: relative;
+    z-index: 2; 
+    background-color: var(--surface-color);
+}
+
+#icon-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: var(--space-md);
+    max-height: 300px;
+    overflow-y: auto;
+    
+    padding: 4px var(--space-xl) var(--space-xl); 
+    
+    --current-habit-bg-color: #000000;
+    --current-habit-fg-color: #e5e5e5;
+    /* UX: Evita scroll chaining */
+    overscroll-behavior: contain;
+    /* PERFORMANCE [2025-01-17]: Otimização de renderização para grids de ícones. */
+    content-visibility: auto;
+    contain-intrinsic-size: 100px 300px;
+}
+.icon-picker-item {
+    width: 100%;
+    aspect-ratio: 1/1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-base);
+    cursor: pointer;
+    border: 2px solid transparent;
+    background-color: var(--current-habit-bg-color);
+    color: var(--current-habit-fg-color);
+    transition: transform var(--transition-duration-fast), filter var(--transition-duration);
+}
+.icon-picker-item:hover {
+    filter: brightness(1.2);
+    transform: scale(1.05);
+}
+.icon-picker-item svg {
+    width: 60%;
+    height: 60%;
+    pointer-events: none;
+}
+#icon-picker-modal.is-picking-color .icon-picker-item {
+    background-color: #000000;
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+#icon-picker-modal.is-picking-color .icon-picker-item:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--accent-blue);
+    filter: brightness(1);
+}
+
+
+/* Modal: Seletor de Cores */
+#color-picker-modal .modal-content {
+    max-width: 480px;
+    gap: var(--space-lg);
+}
+#color-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: var(--space-md);
+    max-height: 300px;
+    overflow-y: auto;
+    padding: var(--space-sm);
+    /* UX: Evita scroll chaining */
+    overscroll-behavior: contain;
+}
+.color-swatch {
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: var(--border-radius-pill);
+    cursor: pointer;
+    border: 4px solid transparent;
+    transition: all var(--transition-duration-fast);
+    padding: 0;
+    box-shadow: 0 0 0 1px var(--border-color) inset;
+}
+.color-swatch:hover {
+    transform: scale(1.1);
+}
+.color-swatch.selected {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 1px var(--border-color) inset, 0 0 8px var(--accent-blue);
+}
+
+
+/* Modal: Edição/Criação de Hábito */
+#edit-habit-modal .modal-content {
+    max-width: 540px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* CORREÇÃO: Garante que o modal de confirmação apareça sobre outros modais */
+#confirm-modal, #icon-picker-modal, #color-picker-modal, #full-calendar-modal, #calendar-quick-actions {
+    z-index: var(--z-index-stacked-modal);
+}

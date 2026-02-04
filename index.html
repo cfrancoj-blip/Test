@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<!-- 
+    [ARCHITECTURAL CONTEXT]:
+    @file index.html
+    @description App Shell e Caminho Crítico de Renderização (CRP).
+    
+    [MAIN THREAD CONTEXT]:
+    Este arquivo é o ponto de entrada visual. Ele deve renderizar o primeiro pixel (First Paint)
+    em < 100ms, independentemente do carregamento do JavaScript.
+    
+    ARQUITETURA (App Shell Model):
+    - Critical CSS Inlined: Estilos essenciais (fundo, loader) estão no HTML para evitar bloqueio de renderização.
+    - Resource Hinting: Uso de <link rel="preload"> para paralelizar o download do bundle.
+    - SVG Spriting: Definições de ícones centralizadas para reduzir o tamanho do DOM.
+    
+    DEPENDÊNCIAS CRÍTICAS:
+    - bundle.js / bundle.css: Artefatos gerados pelo build.js.
+    - OneSignal SDK: Dependência externa para Push Notifications.
+-->
+<head>
+
+    <meta charset="UTF-8">
+    <base href="/">
+    
+    <!-- ENGINE OPTIMIZATION: 'interactive-widget=resizes-content' garante que o teclado virtual
+         redimensione a Viewport visualmente, permitindo que modais (ex: Notas) se ajustem sem JavaScript. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
+    
+    <!-- ENGINE OPTIMIZATION: Instrui o navegador a renderizar controles nativos (scrollbars, inputs) 
+         em modo escuro IMEDIATAMENTE, evitando flash branco antes do CSS carregar. -->
+    <meta name="color-scheme" content="dark">
+    
+    <title>Askesis</title>
+    
+    <!-- PERFORMANCE: Resource Hints. Instruem o navegador a baixar assets críticos em alta prioridade. -->
+    <link rel="preload" href="bundle.css" as="style">
+    <!-- OPTIMIZATION: 'modulepreload' garante o tratamento correto de credenciais/cache para ESM. -->
+    <link rel="modulepreload" href="bundle.js">
+    
+    <!-- PERFORMANCE: Network Socket Warming. 
+         Inicia o handshake DNS/TCP/TLS com o CDN do OneSignal antes que o parser encontre a tag de script.
+         Reduz a latência de carregamento do SDK em ~50-100ms em redes móveis. -->
+    <link rel="preconnect" href="https://cdn.onesignal.com">
+
+    <!-- Metadados para PWA em iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Askesis">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+
+    <!-- Metadados para Compartilhamento Social (Open Graph) -->
+    <meta property="og:title" content="Askesis">
+    <meta property="og:description" content="A dynamic habit tracker with data visualization and personalized AI-powered feedback.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="icons/icon-512.svg">
+    
+    <link rel="stylesheet" href="bundle.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    
+    <!-- PERFORMANCE: Critical CSS Inline. 
+         Renderiza o fundo e o loader IMEDIATAMENTE. -->
+    <style>
+        html {
+            background-color: #000000;
+        }
+        body {
+            background-color: #000000;
+            color: #e5e5e5;
+        }
+        .initial-loader {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #000000;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.3s ease-out;
+            
+            /* PERFORMANCE (Layout Isolation): 
+               'strict' remove este elemento da árvore de cálculo de layout global.
+               O navegador sabe que nada dentro dele afeta fora, e vice-versa. 
+               Essencial para 60fps durante o boot. */
+            contain: strict;
+        }
+        .initial-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .initial-loader svg {
+            width: 48px;
+            height: 48px;
+            animation: spin 1s linear infinite;
+            stroke: #737373; /* Cor --text-tertiary */
+        }
+        /* Utility for instant toggle without transition */
+        .d-none { display: none !important; }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <!-- OneSignal SDK: Async para NÃO BLOQUEAR o DOMContentLoaded/First Interactive -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" async></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        // [ROBUSTNESS FIX]: OneSignal throws a domain-mismatch error if initialized on a URL 
+        // that doesn't match the dashboard configuration. We wrap this in a try/catch to 
+        // prevent it from triggering the app's Fatal Error UI during staging/local previews.
+        try {
+          await OneSignal.init({
+            appId: "39454655-f1cd-4531-8ec5-d0f61eb1c478",
+            allowLocalhostAsSecureOrigin: true,
+          });
+        } catch (e) {
+          console.warn("OneSignal initialization skipped: likely domain mismatch or blocked by browser.", e);
+        }
+      });
+    </script>
+<script type="importmap">
+{
+  "imports": {
+    "path": "https://esm.sh/path@^0.12.7",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "vitest/": "https://esm.sh/vitest@^4.0.18/",
+    "vitest": "https://esm.sh/vitest@^4.0.18",
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
+    "@vercel/analytics": "https://esm.sh/@vercel/analytics@^1.6.1",
+    "@vercel/kv": "https://esm.sh/@vercel/kv@^3.0.0",
+    "url": "https://esm.sh/url@^0.11.4"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <!-- PERFORMANCE: SVG Sprite System.
+         Usa width/height 0 e visibility hidden em vez de display:none para garantir
+         que alguns navegadores (Safari antigo) calculem corretamente as dimensões internas dos símbolos. -->
+    <svg width="0" height="0" style="position: absolute; visibility: hidden;">
+      <defs>
+        <symbol id="icon-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </symbol>
+        <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </symbol>
+        <symbol id="icon-spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+        </symbol>
+      </defs>
+    </svg>
+
+    <!-- Fallback para acessibilidade -->
+    <noscript>
+        <div style="text-align: center; padding: 20px; font-family: sans-serif;">
+            <h1>JavaScript é necessário</h1>
+            <p>Este aplicativo requer JavaScript para funcionar. Por favor, habilite-o em seu navegador.</p>
+        </div>
+    </noscript>
+
+    <!-- UX: Indicador de carregamento inicial (Critical Rendering Path) 
+         Visível imediatamente graças ao CSS inline no <head>. -->
+    <div id="initial-loader-container">
+        <div id="initial-loader" class="initial-loader">
+            <!-- Active Spinner -->
+            <svg id="loader-spinner" width="48" height="48"><use href="#icon-spinner"></use></svg>
+            
+            <!-- OPTIMIZATION (DOM POOLING): Pre-allocated Error UI.
+                 Oculto por padrão via CSS (.d-none). Em caso de erro, apenas alternamos a visibilidade 
+                 e atualizamos o textContent via Direct Memory Write. -->
+            <div id="fatal-error-ui" class="d-none" style="color:#ff6b6b;padding:2rem;text-align:center;font-family:sans-serif;max-width:400px;line-height:1.5;">
+                <h3 id="error-title" style="margin-bottom:10px;">Erro Fatal</h3>
+                <p id="error-message" style="font-size:14px;opacity:0.8;">Erro desconhecido</p>
+                <button onclick="location.reload()" style="margin-top:20px;padding:10px 20px;background:#333;color:white;border:none;border-radius:4px;cursor:pointer;">
+                    Tentar Novamente
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROBUSTEZ: Global Error Handler & Watchdog. 
+         1. IIFE para isolamento de escopo.
+         2. Evita Memory Leaks (Detached DOM Nodes) não mantendo referências globais.
+         3. Watchdog Timer para falhas de boot silenciosas. -->
+    <script>
+      (function() {
+          var errorDisplayed = false;
+
+          // Helper para buscar elementos apenas quando necessário (evita cache obsoleto)
+          function getUI() {
+              return {
+                  loader: document.getElementById('initial-loader'),
+                  spinner: document.getElementById('loader-spinner'),
+                  errUi: document.getElementById('fatal-error-ui'),
+                  errTitle: document.getElementById('error-title'),
+                  errMsg: document.getElementById('error-message')
+              };
+          }
+
+          window.showFatalError = function(msg, isWatchdog) {
+            if (errorDisplayed) return;
+            errorDisplayed = true;
+
+            var ui = getUI();
+            
+            // Se o loader já foi removido do DOM (app carregou), não tente mostrar erro nele.
+            // Em vez disso, use um alert de fallback ou injete um novo modal.
+            if (!ui.loader || !ui.loader.isConnected) {
+                if (!isWatchdog) alert("Erro Crítico: " + msg);
+                return;
+            }
+
+            if (ui.loader) {
+                if (ui.spinner) ui.spinner.style.display = 'none';
+                
+                if (ui.errUi) {
+                    if (ui.errTitle) ui.errTitle.textContent = isWatchdog ? 'Tempo Excedido' : 'Falha Crítica';
+                    if (ui.errMsg) ui.errMsg.textContent = msg || 'Erro interno.';
+                    ui.errUi.classList.remove('d-none');
+                }
+                
+                ui.loader.classList.remove('hidden');
+            }
+          };
+
+          window.onerror = function(message, source, lineno, colno, error) {
+            // [ROBUSTNESS FIX]: Suppress domain-mismatch errors from OneSignal.
+            // These errors are expected on non-production domains and should not trigger the Fatal Error UI.
+            var msg = message || (error && error.message) || "";
+            if (typeof msg === 'string' && (msg.indexOf('OneSignal') !== -1 || msg.indexOf('onesignal') !== -1)) {
+              console.warn("Caught and suppressed OneSignal library error:", msg);
+              return true; // Prevents the error from being reported globally
+            }
+            
+            // IGNORE RESIZE OBSERVER LOOP ERROR: Benign warning in modern browsers when layout is stressed.
+            if (typeof msg === 'string' && msg.includes('ResizeObserver loop')) {
+                return true;
+            }
+
+            window.showFatalError(msg);
+            return false; 
+          };
+
+          window.onunhandledrejection = function(event) {
+            var reason = event.reason;
+            var msg = 'Erro Assíncrono: ' + (reason ? (reason.message || reason) : 'Desconhecido');
+            
+            // Suppress OneSignal-related promise rejections
+            if (typeof msg === 'string' && (msg.indexOf('OneSignal') !== -1 || msg.indexOf('onesignal') !== -1)) {
+               console.warn("Caught and suppressed OneSignal unhandled rejection:", msg);
+               return;
+            }
+            
+            window.showFatalError(msg);
+          };
+
+          // Watchdog: Verifica se o loader ainda está visível após 8s.
+          window.bootWatchdog = setTimeout(function() {
+            var ui = getUI();
+            // Verifica 'isConnected' para evitar falso positivo se o JS removeu o elemento mas o GC ainda não rodou
+            if (ui.loader && ui.loader.isConnected && !ui.loader.classList.contains('hidden')) {
+                window.showFatalError("O aplicativo demorou muito para responder. Verifique sua conexão.", true);
+            }
+          }, 8000);
+      })();
+    </script>
+
+    <!-- APP SHELL: Estrutura estática que será hidratada pelo JavaScript -->
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-top">
+                <button id="fab-add-habit" aria-label="Adicionar Hábito">+</button>
+                <div id="calendar-strip" class="calendar-strip"></div>
+                <div class="header-icon-stack">
+                    <button id="manage-habits-btn" class="icon-btn" aria-label="Configurações"></button>
+                    <button id="ai-eval-btn" class="icon-btn" aria-label="Avaliação IA">
+                        <svg class="loading-icon" width="24" height="24"><use href="#icon-spinner"></use></svg>
+                        <span class="default-icon"></span>
+                        <svg class="offline-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="header-bottom">
+                <div id="stoic-quote-display" class="stoic-quote"></div>
+                <div class="header-date-wrapper">
+                    <!-- UX CHANGE: Seta de "Voltar" (Futuro -> Presente) à esquerda do título -->
+                    <button id="nav-arrow-future" class="nav-arrow future hidden" aria-label="Dia Anterior">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                    </button>
+                    
+                    <h2 id="header-title">
+                        <span class="header-title-desktop">Hoje</span>
+                        <span class="header-title-mobile">Hoje</span>
+                    </h2>
+                    
+                    <!-- UX CHANGE: Seta de "Avançar" (Passado -> Presente) à direita do título -->
+                    <button id="nav-arrow-past" class="nav-arrow past hidden" aria-label="Dia Seguinte">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="habit-container">
+                <div class="habit-group-wrapper" data-time-wrapper="Morning">
+                    <div class="time-marker"></div>
+                    <ul class="habit-group drop-zone" data-time="Morning"></ul>
+                </div>
+                <div class="habit-group-wrapper" data-time-wrapper="Afternoon">
+                    <div class="time-marker"></div>
+                    <ul class="habit-group drop-zone" data-time="Afternoon"></ul>
+                </div>
+                <div class="habit-group-wrapper" data-time-wrapper="Evening">
+                    <div class="time-marker"></div>
+                    <ul class="habit-group drop-zone" data-time="Evening"></ul>
+                </div>
+            </div>
+
+            <section id="chart-container" class="chart-container">
+                <div class="chart-header">
+                    <div class="app-subtitle"></div>
+                    <div class="chart-title-row">
+                        <h3 class="chart-title"></h3>
+                        <div class="chart-evolution-indicator"></div>
+                    </div>
+                </div>
+                <!-- Estado Vazio -->
+                <div class="chart-empty-state"></div>
+                <!-- Estrutura do Gráfico -->
+                <div class="chart-data-view">
+                    <div class="chart-wrapper">
+                        <svg class="chart-svg" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="chart-gradient" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="var(--accent-blue)" stop-opacity="0.3"/>
+                                    <stop offset="100%" stop-color="var(--accent-blue)" stop-opacity="0"/>
+                                </linearGradient>
+                            </defs>
+                            <path class="chart-area"></path>
+                            <path class="chart-line"></path>
+                        </svg>
+                        <div class="chart-tooltip">
+                            <div class="tooltip-date"></div>
+                            <div class="tooltip-score">
+                                <span class="tooltip-score-label"></span>
+                                <span class="tooltip-score-value"></span>
+                            </div>
+                            <ul class="tooltip-habits"><li></li></ul>
+                        </div>
+                        <div class="chart-indicator">
+                            <div class="chart-indicator-dot"></div>
+                        </div>
+                    </div>
+                    <div class="chart-axis-labels">
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="explore-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-spacer"></div>
+                <h2>Explorar Hábitos</h2>
+                <div class="modal-header-spacer"></div>
+            </div>
+            <div id="explore-habit-list"></div>
+            <button id="create-custom-habit-btn" class="btn btn--primary">Criar hábito personalizado</button>
+        </div>
+    </div>
+    
+    <div id="manage-modal" class="modal-overlay">
+        <div class="modal-content modal-content--sticky-header">
+            <div class="modal-header">
+                <div class="modal-header-spacer"></div>
+                <h2 id="manage-modal-title">Configurações Gerais</h2>
+                <div class="modal-header-spacer"></div>
+            </div>
+            <div class="modal-scroll-wrapper">
+                <div class="modal-settings-section">
+                    <div class="setting-item">
+                        <label id="label-language">Idioma</label>
+                        <div id="language-rotary" class="reel-rotary">
+                            <button id="language-prev" class="reel-btn">
+                                <svg width="16" height="16"><use href="#icon-chevron-left"></use></svg>
+                            </button>
+                            <div id="language-viewport" class="reel-viewport">
+                                <div id="language-reel" class="reel-reel"></div>
+                            </div>
+                            <button id="language-next" class="reel-btn">
+                                <svg width="16" height="16"><use href="#icon-chevron-right"></use></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="setting-item setting-item--column">
+                        <div class="setting-item">
+                            <label for="notification-toggle" id="label-notifications">Notificações</label>
+                            <label class="toggle-switch" for="notification-toggle" id="notification-toggle-label">
+                                <input type="checkbox" id="notification-toggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <p id="notification-status-desc" class="setting-item-desc"></p>
+                    </div>
+                     <div class="setting-item setting-item--column">
+                        <div class="setting-item-header">
+                             <label id="label-sync">Sincronização na Nuvem</label>
+                             <span id="sync-status"></span>
+                        </div>
+                        <!-- UI UPDATE: Placeholder for detailed error message -->
+                        <p id="sync-error-msg" class="form-notice hidden" style="margin-top:0; margin-bottom:10px;"></p>
+                        
+                        <div id="sync-section">
+                            <!-- Estado: Sincronização Inativa -->
+                            <div class="sync-view" id="sync-inactive-view">
+                                <p id="sync-inactive-desc"></p>
+                                <div class="sync-actions">
+                                    <button id="enable-sync-btn" class="btn btn--primary"></button>
+                                    <button id="enter-key-view-btn" class="btn"></button>
+                                </div>
+                            </div>
+                            <!-- Estado: Entrada de Chave -->
+                            <div class="sync-view" id="sync-enter-key-view" style="display: none;">
+                                 <div class="form-group">
+                                    <label for="sync-key-input" id="label-enter-key"></label>
+                                    <!-- UX IMPROVEMENT [2025-01-18]: Desativa correções automáticas para chaves complexas (UUID) -->
+                                    <input type="text" id="sync-key-input" class="form-control" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                                </div>
+                                <div class="sync-actions">
+                                    <button id="cancel-enter-key-btn" class="btn"></button>
+                                    <button id="submit-key-btn" class="btn btn--primary"></button>
+                                </div>
+                            </div>
+                             <!-- Estado: Exibição da Chave Gerada -->
+                            <div class="sync-view" id="sync-display-key-view" style="display: none;">
+                                <p class="sync-warning" id="sync-warning-text"></p>
+                                <div class="sync-key-display">
+                                    <span id="sync-key-text"></span>
+                                    <button id="copy-key-btn" class="icon-btn" aria-label="Copiar Chave"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                                </div>
+                                <button id="key-saved-btn" class="btn btn--primary"></button>
+                            </div>
+                            <!-- Estado: Sincronização Ativa -->
+                            <div class="sync-view" id="sync-active-view" style="display: none;">
+                                <p id="sync-active-desc"></p>
+                                <div class="sync-actions">
+                                    <button id="view-key-btn" class="btn"></button>
+                                    <button id="disable-sync-btn" class="btn btn--danger"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="privacy-section" class="setting-item setting-item--column" style="margin-block-end: var(--space-sm);">
+                        <div class="setting-item-header">
+                            <label id="label-privacy">Dados & Privacidade</label>
+                        </div>
+                        <div class="sync-actions">
+                            <button id="export-data-btn" class="btn">Exportar Backup</button>
+                            <button id="import-data-btn" class="btn">Restaurar Backup</button>
+                        </div>
+                    </div>
+    
+                    <div id="reset-section" class="setting-item">
+                        <label id="label-reset">Reinicialização</label>
+                        <button id="reset-app-btn" class="btn btn--danger">Apagar dados</button>
+                    </div>
+                </div>
+                <h3 id="habit-list-title" class="modal-subtitle">Gerenciar Hábitos</h3>
+                <ul id="habit-list"></ul>
+                <p id="no-habits-message" class="empty-list-message hidden"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="ai-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-spacer"></div>
+                <h2>Avaliação da IA</h2>
+                <div class="modal-header-spacer"></div>
+            </div>
+            <div id="ai-response"></div>
+        </div>
+    </div>
+
+    <div id="ai-options-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-spacer"></div>
+                <h2>Análise da IA</h2>
+                <div class="modal-header-spacer"></div>
+            </div>
+            <div class="ai-options-list">
+                <!-- UPDATE [2025-02-23]: Textos ajustados para 'Análise Atual' e descrições contextuais -->
+                <button class="ai-option-btn" data-analysis-type="monthly">
+                    <span class="ai-option-title">Análise Atual</span>
+                    <span class="ai-option-desc">Uma reflexão sobre os dados disponíveis (máx. 30 dias).</span>
+                </button>
+                <button class="ai-option-btn" data-analysis-type="quarterly">
+                    <span class="ai-option-title">Análise Trimestral</span>
+                    <span class="ai-option-desc">Uma visão consolidada dos últimos 90 dias.</span>
+                </button>
+                <button class="ai-option-btn" data-analysis-type="historical">
+                    <span class="ai-option-title">Análise Histórica</span>
+                    <span class="ai-option-desc">Uma visão completa de toda a sua jornada.</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-spacer"></div>
+                <h2>Confirmar Ação</h2>
+                <div class="modal-header-spacer"></div>
+            </div>
+            <p id="confirm-modal-text"></p>
+            <div class="modal-actions">
+                <button id="confirm-modal-edit-btn" class="btn hidden">Editar</button>
+                <button id="confirm-modal-confirm-btn" class="btn btn--primary">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notes-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-spacer"></div>
+                <h2 id="notes-modal-title">Nota</h2>
+                <div class="modal-header-spacer"></div>
+            </div>
+            <p id="notes-modal-subtitle"></p>
+            <textarea id="notes-textarea" placeholder="Digite sua nota aqui..."></textarea>
+            <div class="modal-actions">
+                <button id="save-note-btn" class="btn btn--primary">Salvar Nota</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Ícone Picker -->
+    <div id="icon-picker-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-spacer"></div>
+                <h2 id="icon-picker-modal-title">Selecionar Ícone</h2>
+                <button id="change-color-from-picker-btn" class="icon-btn"></button>
+            </div>
+            <div id="icon-picker-grid"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Color Picker -->
+    <div id="color-picker-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-spacer"></div>
+                <h2 id="color-picker-modal-title">Selecionar Cor</h2>
+                <div class="modal-header-spacer"></div>
+            </div>
+            <div id="color-picker-grid"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Habit (Apple Style Form) -->
+    <div id="edit-habit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-spacer"></div>
+                <h2 id="edit-habit-modal-title">Editar Hábito</h2>
+                <div class="modal-header-spacer"></div>
+            </div>
+            <form id="edit-habit-form">
+                <div class="habit-identity-section">
+                    <div class="habit-icon-picker-wrapper">
+                        <button type="button" id="habit-icon-picker-btn" class="habit-icon-picker-btn"></button>
+                        <div class="edit-icon-overlay"></div>
+                    </div>
+                    <div class="habit-name-input-wrapper">
+                        <input type="text" id="habit-name" name="habit-name" class="form-control" placeholder="Nome" autocomplete="off" style="background:transparent;border:none;font-size:20px;padding:0;">
+                        <div id="habit-subtitle-display" class="habit-subtitle-display"></div>
+                        <div class="form-notice"></div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-row form-row--no-border">
+                        <label>Horário</label>
+                    </div>
+                    <div id="habit-time-container" style="padding: 0 var(--space-lg) var(--space-lg);"></div>
+                </div>
+
+                <div id="frequency-options-container"></div>
+            </form>
+            <div class="modal-actions">
+                <button id="edit-habit-save-btn" class="btn btn--primary">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Full Calendar -->
+    <div id="full-calendar-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div id="full-calendar-header" class="modal-header">
+                <button id="full-calendar-prev" class="icon-btn">
+                    <svg width="24" height="24"><use href="#icon-chevron-left"></use></svg>
+                </button>
+                <h2 id="full-calendar-month-year"></h2>
+                <button id="full-calendar-next" class="icon-btn">
+                    <svg width="24" height="24"><use href="#icon-chevron-right"></use></svg>
+                </button>
+            </div>
+            <div id="full-calendar-weekdays"></div>
+            <div id="full-calendar-grid"></div>
+        </div>
+    </div>
+
+    <!-- Quick Actions Popover -->
+    <div id="calendar-quick-actions" class="modal-overlay">
+        <div class="quick-actions-content">
+            <button id="quick-action-done" class="quick-action-btn"></button>
+            <div class="quick-action-divider"></div>
+            <button id="quick-action-snooze" class="quick-action-btn"></button>
+            <div class="quick-action-divider"></div>
+            <button id="quick-action-almanac" class="quick-action-btn"></button>
+        </div>
+    </div>
+
+    <script src="bundle.js" type="module"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

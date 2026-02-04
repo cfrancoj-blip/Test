@@ -1,0 +1,211 @@
+
+/* --- CABEÇALHO (FIXED TOP) --- */
+.app-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding-block-start: var(--space-section);
+    
+    /* PADDING UPDATE [2025-02-26]: Increased from 0 to --space-md to separate quote from habits */
+    padding-block-end: var(--space-md);
+    
+    padding-inline: var(--space-lg); /* Restore horizontal padding */
+    flex-shrink: 0; /* Prevent shrinking */
+    
+    /* LAYOUT LOCKING */
+    z-index: var(--z-index-header);
+    background-color: var(--bg-color); /* Ensure opacity */
+    
+    /* VISUAL UPDATE [2025-02-26]: Removed shadow to blend seamlessly with app background */
+    box-shadow: none;
+}
+
+.header-top {
+    display: flex;
+    align-items: flex-end; /* ALIGNMENT FIX [2025-06-03]: Bottom alignment for Calendar & AI Icon */
+    gap: calc(var(--space-lg) * 0.75);
+}
+
+/* ALIGNMENT FIX [2025-06-03]: Lifter para o FAB.
+   Com align-items: flex-end, o FAB (40px) fica colado na base. 
+   O Calendário (~66px) tem seu centro mais alto.
+   Adicionamos margem inferior para alinhar o centro do FAB com o centro óptico do Calendário.
+   UPDATE: Ajuste fino solicitado (+2px Up, +1px Right -> Total 30px/4px). */
+#fab-add-habit {
+    margin-bottom: 28px;
+    margin-left: 4px;
+}
+
+/* ALIGNMENT FIX [2025-06-04]: Raise calendar strip by 10px to better align with FAB */
+.calendar-strip {
+    margin-bottom: 10px;
+    margin-right: calc(var(--space-sm) * -0.5);
+}
+
+/* TABLET/DESKTOP ADJUSTMENT [2025-05-15]: Aumenta o espaço entre o botão de adicionar e o calendário. */
+@media (min-width: 481px) {
+    #fab-add-habit {
+        margin-right: var(--space-lg);
+    }
+}
+
+.header-icon-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-shrink: 0;
+}
+
+/* MOBILE ADJUSTMENT [2025-05-15]: Reduz o gap visual entre calendário e ícones (de 16px para 8px) sem afetar o lado esquerdo (FAB). */
+@media (max-width: 480px) {
+    .header-icon-stack {
+        margin-left: calc(var(--space-sm) * -1);
+    }
+}
+
+/* A11Y FIX [2025-05-05]: Aumentado para 44px para cumprir requisitos mínimos de alvo de toque. */
+.header-icon-stack .icon-btn {
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+}
+.header-icon-stack #ai-eval-btn svg {
+    width: 22px;
+    height: 22px;
+}
+
+/* SIZE TWEAK [2025-05-15]: Ajustado para 23px (aumento de 15% sobre os 20px anteriores). */
+.header-icon-stack #manage-habits-btn svg {
+    width: 23px;
+    height: 23px;
+}
+
+.header-bottom {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xl);
+    justify-content: space-between;
+    margin-block-start: var(--space-md);
+}
+
+/* CONTAINER DE DATA E NAVEGAÇÃO */
+.header-date-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.app-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    white-space: nowrap;
+    /* ALIGNMENT TWEAK: Alinhado à direita, mas com margem para alinhar com os ícones acima e dar espaço para o indicador de "futuro". */
+    text-align: right;
+    /* UX: Indica interatividade (retornar para Hoje) */
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    margin: 0;
+}
+
+/* BOTÕES DE NAVEGAÇÃO (SETAS/ZETAS) */
+.nav-arrow {
+    background: transparent;
+    border: none;
+    color: var(--accent-green);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    border-radius: var(--border-radius-pill);
+    transition: background-color var(--transition-duration), opacity var(--transition-duration);
+    opacity: 1;
+}
+.nav-arrow:hover {
+    background-color: var(--surface-hover);
+}
+.nav-arrow.hidden {
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.nav-arrow svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 3;
+}
+
+.header-title-mobile {
+    display: none;
+}
+
+.stoic-quote {
+    font-size: 13px;
+    font-style: italic;
+    color: var(--text-secondary);
+    min-height: 2.2em;
+    /* CRITICAL FIX: Explicit line-height for JS calculation logic */
+    line-height: 18px; 
+    transition: opacity 0.5s ease-in-out, color var(--transition-duration);
+    opacity: 0;
+    
+    /* CHANGE: Default to flex-start. JS will control alignment. */
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    
+    /* LAYOUT FIX: Remove 'text-wrap: pretty' to allow greedy filling of space.
+       Add 'min-width: 0' to allow flex item to shrink properly below content size if needed. */
+    flex: 1;
+    min-width: 0;
+
+    margin-block-start: 0;
+    /* UX: Indica interatividade (clique para copiar) */
+    cursor: pointer;
+}
+
+/* CRITICAL FIX: display: inline allows getClientRects() to report multiple rects if text wraps. */
+.stoic-quote .quote-adaptation {
+    display: inline; 
+}
+
+/* REFACTOR [2025-05-24]: Estilo extraído de render.ts para limpar código JS */
+.quote-expander {
+    border: none;
+    background: transparent;
+    color: var(--accent-blue);
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0 4px;
+}
+
+/* TYPOGRAPHY & LAYOUT TWEAK [2025-05-02] */
+@media (max-width: 480px) {
+    .stoic-quote {
+        font-size: 12px;
+        line-height: 17px;
+    }
+    
+    /* SPACE OPTIMIZATION: Reduz o gap entre a citação e a data em telas pequenas para que o texto ocupe mais espaço */
+    .header-bottom {
+        gap: var(--space-sm);
+    }
+    
+    /* LAYOUT TWEAK [2025-05-02]: Swap title elements for mobile density */
+    .header-title-desktop { display: none; }
+    .header-title-mobile { display: inline; }
+}
+
+.stoic-quote.visible {
+    opacity: 1;
+}
+.stoic-quote:active {
+    opacity: 0.7;
+}

@@ -1,0 +1,6 @@
+{
+  "_comment": "[ANALYSIS PROGRESS]: 100% - Configuração validada. Nenhuma permissão de hardware (câmera/microfone) é necessária para a implementação atual baseada em texto.",
+  "name": "Soul of Askesis 2",
+  "description": "A dynamic habit tracker with data visualization and personalized AI-powered feedback.",
+  "requestFramePermissions": []
+}

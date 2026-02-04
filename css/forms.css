@@ -1,0 +1,394 @@
+/* --- COMPONENTES: FORMULÁRIOS --- */
+.form-group { margin-block-end: var(--space-lg); }
+.form-group label {
+    display: block; color: var(--text-secondary);
+    font-size: 14px; font-weight: 500; margin-block-end: var(--space-sm);
+}
+.form-control {
+    width: 100%; background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-base);
+    padding: var(--space-md); color: var(--text-primary);
+    /* BLINDAGEM IOS: 16px previne zoom automático ao focar */
+    font-size: 16px; 
+    height: 44px;
+}
+#edit-habit-modal #habit-name {
+    height: 48px;
+    /* REFACTOR [2025-06-02]: Increased size and weight to act as Modal Title */
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+}
+#edit-habit-modal #habit-name:focus {
+    outline: none;
+    box-shadow: none;
+    border-color: transparent; /* No border on focus to look like text */
+}
+#edit-habit-modal #habit-name::placeholder {
+    color: var(--text-tertiary);
+    opacity: 0.5;
+}
+
+
+/* --- FORMULÁRIO DE HÁBITO ESTILO APPLE --- */
+#edit-habit-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    /* O preenchimento agora é gerenciado pelo contêiner .modal-content pai */
+    padding: 0;
+    flex-grow: 1;
+    /* overflow-y: auto; REATORAÇÃO DE LAYOUT: Removido scroll aninhado. O scroll do formulário agora é gerenciado pelo .modal-content pai para evitar bugs de renderização em mobile. */
+}
+.form-section {
+    background-color: var(--surface-color);
+    border-radius: var(--border-radius-large);
+}
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md) var(--space-lg);
+    position: relative;
+}
+.form-row:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: var(--space-lg);
+    right: 0;
+    height: 1px;
+    background-color: var(--border-color);
+}
+
+.form-row.form-row--vertical {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+}
+
+/* FIX: Alignment and spacing for frequency radio options */
+.frequency-options .form-row > label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    cursor: pointer;
+}
+
+.habit-identity-section {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    /* REFACTOR [2025-06-02]: Visual transform to Modal Header style */
+    background-color: transparent;
+    border-radius: 0;
+    
+    /* HEADER INTEGRATION [2025-06-03]: 
+       Pull up (-60px) to overlap the modal header space (align with back button).
+       Add left padding (42px) to clear the back button (36px width + gap). 
+    */
+    margin-top: -60px;
+    padding: 0 0 var(--space-sm) 42px;
+    
+    margin-bottom: 0; 
+    border-bottom: 1px solid var(--border-color);
+    
+    /* INTERACTION FIX: Allow clicks to pass through padding area to reach the back button underneath */
+    pointer-events: none;
+}
+
+/* Restore interaction for children (Icon & Input) so they remain clickable */
+.habit-identity-section > * {
+    pointer-events: auto;
+}
+
+.habit-icon-picker-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+.habit-icon-picker-btn {
+    /* REFACTOR [2025-06-02]: Match Habit Card Icon Size (approx) */
+    width: 44px;
+    height: 44px;
+    border-radius: var(--border-radius-small);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.habit-icon-picker-btn:hover {
+    transform: scale(1.1);
+}
+.habit-icon-picker-btn svg {
+    width: 60%;
+    height: 60%;
+}
+
+@keyframes edit-shine {
+    0%, 100% { 
+        filter: drop-shadow(0 0 2px var(--accent-blue)); 
+        transform: scale(1);
+    }
+    50% { 
+        filter: drop-shadow(0 0 6px var(--accent-blue)); 
+        transform: scale(1.1);
+    }
+}
+
+.edit-icon-overlay {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    background-color: var(--accent-blue);
+    border-radius: var(--border-radius-pill);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    border: 2px solid var(--surface-color);
+    pointer-events: none;
+    /* VISUAL UPDATE: Pulse animation to indicate action */
+    animation: edit-shine 2s infinite ease-in-out;
+}
+.edit-icon-overlay svg {
+    width: 10px;
+    height: 10px;
+}
+.habit-name-input-wrapper {
+    flex-grow: 1;
+    position: relative;
+}
+
+.habit-subtitle-display {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    margin-top: -9px;
+    min-height: 1.2em;
+}
+
+.form-notice {
+    font-size: 11px;
+    color: var(--color-red);
+    margin-top: var(--space-xs);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.form-notice.visible {
+    opacity: 1;
+}
+
+/* REFACTOR [2025-06-01]: Vertical Tile Time Selector */
+/* UPDATE [2025-06-02]: Size further reduced by ~20% */
+.segmented-control {
+    display: grid;
+    /* Grid com 3 colunas iguais garante largura idêntica para todos os botões, resolvendo desalinhamento entre idiomas */
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    gap: var(--space-md);
+}
+
+.segmented-control-option {
+    /* Layout Vertical */
+    display: flex;
+    flex-direction: column; /* Ícone em cima, texto embaixo */
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 2px; /* Minimal gap */
+    
+    /* Dimensions - Ultra Compact */
+    padding: 4px 2px;
+    min-height: 44px; /* Standard touch target height */
+    
+    /* Visual Style */
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 10px; /* Adjusted curve */
+    
+    /* Typography */
+    color: var(--text-secondary);
+    font-size: 10px; /* Smallest readable size */
+    font-weight: 500;
+    line-height: 1.1; 
+    
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.segmented-control-option:hover {
+    background-color: var(--surface-hover);
+    border-color: var(--text-tertiary);
+    transform: translateY(-1px);
+}
+
+.segmented-control-option.selected {
+    /* Estilo Ativo: Azul Sólido */
+    background-color: var(--accent-blue); 
+    color: white; 
+    border-color: var(--accent-blue);
+    
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); /* Glow Azul */
+    transform: translateY(0);
+    font-weight: 600;
+}
+
+/* Ícones dentro dos botões */
+.segmented-control-option svg {
+    width: 15px; /* Reduced from 18px */
+    height: 15px;
+    stroke-width: 2;
+    flex-shrink: 0;
+    stroke: currentColor; 
+    margin-bottom: 1px;
+}
+
+/* Responsividade para telas muito pequenas (iPhone SE / Fold) */
+@media (max-width: 360px) {
+    .segmented-control {
+        gap: var(--space-sm);
+    }
+    /* Base styles are already minimal, so we just inherit */
+}
+
+.frequency-details {
+    width: 100%;
+    padding-top: var(--space-sm);
+    display: none;
+}
+.frequency-details.visible {
+    display: block;
+}
+.weekday-picker {
+    display: flex;
+    justify-content: space-between;
+    gap: 2px;
+}
+.weekday-picker label {
+    flex: 1;
+}
+.weekday-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: var(--border-radius-pill);
+    cursor: pointer;
+    background-color: var(--bg-color);
+    color: var(--text-secondary);
+    transition: background-color 0.2s, color 0.2s;
+}
+.weekday-picker input:checked + .weekday-button {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+.interval-control-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: var(--bg-color);
+    border-radius: var(--border-radius-base);
+    padding: var(--space-xs);
+}
+.stepper-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 24px;
+    border-radius: 6px;
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    border: none;
+    cursor: pointer;
+}
+.interval-amount-display {
+    font-size: 16px;
+    font-weight: 500;
+    flex: 1;
+    text-align: center;
+}
+.unit-toggle-btn {
+    padding: var(--space-sm) var(--space-lg);
+    background: var(--surface-hover);
+    color: var(--text-primary);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* Seção de Status de Notificação e Interruptor (Toggle) */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: var(--surface-hover);
+    border-radius: 34px;
+    transition: background-color var(--transition-duration);
+}
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    border-radius: var(--border-radius-pill);
+    transition: transform var(--transition-duration);
+}
+input:checked + .slider {
+    background-color: var(--accent-green);
+}
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+input:disabled + .slider {
+    cursor: not-allowed;
+    background-color: var(--surface-snoozed);
+}
+
+/* --- TEXTO DE CONSCIÊNCIA (Injetado via JS) --- */
+.habit-conscience-text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-tertiary);
+    font-style: italic;
+    
+    /* ALIGNMENT FIX [2025-06-03]: Left aligned to match the rest of the form content */
+    text-align: left;
+    /* Added left padding to match the icon indentation (4px) */
+    padding: var(--space-sm) var(--space-md) 0 var(--space-xs);
+    
+    margin-bottom: 0; /* Reduced from var(--space-lg) to rely on flex gap */
+    /* Animação suave ao aparecer */
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

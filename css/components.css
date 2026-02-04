@@ -1,0 +1,227 @@
+/* --- COMPONENTES: BOTÕES --- */
+.btn {
+    padding: var(--space-sm) var(--space-lg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-base);
+    background: var(--surface-color);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color var(--transition-duration), border-color var(--transition-duration);
+    -webkit-tap-highlight-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.btn:hover { background: var(--border-color); }
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--surface-snoozed);
+}
+
+.btn--danger {
+    background-color: var(--color-red);
+    border-color: var(--color-red);
+    color: white;
+}
+.btn--danger:hover {
+    background-color: var(--color-red-hover);
+    border-color: var(--color-red-hover);
+}
+.btn--primary {
+    background-color: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: white;
+}
+.btn--primary:hover {
+    background-color: var(--accent-blue-hover);
+    border-color: var(--accent-blue-hover);
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 24px;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+}
+
+#ai-eval-btn.has-notification::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 100%;
+    width: 10px;
+    height: 10px;
+    background-color: var(--accent-blue);
+    border: 2px solid var(--bg-color);
+    border-radius: var(--border-radius-pill);
+    box-shadow: 0 0 8px var(--accent-blue);
+    animation: glow-pulse 2s infinite ease-in-out;
+}
+#ai-eval-btn.loading { opacity: 0.6; cursor: wait; }
+#ai-eval-btn .loading-icon { display: none; }
+#ai-eval-btn .offline-icon { display: none; }
+#ai-eval-btn.loading .loading-icon { display: block; animation: spin 1s linear infinite; }
+#ai-eval-btn.loading .default-icon { display: none; }
+#ai-eval-btn.offline .offline-icon { display: block; }
+#ai-eval-btn.offline .default-icon { display: none; }
+#ai-eval-btn.offline .loading-icon { display: none; }
+
+#fab-add-habit {
+    position: relative;
+    width: calc(var(--space-section) * 2);
+    height: calc(var(--space-section) * 2);
+    font-size: 24px;
+    font-weight: 300;
+    line-height: 1;
+    border-radius: var(--border-radius-pill);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    background-color: var(--accent-green);
+    color: white;
+    border: none;
+    box-shadow: 0 0 5px var(--accent-green);
+    transition: background-color var(--transition-duration), transform var(--transition-duration);
+}
+#fab-add-habit:hover {
+    background-color: var(--accent-green-hover);
+    transform: scale(1.1);
+}
+#fab-add-habit::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: var(--border-radius-pill);
+    background-color: transparent;
+    box-shadow: 0 0 12px var(--accent-green);
+    opacity: 0;
+    animation: glow-pulse 2.5s infinite ease-in-out;
+    pointer-events: none;
+}
+
+/* --- COMPONENTES: SELETOR DE CARROSSEL (REEL ROTARY) --- */
+.reel-rotary {
+    display: flex;
+    align-items: center;
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-base);
+    overflow: hidden;
+    height: 28px;
+}
+
+.reel-viewport {
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+    width: var(--reel-item-width);
+}
+.reel-viewport:active { cursor: grabbing; }
+
+.reel-reel {
+    display: flex;
+    position: absolute;
+    height: 100%;
+    transition: transform var(--transition-duration-slow) cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform;
+}
+
+.reel-option {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    width: var(--reel-item-width);
+}
+
+.reel-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: var(--space-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color var(--transition-duration);
+}
+.reel-btn:hover { background-color: var(--surface-hover); }
+.reel-btn svg {
+    stroke: var(--text-tertiary);
+    width: 16px;
+    height: 16px;
+}
+#language-rotary { --reel-item-width: 95px; }
+
+/* --- COMPONENTES: TOAST NOTIFICATIONS --- */
+#toast-container {
+    position: fixed;
+    bottom: var(--space-xl);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    z-index: var(--z-index-tooltip);
+    pointer-events: none;
+    width: 100%;
+    max-width: 320px;
+    padding-inline: var(--space-lg);
+}
+
+.toast {
+    background-color: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-large);
+    padding: var(--space-md) var(--space-lg);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    pointer-events: auto;
+    animation: toast-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.toast--success { border-left: 4px solid var(--accent-green); }
+.toast--error { border-left: 4px solid var(--color-red); }
+.toast--info { border-left: 4px solid var(--accent-blue); }
+
+.toast-icon { font-size: 16px; flex-shrink: 0; }
+.toast-message { flex-grow: 1; }
+
+.toast--exit {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translateY(20px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}

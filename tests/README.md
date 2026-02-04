@@ -1,0 +1,302 @@
+# 🧪 Super-Testes do Askesis
+
+## Visão Geral
+
+Esta suíte de testes foi projetada para validar **o máximo de funcionalidades com o mínimo de testes**, seguindo a filosofia de **"Jornadas Completas"** ao invés de testes unitários isolados.
+
+## Os 5 Super-Testes
+
+### 🚀 Super-Teste 1: Jornada do Novo Usuário
+**Arquivo:** `tests/super-test-1-user-journey.test.ts`
+
+Simula a experiência completa de um novo usuário desde o primeiro acesso até o uso avançado.
+
+**Valida simultaneamente:**
+- ✅ Criação de hábitos (3 turnos diferentes)
+- ✅ Marcação de status (feito/adiado/pendente)
+- ✅ Adição de notas com emojis e caracteres especiais
+- ✅ Navegação no calendário (passado/futuro)
+- ✅ Swipe e long-press
+- ✅ Persistência após reload
+- ✅ Renderização de DOM
+- ✅ Acessibilidade básica (tabindex, aria-label)
+- ✅ Integridade de dados após múltiplas operações
+
+**Métricas de sucesso:**
+- Todos os hábitos criados corretamente
+- Status persistidos após reload
+- Notas mantêm caracteres especiais
+- DOM renderizado sem erros
+
+---
+
+### 🔄 Super-Teste 2: Sincronização Conflitante
+**Arquivo:** `tests/super-test-2-sync-conflicts.test.ts`
+
+Simula conflitos entre dispositivos offline e testa o algoritmo CRDT-lite de merge.
+
+**Valida simultaneamente:**
+- ✅ Criptografia AES-GCM (encrypt/decrypt)
+- ✅ Web Worker (operações off-main-thread)
+- ✅ Merge de conflitos (DONE vs DEFERRED)
+- ✅ Resolução de Tombstone (delete vence update)
+- ✅ Merge de 3+ dispositivos
+- ✅ Integridade de bitmask após 100+ merges
+- ✅ Serialização para nuvem
+- ✅ Race conditions
+
+**Métricas de sucesso:**
+- Conflitos resolvidos semanticamente (DONE > DEFERRED)
+- Nenhum dado perdido em merge de múltiplos dispositivos
+- Tombstone sempre vence
+- Bitmasks mantêm integridade
+
+---
+
+### ⚡ Super-Teste 3: Estresse e Performance
+**Arquivo:** `tests/super-test-3-performance.test.ts`
+
+Testa limites de escalabilidade e performance budgets.
+
+**Valida simultaneamente:**
+- ✅ Criação de 100 hábitos < 100ms
+- ✅ Popular 3 anos (54,750 registros) < 500ms
+- ✅ Leitura de 10,000 status < 50ms (O(1) verificado)
+- ✅ Renderização de 100 cartões < 200ms
+- ✅ 1,000 toggles consecutivos < 100ms
+- ✅ Performance constante com crescimento de dados
+- ✅ Ausência de memory leaks
+- ✅ Batch de 1,000 operações < 150ms
+- ✅ Serialização de 10 anos < 1s
+
+**Performance Budgets:**
+```
+Operação                  | Budget    | Meta
+-------------------------------------------------
+Criar 100 hábitos        | 100ms     | < 50ms
+Popular 3 anos           | 500ms     | < 300ms
+Ler 10k status           | 50ms      | < 20ms
+Renderizar 100 cards     | 200ms     | < 100ms
+1000 toggles             | 100ms     | < 50ms
+Serializar 10 anos       | 1000ms    | < 500ms
+```
+
+---
+
+### ♿ Super-Teste 4: Acessibilidade Total
+**Arquivo:** `tests/super-test-4-accessibility.test.ts`
+
+Valida conformidade com WCAG 2.1 AA e navegação completa por teclado.
+
+**Valida simultaneamente:**
+- ✅ Navegação completa apenas com Tab/Enter/Space
+- ✅ Todos os elementos têm aria-label ou role
+- ✅ Estrutura semântica HTML5 (landmarks)
+- ✅ Focus trap em modais
+- ✅ Fechamento de modal com Escape
+- ✅ prefers-reduced-motion respeitado
+- ✅ aria-live para anúncios dinâmicos
+- ✅ Foco visível em elementos interativos
+- ✅ Contraste de cores (WCAG AA)
+- ✅ Formulários com feedback acessível
+- ✅ Skip links para navegação rápida
+
+**Critérios WCAG:**
+- Nível A: ✅ Obrigatório (100% conformidade)
+- Nível AA: ✅ Recomendado (100% conformidade)
+- Nível AAA: 🎯 Aspiracional (best effort)
+
+---
+
+### 🔥 Super-Teste 5: Recuperação de Desastres
+**Arquivo:** `tests/super-test-5-disaster-recovery.test.ts`
+
+Testa resiliência do sistema sob condições extremas (Chaos Engineering).
+
+**Valida simultaneamente:**
+- ✅ Recuperação de localStorage corrompido
+- ✅ Dados parcialmente deletados
+- ✅ Validação e rejeição de dados inválidos
+- ✅ Operação com storage 95% cheio
+- ✅ Timestamps negativos ou futuros
+- ✅ Detecção de loops infinitos
+- ✅ Graceful degradation
+- ✅ Consistência durante falhas parciais de escrita
+- ✅ Migração de versões antigas
+- ✅ Feedback amigável para usuário
+
+**Cenários de Caos:**
+1. JSON inválido no localStorage
+2. IndexedDB corrompido
+3. Storage quota excedido
+4. Dados órfãos (logs sem hábitos)
+5. Relógio do sistema incorreto
+6. Interrupção durante escrita
+7. Dados estruturalmente válidos mas semanticamente incorretos
+
+---
+
+## 📊 Métricas de Qualidade
+
+### Coverage Mínimo Exigido
+```
+Lines:       80%+
+Functions:   70%+
+Branches:    70%+
+Statements:  80%+
+```
+
+### Áreas Críticas (100% Coverage)
+- `services/dataMerge.ts`
+- `services/crypto.ts`
+- `habitActions.ts`
+- `services/HabitService.ts`
+
+---
+
+## 🚀 Como Executar
+
+### Todos os testes
+```bash
+npm test
+```
+
+### Apenas os 5 super-testes
+```bash
+npm run test:super
+```
+
+### Com interface visual
+```bash
+npm run test:ui
+```
+
+### Com coverage
+```bash
+npm run test:coverage
+```
+
+### Watch mode (desenvolvimento)
+```bash
+npm run test:watch
+```
+
+---
+
+## 📈 Relatórios
+
+### Performance Report
+Cada teste de performance exibe:
+- Tempo médio (avg)
+- Tempo mediano (median)
+- Percentil 95 (p95)
+- Número de amostras
+
+### Accessibility Report
+Erros de A11y são listados com:
+- Contexto do elemento
+- Tipo de violação
+- Sugestão de correção
+
+### Recovery Report
+Falhas de recuperação mostram:
+- Tipo de erro
+- Estado antes/depois
+- Ações tomadas
+
+---
+
+## ✅ Critérios de Aprovação
+
+Para considerar o sistema **"Production Ready"**, todos os seguintes devem passar:
+
+1. **Todos os 5 super-testes passam** (0 falhas)
+2. **Coverage mínimo atingido** (80%+ linhas)
+3. **Performance budgets respeitados**
+4. **Zero erros críticos de A11y**
+5. **Recuperação de todos os cenários de desastre**
+
+---
+
+## 🎯 Filosofia dos Testes
+
+> "Um teste que valida 20 coisas é melhor que 20 testes que validam 1 coisa cada"
+
+Cada super-teste simula uma **jornada real do usuário**, garantindo que:
+- Componentes funcionam **em conjunto** (não apenas isolados)
+- Edge cases são testados **em contexto**
+- Performance é validada **sob carga real**
+- Acessibilidade funciona **na prática**
+- Recuperação funciona **em cenários reais**
+
+---
+
+## 📚 Próximos Passos
+
+### Mutation Testing (Avançado)
+```bash
+npm install -D @stryker-mutator/core
+npx stryker run
+```
+Meta: 70%+ mutation score
+
+### Visual Regression (Opcional)
+```bash
+npm install -D @percy/cli
+npx percy snapshot tests/
+```
+
+### E2E com Playwright (Opcional)
+```bash
+npm install -D playwright
+npx playwright test
+```
+
+---
+
+## 🤝 Contribuindo
+
+Ao adicionar novos testes:
+1. Prefira **adicionar casos aos super-testes existentes**
+2. Só crie novo arquivo se for funcionalidade completamente nova
+3. Mantenha foco em **jornadas do usuário**, não testes unitários isolados
+4. Sempre adicione **métricas de performance** quando relevante
+
+---
+
+## 📝 Notas Técnicas
+
+### Por que "Super-Testes"?
+Testes tradicionais focam em **isolamento** (mocks, stubs). Super-testes focam em **integração real**.
+
+**Vantagens:**
+- ✅ Detectam bugs de integração
+- ✅ Validam fluxos completos
+- ✅ Menos manutenção (menos arquivos)
+- ✅ Mais confiança (testam o que usuário faz)
+
+**Desvantagens:**
+- ⚠️  Mais lentos que unit tests
+- ⚠️  Falhas podem ter múltiplas causas
+- ⚠️  Requerem setup mais complexo
+
+Para o Askesis, as vantagens superam as desvantagens.
+
+---
+
+## 🏆 Status Atual
+
+```
+✅ Super-Teste 1: Jornada do Novo Usuário
+✅ Super-Teste 2: Sincronização Conflitante  
+✅ Super-Teste 3: Estresse e Performance
+✅ Super-Teste 4: Acessibilidade Total
+✅ Super-Teste 5: Recuperação de Desastres
+
+Cobertura esperada: 75-85%
+Performance budgets: Definidos
+A11y compliance: WCAG 2.1 AA
+Chaos scenarios: 10 cenários
+```
+
+**Status:** 🟢 Pronto para execução

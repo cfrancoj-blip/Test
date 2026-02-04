@@ -1,0 +1,192 @@
+
+/* --- RESET E ESTILOS GLOBAIS --- */
+html {
+    height: 100%;
+    overflow: hidden; /* Lock body scroll */
+    /* FIX [2025-05-02]: Define a cor de fundo na raiz para cobrir áreas de 'overscroll' e a barra inferior do mobile */
+    background-color: var(--bg-color);
+    /* UX: Desativa o efeito de "bounce" globalmente na raiz */
+    overscroll-behavior: none;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* UX FIX: Remove o flash azul de toque em dispositivos móveis (Android/iOS) para sensação nativa */
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg-color);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* UX: Desativa seleção de texto globalmente para sensação de App Nativo. Habilitado seletivamente onde necessário. */
+    -webkit-user-select: none; /* Safari */
+    user-select: none;         /* Padrão Moderno */
+    touch-action: manipulation; /* BUGFIX [2024-08-29]: Desabilita o zoom por duplo toque em dispositivos móveis para melhorar a resposta de interações personalizadas. */
+    
+    /* MODERN LAYOUT [2025-01-18]: Garante altura total em mobile ignorando a barra de endereços */
+    height: 100%;
+    height: 100dvh;
+    overflow: hidden; /* Double lock */
+    
+    /* UX: Previne o ajuste automático de texto em rotação no iOS */
+    -webkit-text-size-adjust: 100%;
+}
+
+/* --- BOOT LOCK --- */
+/* Bloqueia interações enquanto o sync inicial está pendente para evitar 'false future' */
+body.is-booting {
+    pointer-events: none !important;
+    opacity: 0.8;
+    cursor: wait;
+}
+
+/* --- VIEW TRANSITIONS (SWEET SPOT IMPROVEMENT) --- */
+/* Configura transições nativas suaves entre estados (ex: mudar de dia) */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: 0.25s; /* Rápido e sutil */
+    animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1); /* Curva "Stoic Ease" */
+}
+
+/* Isola o cabeçalho para que ele não participe da transição de "fade/slide" do conteúdo principal.
+   Isso faz com que apenas os dados mudem, enquanto a estrutura permanece sólida. */
+.app-header {
+    view-transition-name: app-header;
+}
+
+/* O corpo principal (lista de hábitos) anima separadamente */
+main {
+    view-transition-name: main-content;
+}
+
+/* CHAOS FIX: GLOBAL INTERACTION LOCK
+   Desabilita smooth scrolling e eventos de ponteiro não essenciais quando uma interação física
+   (Swipe, Drag, Rotary) está ativa. Isso evita conflitos de thread e garante 60fps. */
+body.is-interaction-active *,
+body.is-swipe-pending * {
+    scroll-behavior: auto !important;
+    /* Opcional: pointer-events: none para elementos não focados, mas pode ser agressivo demais. */
+}
+
+/* GESTURE ISOLATION: Previne que clicks acidentais durante detecção de swipe ativem botões.
+   Não afeta o próprio cartão sendo manipulado. */
+body.is-swipe-pending .habit-card:not(.is-swiping) .goal-control-btn {
+    pointer-events: none;
+}
+
+/* Permitir seleção em campos de texto e conteúdo onde é útil */
+:is(input, textarea),
+#ai-response,
+#stoic-quote-display,
+#sync-key-text,
+#confirm-modal-text {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* MELHORIA A11Y: Estado de foco visível e consistente com cor adaptável ao tema. */
+:is(button, a, input, [tabindex]):focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-blue) 30%, transparent);
+}
+
+/* UTILITÁRIO A11Y [2025-01-18]: Esconde visualmente mas mantém acessível para leitores de tela e teclado */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* UTILITÁRIO GERAL: Esconde elementos completamente */
+.hidden {
+    display: none !important;
+}
+
+/* --- ANIMAÇÕES GLOBAIS --- */
+/* PERFORMANCE: Animações baseadas em transform/opacity rodam na thread do compositor (GPU), liberando a Main Thread. */
+@keyframes glow-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.15); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes flash-green {
+    from {
+      color: var(--accent-green);
+      text-shadow: 0 0 8px var(--accent-green);
+    }
+    to {
+      color: var(--text-primary);
+      text-shadow: none;
+    }
+}
+  
+@keyframes flash-red {
+    from {
+      color: var(--color-red);
+      text-shadow: 0 0 8px var(--color-red);
+    }
+    to {
+      color: var(--text-primary);
+      text-shadow: none;
+    }
+}
+
+/* UX [2025-01-18]: Animação de 'Pop' para feedback de conclusão */
+@keyframes icon-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* UX [2025-01-18]: Animação de 'Shake' para feedback de erro */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.shake {
+    animation: shake 0.3s ease-in-out;
+    border-color: var(--color-red) !important;
+}
+
+/* A11Y & PERFORMANCE: Respeita a preferência do usuário por movimento reduzido. */
+/* CRITICAL LOGIC: Evita desconforto vestibular e economiza bateria em dispositivos configurados para isso. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+        /* Disable view transitions if user prefers reduced motion */
+        view-transition-name: none !important;
+    }
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation-duration: 0s !important;
+    }
+}

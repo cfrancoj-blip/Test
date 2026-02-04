@@ -1,0 +1,268 @@
+/* --- COMPONENTES: CALENDÁRIO --- */
+.calendar-strip {
+    display: flex;
+    gap: var(--space-sm);
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    user-select: none;
+    /* PERFORMANCE [2024-12-28]: Isola o layout e a pintura da faixa de calendário para evitar reflows globais. */
+    contain: content;
+    /* UX: Evita scroll chaining */
+    overscroll-behavior: contain;
+    
+    /* UX [2025-01-18]: Rolagem com snap para sensação mais precisa */
+    scroll-snap-type: x proximity;
+    
+    /* FIX [2025-06-03]: Margin Reduction. Reduced padding to bring days closer to edges/icons. */
+    padding-inline-start: 0;
+    padding-inline-end: 0;
+}
+.calendar-strip::-webkit-scrollbar { display: none; }
+
+.day-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xs); /* SIZE REDUCTION: Reduced gap from 8px to 4px */
+    padding: var(--space-sm); /* SIZE REDUCTION: Reduced vertical padding from 12px to 8px */
+    border-radius: var(--border-radius-large);
+    cursor: pointer;
+    transition: background-color var(--transition-duration), transform 0.1s ease-out;
+    border: 2px solid transparent;
+    flex-shrink: 0; /* CORREÇÃO DE LAYOUT [2024-12-14]: Impede que os dias do calendário encolham em telas pequenas, garantindo que a faixa de rolagem funcione corretamente. */
+    
+    /* UX [2025-02-05]: Alinhamento 'end' para coincidir com o scrollIntoView('end') e manter o histórico visível */
+    scroll-snap-align: end;
+
+    /* REVERTED PERFORMANCE OPTIMIZATION [2025-06-03]: 
+       'content-visibility: auto' (Paint Containment) estava cortando o efeito de brilho (glow) que excede a caixa do dia.
+       Removido para garantir integridade visual ("Surgical Fix").
+    */
+    /* content-visibility: auto; */
+    /* contain-intrinsic-size: 50px 65px; */
+}
+/* HOVER REMOVED [2025-06-03]: Removed hover background to avoid confusion with selection state. */
+/* .day-item:hover { background-color: var(--surface-hover); } */
+
+.day-item.selected { 
+    background-color: var(--surface-color);
+}
+
+/* UX: Feedback tátil para "Long Press" no calendário */
+.day-item.is-pressing {
+    transform: scale(0.95);
+    background-color: var(--surface-hover);
+}
+
+.day-item .day-name {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    /* MEMORY OPTIMIZATION [2025-01-29]: Removed transform: translateZ(0) to reduce compositor layer count in large lists. 'contain: content' on parent handles performance. */
+}
+
+.day-progress-ring {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-pill);
+}
+/* TÉCNICA: Anel de Progresso com Gradiente Cônico e Máscara */
+.day-progress-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: var(--border-radius-pill);
+    padding: 2px;
+    background: conic-gradient(
+        from -90deg,
+        var(--accent-blue) 0% var(--completed-percent, 0%),
+        #ffffff var(--completed-percent, 0%) calc(var(--completed-percent, 0%) + var(--snoozed-percent, 0%)),
+        transparent calc(var(--completed-percent, 0%) + var(--snoozed-percent, 0%)) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+.day-item .day-number {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius-pill);
+    z-index: var(--z-index-content);
+    position: relative;
+}
+/* OTIMIZAÇÃO: Animação de brilho no pseudo-elemento. */
+.day-item.today .day-number {
+    background-color: var(--accent-green);
+    color: white;
+}
+.day-item.today .day-number::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: var(--border-radius-pill);
+    box-shadow: 0 0 12px var(--accent-green);
+    animation: glow-pulse 2.5s infinite ease-in-out;
+    z-index: 2; /* VISIBILITY FIX */
+}
+.day-number.has-plus {
+    text-shadow: 0 0 3px var(--text-primary), 0 0 5px var(--text-primary);
+}
+
+/* Modal: Calendário Completo */
+#full-calendar-modal .modal-content {
+    max-width: 500px;
+    gap: var(--space-lg);
+}
+#full-calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: var(--space-md);
+}
+#full-calendar-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+}
+#full-calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-sm);
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+#full-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: var(--space-sm);
+}
+.full-calendar-day {
+    aspect-ratio: 1/1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: var(--border-radius-pill);
+    transition: background-color var(--transition-duration);
+    position: relative;
+
+    /* --- PERFORMANCE UPDATE v8.0 (Grid Virtualization) --- */
+    /* Útil se você decidir renderizar o ano todo de uma vez no futuro */
+    content-visibility: auto;
+    contain-intrinsic-size: 40px 40px; /* Estimativa para célula quadrada */
+}
+.full-calendar-day:hover {
+    background-color: var(--surface-hover);
+}
+.full-calendar-day.other-month {
+    color: var(--text-tertiary);
+    pointer-events: none;
+}
+.full-calendar-day.selected .day-number {
+    font-size: 1.3em;
+    font-weight: 700;
+}
+.full-calendar-day.today .day-number {
+    font-weight: 700;
+}
+.full-calendar-day.today .day-progress-ring::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: var(--border-radius-pill);
+    box-shadow: 0 0 10px var(--accent-green);
+    animation: glow-pulse 2.5s infinite ease-in-out;
+}
+
+/* Modal: Ações Rápidas do Calendário */
+#calendar-quick-actions {
+    background: rgba(0,0,0,0.4);
+    /* PERFORMANCE: Filtro de desfoque é custoso; usar com moderação. */
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    align-items: flex-start;
+    justify-content: flex-start;
+}
+
+.quick-actions-content {
+    position: absolute;
+    top: var(--actions-top, 50%);
+    left: var(--actions-left, 50%);
+    transform: translate(var(--translate-x, -50%), 0) scale(0.95);
+    /* UI REFACTOR: Container is now a single visual block */
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-large);
+    overflow: hidden; /* Important for containing the button hover states */
+    padding: 0;
+    gap: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    opacity: 0;
+    transition: opacity var(--transition-duration-fast), transform var(--transition-duration-fast) cubic-bezier(0.34, 1.56, 0.64, 1);
+    width: max-content;
+}
+
+#calendar-quick-actions.visible .quick-actions-content {
+    opacity: 1;
+    transform: translate(var(--translate-x, -50%), 0) scale(1);
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-lg);
+    /* UI REFACTOR: Button is now transparent with no border or radius */
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    color: var(--text-primary);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color var(--transition-duration-fast);
+}
+.quick-action-btn:hover {
+    background-color: var(--surface-hover);
+    color: var(--text-primary);
+}
+.quick-action-btn:active {
+    transform: none;
+}
+.quick-action-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    flex-shrink: 0;
+}
+
+.quick-action-divider {
+    /* UI REFACTOR: Make the divider visible as a subtle line */
+    display: block;
+    height: 1px;
+    background-color: var(--border-color);
+    margin-inline: var(--space-lg); /* Align with button text padding */
+    margin-block: 0; /* Let button padding handle vertical space */
+}
