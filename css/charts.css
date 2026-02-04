@@ -26,9 +26,6 @@
     /* Estilos visuais normais */
     z-index: var(--z-index-footer);
     box-shadow: none;
-    
-    /* [2025-02-23] Add border matching habit cards */
-    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* 
