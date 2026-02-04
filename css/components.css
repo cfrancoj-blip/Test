@@ -1,3 +1,4 @@
+
 /* --- COMPONENTES: BOTÕES --- */
 .btn {
     padding: var(--space-sm) var(--space-lg);
@@ -54,6 +55,10 @@
     justify-content: center;
     flex-shrink: 0;
     position: relative;
+    transition: color var(--transition-duration);
+}
+.icon-btn:hover {
+    color: var(--accent-blue);
 }
 
 #ai-eval-btn.has-notification::after {
@@ -61,14 +66,12 @@
     position: absolute;
     top: 6px;
     right: 6px;
-    width: 100%;
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
     background-color: var(--accent-blue);
-    border: 2px solid var(--bg-color);
+    border: 1px solid var(--bg-color);
     border-radius: var(--border-radius-pill);
-    box-shadow: 0 0 8px var(--accent-blue);
-    animation: glow-pulse 2s infinite ease-in-out;
+    box-shadow: 0 0 0 1px var(--bg-color);
 }
 #ai-eval-btn.loading { opacity: 0.6; cursor: wait; }
 #ai-eval-btn .loading-icon { display: none; }
@@ -95,20 +98,22 @@
     background-color: var(--accent-green);
     color: white;
     border: none;
-    box-shadow: 0 0 5px var(--accent-green);
+    /* GLOW RESTORED (Adapted for Classic Palette) */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 15px rgba(39, 174, 96, 0.4);
     transition: background-color var(--transition-duration), transform var(--transition-duration);
 }
 #fab-add-habit:hover {
     background-color: var(--accent-green-hover);
-    transform: scale(1.1);
+    transform: scale(1.05);
 }
+/* GLOW PULSE ANIMATION RESTORED */
 #fab-add-habit::after {
     content: '';
     position: absolute;
     inset: -4px;
     border-radius: var(--border-radius-pill);
     background-color: transparent;
-    box-shadow: 0 0 12px var(--accent-green);
+    box-shadow: 0 0 15px var(--accent-green);
     opacity: 0;
     animation: glow-pulse 2.5s infinite ease-in-out;
     pointer-events: none;
