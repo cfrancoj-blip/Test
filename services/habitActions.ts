@@ -1,4 +1,3 @@
-
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -117,6 +116,11 @@ function _lockActionHabit(habitId: string): Habit | null {
 function _requestFutureScheduleChange(habitId: string, targetDate: string, updateFn: (s: HabitSchedule) => HabitSchedule, immediate = false) {
     const habit = state.habits.find(h => h.id === habitId);
     if (!habit || !/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) return;
+
+    // CACHE PURGE: Qualquer mudança de agendamento invalida o cache de "Aparição" e "Streaks" deste hábito.
+    // Isso é CRÍTICO para "Ressurreição" de hábitos deletados, pois o cache antigo pode conter 'false'.
+    state.habitAppearanceCache.delete(habitId);
+    state.streaksCache.delete(habitId);
 
     const history = habit.scheduleHistory;
     const idx = history.findIndex(s => targetDate >= s.startDate && (!s.endDate || targetDate < s.endDate));
@@ -273,14 +277,53 @@ export function saveHabitFromModal() {
         frequency: formData.frequency.type === 'specific_days_of_week' ? { ...formData.frequency, days: [...formData.frequency.days] } : { ...formData.frequency }
     };
     closeModal(ui.editHabitModal);
+    
     if (isNew) {
-        const existingHabit = state.habits.find(h => {
-            const lastSchedule = h.scheduleHistory[h.scheduleHistory.length - 1];
-            if (h.graduatedOn || h.deletedOn || (lastSchedule.endDate && targetDate >= lastSchedule.endDate)) return false;
-            return getHabitDisplayInfo(h, targetDate).name.trim().toLowerCase() === nameToUse.trim().toLowerCase();
+        // RESURRECTION LOGIC: 
+        // Search for ANY habit with this name, prioritizing Active > Ended > Deleted.
+        const candidates = state.habits.filter(h => {
+             const info = getHabitDisplayInfo(h, targetDate);
+             const lastName = h.scheduleHistory[h.scheduleHistory.length - 1]?.name || info.name;
+             return (lastName || '').trim().toLowerCase() === nameToUse.trim().toLowerCase();
         });
+
+        // Pick priority: 
+        // 1. Active (not deleted, not graduated, covers targetDate or has no endDate)
+        // 2. Ended (not deleted, but endDate < targetDate)
+        // 3. Deleted/Graduated
+        let existingHabit = candidates.find(h => 
+            !h.deletedOn && !h.graduatedOn && 
+            (!h.scheduleHistory[h.scheduleHistory.length-1].endDate || h.scheduleHistory[h.scheduleHistory.length-1].endDate! > targetDate)
+        );
+        
+        if (!existingHabit) {
+            existingHabit = candidates.find(h => !h.deletedOn); // Find ended/graduated but not deleted
+        }
+        
+        if (!existingHabit) {
+            existingHabit = candidates[0]; // Fallback to deleted if only one exists
+        }
+
         if (existingHabit) {
-            _requestFutureScheduleChange(existingHabit.id, targetDate, (s) => ({ ...s, icon: cleanFormData.icon, color: cleanFormData.color, goal: cleanFormData.goal, philosophy: cleanFormData.philosophy ?? s.philosophy, name: cleanFormData.name, nameKey: cleanFormData.nameKey, subtitleKey: cleanFormData.subtitleKey, times: cleanFormData.times as readonly TimeOfDay[], frequency: cleanFormData.frequency, }), false);
+            // Restore Logical state
+            if (existingHabit.deletedOn) existingHabit.deletedOn = undefined;
+            if (existingHabit.graduatedOn) existingHabit.graduatedOn = undefined;
+
+            _requestFutureScheduleChange(existingHabit.id, targetDate, (s) => ({ 
+                ...s, 
+                icon: cleanFormData.icon, 
+                color: cleanFormData.color, 
+                goal: cleanFormData.goal, 
+                philosophy: cleanFormData.philosophy ?? s.philosophy, 
+                name: cleanFormData.name, 
+                nameKey: cleanFormData.nameKey, 
+                subtitleKey: cleanFormData.subtitleKey, 
+                times: cleanFormData.times as readonly TimeOfDay[], 
+                frequency: cleanFormData.frequency 
+            }), false);
+            
+            // Explicit notify since we might have modified deletedOn/graduatedOn outside of schedule change
+            _notifyChanges(true); 
         } else {
             state.habits.push({ id: generateUUID(), createdOn: targetDate, scheduleHistory: [{ startDate: targetDate, times: cleanFormData.times as readonly TimeOfDay[], frequency: cleanFormData.frequency, name: cleanFormData.name, nameKey: cleanFormData.nameKey, subtitleKey: cleanFormData.subtitleKey, scheduleAnchor: targetDate, icon: cleanFormData.icon, color: cleanFormData.color, goal: cleanFormData.goal, philosophy: cleanFormData.philosophy }] });
             _notifyChanges(true);
