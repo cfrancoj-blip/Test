@@ -4,7 +4,9 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-sm);
-    padding-block-start: var(--space-section);
+    
+    /* FIX [2025-06-10]: Add Safe Area support for iOS PWA (Notch/Status Bar overlap) */
+    padding-block-start: calc(var(--space-section) + env(safe-area-inset-top));
     
     /* PADDING UPDATE [2025-02-26]: Increased from 0 to --space-md to separate quote from habits */
     padding-block-end: var(--space-md);
