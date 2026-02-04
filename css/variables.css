@@ -1,22 +1,37 @@
+
 :root {
-    /* --- CORES --- */
-    /* FIX [2025-03-02]: Alterado para #000000 (True Black) a pedido do usuário para eliminar a percepção de 'fundo azulado' em telas OLED/LCD */
+    /* --- SYSTEM UI HINTS --- */
+    /* FIX [2025-06-12]: Força a UI do navegador (barras de sistema, scrollbars) para o modo escuro.
+       Isso previne as "barras cinzas" no Android Chrome/Edge em modo PWA. */
+    color-scheme: dark;
+
+    /* --- CORES (THEME: MINIMALIST DARK) --- */
+    /* FIX [2025-03-02]: Mantido #000000 (True Black) para corrigir barras do Android */
     --bg-color: #000000;
+    
+    /* DESIGN UPDATE: Superfícies escuras originais */
     --surface-color: #141414;
     --surface-hover: #2a2a2a;
     --surface-snoozed: var(--surface-color);
     --border-color: var(--surface-hover);
-    /* MANUTENIBILIDADE [2024-12-07]: Este valor é lido dinamicamente pela função getContrastColor em utils.ts para garantir a consistência do tema. */
+    
+    /* MANUTENIBILIDADE: Textos de alto contraste */
     --text-primary: #e5e5e5;
     --text-secondary: #b3b3b3;
     --text-tertiary: #737373;
-    --accent-blue: #007aff;
-    --accent-blue-hover: #006be0;
-    --accent-green: #27ae60;
-    --accent-green-hover: #229954;
-    --color-red: #e74c3c;
+    
+    /* RESTORED PALETTE (Flat UI) */
+    --accent-blue: #3498db; /* Peter River */
+    --accent-blue-hover: #2980b9;
+    
+    /* RESTORED GREEN: Voltando para o Verde original conforme solicitado */
+    --accent-green: #27ae60; /* Nephritis */
+    --accent-green-hover: #219150;
+    
+    --color-red: #e74c3c; /* Alizarin */
     --color-red-hover: #c0392b;
-    --color-yellow: #facc15;
+    
+    --color-yellow: #f1c40f; /* Sun Flower */
     --surface-light-hover: #d0d0d0;
 
     /* --- LAYOUT E ESPAÇAMENTO --- */
@@ -42,16 +57,14 @@
     --transition-duration-slow: 0.3s;
 
     /* --- CAMADAS (Z-INDEX) --- */
-    /* DO NOT REFACTOR: A ordem dessas camadas é crítica para evitar bugs visuais em sobreposições */
     --z-index-base: 1;
     --z-index-content: 2;
     --z-index-indicator: 3;
     --z-index-sticky: 20; /* Time markers */
     --z-index-header: 50; /* Header above scrolling content */
     --z-index-footer: 50; /* Chart footer above scrolling content */
-    /* FIX [2025-05-05]: Tooltip deve flutuar ACIMA de headers e stickies para não ser cortado */
     --z-index-tooltip: 60;
     --z-index-modal-overlay: 1000;
     --z-index-modal-content: 1001;
-    --z-index-stacked-modal: 1010; /* Para modais que aparecem sobre outros modais */
+    --z-index-stacked-modal: 1010;
 }
