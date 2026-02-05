@@ -88,7 +88,7 @@
     align-items: center;
     gap: var(--space-xl);
     justify-content: space-between;
-    margin-block-start: var(--space-md);
+    margin-block-start: 0; /* REDUCED SPACING: Removed extra margin (was space-md) */
 }
 
 /* CONTAINER DE DATA E NAVEGAÇÃO */
