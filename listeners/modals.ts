@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -216,7 +217,8 @@ const _handleExploreHabitListClick = (e: MouseEvent) => {
         closeModal(ui.exploreModal);
         // LÓGICA RADICAL: Sempre abre o modal de edição para criar um NOVO hábito a partir do modelo,
         // mesmo que um com nome parecido já exista. Elimina a ambiguidade.
-        openEditModal(habitTemplate);
+        // CALLBACK: Se cancelar (back/close), reabre o modal de Explorar.
+        openEditModal(habitTemplate, undefined, () => openModal(ui.exploreModal));
     }
 };
 
@@ -233,7 +235,8 @@ const _handleExploreHabitListKeydown = (e: KeyboardEvent) => {
 const _handleCreateCustomHabitClick = () => {
     triggerHaptic('light');
     closeModal(ui.exploreModal);
-    openEditModal(null);
+    // CALLBACK: Se cancelar (back/close), reabre o modal de Explorar.
+    openEditModal(null, undefined, () => openModal(ui.exploreModal));
 };
 
 const _handleAiEvalClick = async () => {
