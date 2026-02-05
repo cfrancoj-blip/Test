@@ -164,7 +164,9 @@ export function updateHabitCardElement(card: HTMLElement, habit: Habit, time: Ti
     if (!schedule) return;
 
     if (els.cachedIconHtml !== schedule.icon) { els.icon.innerHTML = els.cachedIconHtml = schedule.icon; }
-    els.icon.style.color = schedule.color; els.icon.style.backgroundColor = `${schedule.color}30`;
+    els.icon.style.color = schedule.color;
+    // UI UPDATE [2025-06-14]: Remove background for minimal look
+    els.icon.style.backgroundColor = 'transparent';
     
     const isCons = streak >= STREAK_CONSOLIDATED, isSemi = streak >= STREAK_SEMI_CONSOLIDATED && !isCons;
     card.classList.toggle('consolidated', isCons); card.classList.toggle('semi-consolidated', isSemi);
