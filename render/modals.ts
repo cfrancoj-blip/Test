@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -206,7 +207,7 @@ export function refreshEditModalUI() {
     if (ce) { const p = fd.philosophy; if (p?.conscienceKey) { setTextContent(ce, t(p.conscienceKey)); ce.style.display = 'block'; } else ce.style.display = 'none'; }
 }
 
-export function openEditModal(habit: any, targetDateOverride?: string) {
+export function openEditModal(habit: any, targetDateOverride?: string, onClose?: () => void) {
     const isN = !habit || !habit.id;
     const safe = getSafeDate(targetDateOverride || state.selectedDate);
 
@@ -256,7 +257,7 @@ export function openEditModal(habit: any, targetDateOverride?: string) {
         overlay.innerHTML = HABIT_ICONS.learnSkill;
     }
 
-    refreshEditModalUI(); openModal(ui.editHabitModal);
+    refreshEditModalUI(); openModal(ui.editHabitModal, undefined, onClose);
 }
 
 export function renderExploreHabits() {
