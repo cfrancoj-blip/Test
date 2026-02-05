@@ -1,3 +1,4 @@
+
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
@@ -61,6 +62,9 @@ function _notifyChanges(fullRebuild = false, immediate = false) {
         clearScheduleCache();
         clearHabitDomCache();
         clearSelectorInternalCaches();
+        // FIX [2025-06-13]: Limpa cache de sumário diário (anéis) em mudanças estruturais.
+        // Garante que a adição de hábitos no passado atualize visualmente todos os dias afetados.
+        state.daySummaryCache.clear();
     }
     clearActiveHabitsCache();
     state.uiDirtyState.habitListStructure = state.uiDirtyState.calendarVisuals = true;
@@ -276,7 +280,10 @@ export function saveHabitFromModal() {
         goal: { ...formData.goal },
         frequency: formData.frequency.type === 'specific_days_of_week' ? { ...formData.frequency, days: [...formData.frequency.days] } : { ...formData.frequency }
     };
-    closeModal(ui.editHabitModal);
+    
+    // NAVIGATION FIX [2025-06-14]: Suppress onClose callback (reopen Explore) on successful save.
+    // The user has completed their action, so we shouldn't force them back to the list.
+    closeModal(ui.editHabitModal, true);
     
     if (isNew) {
         // RESURRECTION LOGIC: 
