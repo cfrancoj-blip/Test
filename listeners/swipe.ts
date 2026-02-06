@@ -249,15 +249,40 @@ const _finalizeAction = (finalDeltaX: number) => {
 
 // --- GESTURE HANDLERS ---
 
+// BRIDGE TOUCHMOVE BLOCKER [2026-02-06]:
+// No Android Chromium, o navegador decide o gesto (scroll vs manipulação JS) no 'touchstart'.
+// Como touch-action: pan-y estava ativo no touchstart (500ms atrás no long press),
+// o navegador reserva o direito de rolar verticalmente e dispara 'pointercancel'.
+// A ÚNICA forma de cancelar isso mid-gesture é via preventDefault() em touchmove.
+// Este listener "ponte" fica ativo durante a transição swipe→drag para garantir
+// que nenhum touchmove escape sem preventDefault() durante o setup.
+const _bridgeTouchBlock = (e: TouchEvent) => {
+    if (e.cancelable) e.preventDefault();
+};
+
 const _triggerDrag = () => {
     SwipeMachine.longPressTimer = 0;
     _stopLimitVibration();
     
     if (!SwipeMachine.card || !SwipeMachine.content || !SwipeMachine.initialEvent) return;
 
+    // ANDROID FIX [2026-02-06]: Registrar bloqueador de touchmove ANTES de qualquer coisa.
+    // Isso garante que, mesmo durante o setup do drag, o navegador não consiga iniciar
+    // um scroll nativo vertical que dispararia 'pointercancel'.
+    window.addEventListener('touchmove', _bridgeTouchBlock, { passive: false });
+    
+    // ANDROID FIX [2026-02-06]: Aplicar lock de scroll no container imediatamente.
+    // Mesmo que touch-action via CSS não tenha efeito retroativo no Android,
+    // overflow:hidden impede o container de scrollar e ajuda a evitar pointercancel.
+    if (SwipeMachine.container) {
+        SwipeMachine.container.classList.add('is-locking-scroll');
+    }
+
     try {
         SwipeMachine.card.setPointerCapture(SwipeMachine.pointerId);
     } catch (e) {
+        window.removeEventListener('touchmove', _bridgeTouchBlock);
+        if (SwipeMachine.container) SwipeMachine.container.classList.remove('is-locking-scroll');
         _forceReset();
         return;
     }
@@ -269,6 +294,9 @@ const _triggerDrag = () => {
     
     // Inicia a sessão de Drag
     startDragSession(SwipeMachine.card, SwipeMachine.content, SwipeMachine.initialEvent);
+    
+    // Remove o bloqueador ponte - o drag.ts agora tem seu próprio listener ativo
+    window.removeEventListener('touchmove', _bridgeTouchBlock);
     
     _cleanListeners();
     SwipeMachine.state = 'IDLE';

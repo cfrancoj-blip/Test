@@ -408,7 +408,14 @@ export function startDragSession(card: HTMLElement, content: HTMLElement, startE
 
     if (!card.dataset.habitId || !card.dataset.time || !DragMachine.container) return;
 
-    // 2. Initialize State
+    // ANDROID FIX [2026-02-06]: REGISTRAR TOUCHMOVE PREVENTION IMEDIATAMENTE.
+    // No Android Chromium, touch-action CSS é avaliado no touchstart e não pode ser alterado
+    // depois. A ÚNICA forma de impedir scroll nativo mid-gesture é via preventDefault()
+    // em touchmove com listener non-passive. Registramos ANTES de qualquer DOM manipulation
+    // para não deixar nenhum frame sem proteção.
+    window.addEventListener('touchmove', _preventTouchScroll, { passive: false });
+    
+    // 2. Initialize State (ANDROID FIX: isActive ANTES do setup para que _preventTouchScroll funcione)
     DragMachine.isActive = true;
     DragMachine.sourceEl = card;
     DragMachine.sourceId = card.dataset.habitId;
@@ -492,9 +499,9 @@ export function startDragSession(card: HTMLElement, content: HTMLElement, startE
     window.addEventListener('pointercancel', _forceReset);
     window.addEventListener('blur', _forceReset);
     
-    // SCROLL KILLER: Intercepta o evento 'touchmove' nativo e o mata.
-    // Isso impede que o navegador inicie o scroll mesmo se 'touch-action' falhar.
-    window.addEventListener('touchmove', _preventTouchScroll, { passive: false });
+    // NOTA: touchmove prevention já foi registrado no início de startDragSession().
+    // Isso é intencional — no Android, qualquer gap sem preventDefault() no touchmove
+    // permite que o navegador inicie scroll nativo e dispare pointercancel.
 }
 
 export function setupDragHandler(container: HTMLElement) {
