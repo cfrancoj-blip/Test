@@ -272,6 +272,10 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
 
     /* SYSTEM UI FIX: Desabilita callouts nativos (magnifier/context menu) para garantir long-press limpo */
     -webkit-touch-callout: none;
+    
+    /* UX FIX [2025-06-16]: Previne seleção de texto em Android durante o hold */
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 /* REFACTOR [2025-06-09]: A classe .is-pressing agora serve apenas para feedback visual (escala).
@@ -367,6 +371,10 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     /* UPDATE [2025-06-09]: pan-y para rolagem nativa */
     touch-action: pan-y;
     /* MEMORY OPTIMIZATION [2025-01-29]: Removed global will-change: transform. Apply it contextually during interactions (swipe/drag) via classes to save VRAM. */
+    
+    /* UX FIX [2025-06-16]: Previne seleção de texto em Android durante o hold */
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 /* FEEDBACK VISUAL: Limite físico atingido */
