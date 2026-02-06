@@ -57,6 +57,7 @@
     touch-action: none !important;
     overflow-y: hidden !important;
     user-select: none !important;
+    overscroll-behavior: none !important; /* Force no bounce */
 }
 
 /* HIDE SCROLLBAR (Chrome, Safari, Edge) */
@@ -277,15 +278,26 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     user-select: none;
     -webkit-user-select: none;
     
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
+    /* TRANSITION FIX: Garante transições suaves para escala */
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1);
 }
 
-/* PRESS STATE: Efeito de respiração e escala para feedback de "Segurando" */
+/* REFACTOR [2025-06-09]: A classe .is-pressing agora serve apenas para feedback visual.
+   UPDATE: Removido scale para evitar encolhimento indesejado. */
 .habit-card.is-pressing {
-    transform: scale(0.97);
-    /* Efeito sutil de brilho pulsante */
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1), 0 0 15px rgba(255, 255, 255, 0.05);
-    z-index: 10;
+    /* transform: scale(0.98); REMOVIDO */
+    background-color: var(--surface-hover);
+}
+
+/* 
+   VISUAL FUSE (BREATHING):
+   Indicador de Long Press.
+   UPDATE: Substituído scale por opacidade para não alterar tamanho.
+*/
+.habit-card.is-charging {
+    /* transform: scale(0.96); REMOVIDO */
+    opacity: 0.8;
+    transition: opacity 0.5s ease-out;
 }
 
 .habit-group .habit-card:last-child { margin-block-end: 0; }
@@ -425,6 +437,7 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     opacity: 0 !important;
     /* INTERACTION LOCK: Previne rolagem da página enquanto arrasta e evita pointercancel */
     touch-action: none;
+    pointer-events: none !important; /* Allow hit-test through to drop zone */
 }
 .habit-card.is-swiping .habit-content-wrapper {
     transition: none; /* Desativa transição durante o deslize manual */
@@ -482,8 +495,20 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     justify-content: center;
     border-radius: var(--border-radius-small);
     transition: opacity var(--transition-duration-slow);
+    
+    /* UX [NEURAL GRIP]: Indica que o elemento é pegável/arrastável */
+    cursor: grab;
+    /* Impede seleção de texto ou imagem dentro do ícone */
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none; /* Garante que o toque não inicie scroll no ícone */
 }
-.habit-icon svg { width: 60%; height: 60%; }
+/* Estado ativo durante o arrasto */
+.habit-icon:active {
+    cursor: grabbing;
+}
+
+.habit-icon svg { width: 60%; height: 60%; pointer-events: none; }
 
 /* UX [2025-01-18]: Classe de animação para o ícone ao completar o hábito */
 .habit-icon.animate-pop {
@@ -734,7 +759,8 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     .habit-card.is-swiping,
     .habit-card.is-open-left,
     .habit-card.is-open-right,
-    .habit-card.is-pressing { /* DISABLE ZOOM ON PRESS */
+    .habit-card.is-pressing,
+    .habit-card.is-charging { /* DISABLE ZOOM ON PRESS/CHARGE */
         animation: none !important;
         opacity: 1 !important;
         /* Mantém a escala natural durante a interação para sensação tátil sólida */
@@ -742,9 +768,10 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     }
     
     /* RE-SCALE ON PRESS (Manual Override) */
-    .habit-card.is-pressing {
-        /* O estilo visual foi movido para a classe base para funcionar sem scroll animations */
-    }
+    /* REMOVIDO: .habit-card.is-pressing { transform: scale(0.98) !important; } */
+    
+    /* RE-SCALE ON CHARGING (Manual Override - The Breathing) */
+    /* REMOVIDO: .habit-card.is-charging { transform: scale(0.96) !important; } */
 
     /* DRAG SPECIAL CASE: O cartão deve ficar invisível (apenas fantasma visível) */
     .habit-card.dragging {
