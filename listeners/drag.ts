@@ -199,12 +199,15 @@ function _renderFrame() {
         
         // BOUNCE PROTECTION: Só rola se houver espaço. 
         // Evita "pulos" quando tenta forçar scroll além do limite (que em overflow: hidden pode causar problemas de repaint).
-        if (DragMachine.scrollSpeed > 0) {
-            if (scrollTop < maxScroll - 1) { // -1 buffer para precisão de float
+        // FIX [2025-06-16]: Aumentado buffer de 1px para 5px para absorver imprecisões de sub-pixel em telas High DPI.
+        const SCROLL_BUFFER = 5;
+
+        if (DragMachine.scrollSpeed > 0) { // Scrolling Down
+            if (scrollTop < maxScroll - SCROLL_BUFFER) {
                 DragMachine.container.scrollBy(0, DragMachine.scrollSpeed);
             }
-        } else {
-            if (scrollTop > 1) { // 1 buffer
+        } else { // Scrolling Up
+            if (scrollTop > SCROLL_BUFFER) {
                 DragMachine.container.scrollBy(0, DragMachine.scrollSpeed);
             }
         }
