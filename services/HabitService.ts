@@ -223,9 +223,12 @@ export class HabitService {
                 if (winnerTomb || loserTomb) {
                     finalBlock = 4n; 
                 } else if (winnerBlock !== 0n && loserBlock !== 0n) {
-                    finalBlock = winnerBlock | loserBlock;
+                    // CRDT: Winner-takes-precedence when both have data.
+                    // OR would create invalid states (e.g., DONE|DEFERRED = DONE_PLUS).
+                    finalBlock = winnerBlock;
                 } else {
-                    finalBlock = winnerBlock | loserBlock;
+                    // One is 0n, the other has data — pick the non-zero one.
+                    finalBlock = winnerBlock || loserBlock;
                 }
 
                 mergedVal |= (finalBlock << shift);

@@ -22,7 +22,6 @@ import {
     escapeHTML,
     sanitizeText,
     simpleMarkdownToHTML,
-    getContrastColor,
     HEX_LUT
 } from './utils';
 

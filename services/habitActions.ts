@@ -475,7 +475,17 @@ export function importData() {
         const file = (e.target as HTMLInputElement).files?.[0]; if (!file) return;
         try {
             const data = JSON.parse(await file.text());
-            if (data.habits && data.version) { await loadState(data); await saveState(); ['render-app', 'habitsChanged'].forEach(ev => document.dispatchEvent(new CustomEvent(ev))); closeModal(ui.manageModal); showConfirmationModal(t('importSuccess'), () => {}, { title: t('privacyLabel'), confirmText: 'OK', hideCancel: true }); } else throw 0;
+            if (data.habits && data.version) {
+                // FIX: Rehidratar monthlyLogsSerialized antes do loadState
+                // exportData() serializa os bitmask logs como [key, hex][] em monthlyLogsSerialized,
+                // mas JSON.stringify(Map) produz '{}'. Precisamos injetar os logs de volta.
+                if (Array.isArray(data.monthlyLogsSerialized) && data.monthlyLogsSerialized.length > 0) {
+                    const logsMap: Record<string, string> = {};
+                    data.monthlyLogsSerialized.forEach(([k, v]: [string, string]) => { logsMap[k] = v; });
+                    data.monthlyLogs = logsMap;
+                }
+                await loadState(data); await saveState(); ['render-app', 'habitsChanged'].forEach(ev => document.dispatchEvent(new CustomEvent(ev))); closeModal(ui.manageModal); showConfirmationModal(t('importSuccess'), () => {}, { title: t('privacyLabel'), confirmText: 'OK', hideCancel: true });
+            } else throw 0;
         } catch { showConfirmationModal(t('importError'), () => {}, { title: t('importError'), confirmText: 'OK', hideCancel: true, confirmButtonStyle: 'danger' }); }
     };
     input.click();
@@ -490,7 +500,7 @@ export function toggleHabitStatus(habitId: string, time: TimeOfDay, dateISO: str
     if (currentStatus === HABIT_STATE.DONE || currentStatus === HABIT_STATE.DONE_PLUS) nextStatus = HABIT_STATE.DEFERRED;
     else if (currentStatus === HABIT_STATE.DEFERRED) nextStatus = HABIT_STATE.NULL;
     HabitService.setStatus(habitId, dateISO, time, nextStatus);
-    saveState(); 
+    // saveState() é chamado por _notifyPartialUIRefresh abaixo — não duplicar
     const h = state.habits.find(x => x.id === habitId);
     if (nextStatus === HABIT_STATE.DONE) { if (h) _checkStreakMilestones(h, dateISO); triggerHaptic('light'); }
     else if (nextStatus === HABIT_STATE.DEFERRED) triggerHaptic('medium');
@@ -513,8 +523,9 @@ export function markAllHabitsForDate(dateISO: string, status: 'completed' | 'sno
             const sch = getEffectiveScheduleForHabitOnDate(h, dateISO); 
             if (!sch.length) return;
             let bitStatus: number = (status === 'completed') ? HABIT_STATE.DONE : HABIT_STATE.DEFERRED;
-            sch.forEach(t => { if (HabitService.getStatus(h.id, dateISO, t) !== bitStatus) { HabitService.setStatus(h.id, dateISO, t, bitStatus); changed = true; } });
-            if (changed) { BATCH_IDS_POOL.push(h.id); BATCH_HABITS_POOL.push(h); }
+            let habitChanged = false;
+            sch.forEach(t => { if (HabitService.getStatus(h.id, dateISO, t) !== bitStatus) { HabitService.setStatus(h.id, dateISO, t, bitStatus); habitChanged = true; } });
+            if (habitChanged) { changed = true; BATCH_IDS_POOL.push(h.id); BATCH_HABITS_POOL.push(h); }
         });
         if (changed) { 
             invalidateCachesForDateChange(dateISO, BATCH_IDS_POOL); 

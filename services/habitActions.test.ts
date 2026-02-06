@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { state, HABIT_STATE, Habit } from '../state';
-import { clearTestState, createTestHabit, populateTestPeriod } from '../tests/test-utils';
+import { clearTestState, createTestHabit } from '../tests/test-utils';
 import { HabitService } from './HabitService';
 import { generateUUID, getTodayUTCIso } from '../utils';
 

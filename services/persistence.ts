@@ -68,6 +68,9 @@ async function saveSplitState(main: AppState): Promise<void> {
                 serializedLogs[k] = v.toString(16);
             });
             store.put(serializedLogs, STATE_BINARY_KEY);
+        } else {
+            // FIX: Remove stale binary key when logs are empty (e.g., all habits deleted)
+            store.delete(STATE_BINARY_KEY);
         }
         
         tx.oncomplete = () => resolve();
@@ -95,8 +98,7 @@ async function saveStateInternal(immediate = false, suppressSync = false) {
     if (activeSavePromise) await activeSavePromise;
 
     activeSavePromise = (async () => {
-        // Incrementa o timestamp para indicar mudança LOCAL
-        state.lastModified = Math.max(Date.now(), state.lastModified + 1);
+        // O timestamp já foi incrementado pelo chamador (_notifyChanges ou _notifyPartialUIRefresh)
         const structuredData = getPersistableState();
         try {
             await saveSplitState(structuredData);
