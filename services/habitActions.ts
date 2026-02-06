@@ -26,7 +26,7 @@ import {
 } from './selectors';
 import { 
     generateUUID, getTodayUTCIso, parseUTCIsoDate, triggerHaptic,
-    getSafeDate, addDays, toUTCIsoDateString, logger, sanitizeText
+    getSafeDate, addDays, toUTCIsoDateString, logger, sanitizeText, escapeHTML
 } from '../utils';
 import { ARCHIVE_IDLE_FALLBACK_MS, ARCHIVE_DAYS_THRESHOLD } from '../constants';
 import { 
@@ -447,10 +447,11 @@ export async function performAIAnalysis(type: 'monthly' | 'quarterly' | 'histori
             
             // Handle 429/Quota/Overload gracefully with Friendly Message
             if (errStr.includes('429') || errStr.includes('Quota') || errStr.includes('RESOURCE_EXHAUSTED')) {
-                ui.aiResponse.innerHTML = `<div class="ai-error-message"><h3>${t('aiServerBusyTitle')}</h3><p>${t('aiServerBusy')}</p></div>`;
+                ui.aiResponse.innerHTML = `<div class="ai-error-message"><h3>${escapeHTML(t('aiServerBusyTitle'))}</h3><p>${escapeHTML(t('aiServerBusy'))}</p></div>`;
             } else {
                 // Show detailed error in UI for user feedback
-                ui.aiResponse.innerHTML = `<div class="ai-error-message"><h3>${t('aiLimitTitle') === 'Daily Limit Reached' ? 'Error' : 'Erro'}</h3><p>${t('aiErrorGeneric')}</p><div class="debug-info"><small>${errStr}</small></div></div>`;
+                // SECURITY FIX: escapeHTML on errStr to prevent XSS via crafted API error messages
+                ui.aiResponse.innerHTML = `<div class="ai-error-message"><h3>${t('aiLimitTitle') === 'Daily Limit Reached' ? 'Error' : 'Erro'}</h3><p>${escapeHTML(t('aiErrorGeneric'))}</p><div class="debug-info"><small>${escapeHTML(errStr)}</small></div></div>`;
             }
             
             // UX FIX: Provide close handler to clear notification state
@@ -474,6 +475,22 @@ export function importData() {
         try {
             const data = JSON.parse(await file.text());
             if (data.habits && data.version && Array.isArray(data.habits) && data.habits.every((h: any) => h?.id && Array.isArray(h?.scheduleHistory))) {
+                // SECURITY FIX: Sanitize imported habit data to prevent Stored XSS via malicious JSON.
+                // Icon fields are rendered via innerHTML — only allow known SVG patterns.
+                const SVG_TAG_REGEX = /^<svg[\s>]/i;
+                data.habits.forEach((h: any) => {
+                    if (Array.isArray(h.scheduleHistory)) {
+                        h.scheduleHistory.forEach((s: any) => {
+                            if (s.icon && typeof s.icon === 'string' && !SVG_TAG_REGEX.test(s.icon.trim())) {
+                                s.icon = '❓'; // Replace non-SVG icon with safe fallback
+                            }
+                            if (s.name && typeof s.name === 'string') s.name = sanitizeText(s.name, 60);
+                            if (s.color && typeof s.color === 'string' && !/^#[0-9a-fA-F]{3,8}$/.test(s.color)) {
+                                s.color = '#808080'; // Replace invalid color
+                            }
+                        });
+                    }
+                });
                 // FIX: Rehidratar monthlyLogsSerialized antes do loadState
                 // exportData() serializa os bitmask logs como [key, hex][] em monthlyLogsSerialized,
                 // mas JSON.stringify(Map) produz '{}'. Precisamos injetar os logs de volta.

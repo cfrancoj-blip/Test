@@ -9,7 +9,7 @@
  */
 
 import { state, LANGUAGES } from './state';
-import { parseUTCIsoDate, toUTCIsoDateString, addDays, pushToOneSignal, getTodayUTCIso, createDebounced } from './utils';
+import { parseUTCIsoDate, toUTCIsoDateString, addDays, pushToOneSignal, getTodayUTCIso, createDebounced, escapeHTML } from './utils';
 import { QUOTE_COLLAPSE_DEBOUNCE_MS } from './constants';
 import { ui } from './render/ui';
 import { t, setLanguage, formatDate } from './i18n'; 
@@ -45,8 +45,10 @@ export function openSyncDebugModal() {
     const logHtml = logs.slice().reverse().map(log => {
         const time = new Date(log.time).toLocaleTimeString();
         const color = log.type === 'error' ? '#ff6b6b' : (log.type === 'success' ? '#27ae60' : 'var(--text-secondary)');
+        // SECURITY FIX: Escape log.msg to prevent XSS via crafted sync error messages
+        const safeMsg = escapeHTML(log.msg);
         return `<div style="font-family:monospace; font-size:11px; padding:6px 0; border-bottom:1px solid var(--border-color); color:${color}">
-            <span style="opacity:0.5">[${time}]</span> ${log.msg}
+            <span style="opacity:0.5">[${time}]</span> ${safeMsg}
         </div>`;
     }).join('');
 

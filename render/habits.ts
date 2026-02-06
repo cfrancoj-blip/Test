@@ -163,7 +163,11 @@ export function updateHabitCardElement(card: HTMLElement, habit: Habit, time: Ti
     const schedule = getHabitPropertiesForDate(habit, state.selectedDate);
     if (!schedule) return;
 
-    if (els.cachedIconHtml !== schedule.icon) { els.icon.innerHTML = els.cachedIconHtml = schedule.icon; }
+    // SECURITY FIX: Only allow SVG icons via innerHTML; escape anything else
+    if (els.cachedIconHtml !== schedule.icon) {
+        const safeIcon = schedule.icon && schedule.icon.trim().startsWith('<svg') ? schedule.icon : (schedule.icon || '');
+        els.icon.innerHTML = els.cachedIconHtml = safeIcon;
+    }
     els.icon.style.color = schedule.color;
     // RESTORED [2025-06-15]: Match Explore Modal style (Color + Opacity 30 for background)
     els.icon.style.backgroundColor = schedule.color + '30';

@@ -84,7 +84,8 @@ export default async function handler(req: Request) {
         
         if (error.name === 'AbortError') return new Response('AI Gateway Timeout', { status: 504, headers: CORS_HEADERS });
         
-        // Pass 'details' to client for better debugging
-        return new Response(JSON.stringify({ error: 'AI processing failed', details: errorMessage }), { status: 500, headers: CORS_HEADERS });
+        // SECURITY FIX: Truncate and sanitize error details to prevent information leakage
+        const safeDetails = errorMessage.substring(0, 200).replace(/[<>"'&]/g, '');
+        return new Response(JSON.stringify({ error: 'AI processing failed', details: safeDetails }), { status: 500, headers: CORS_HEADERS });
     }
 }
