@@ -77,6 +77,27 @@ const _stopLimitVibration = () => {
     }
 };
 
+// --- TOUCH GUARD (Anti-Scroll Stealing) ---
+// Listener não-passivo que roda durante a fase de DETECTING.
+// Impede que o navegador inicie o scroll nativo se o movimento estiver dentro da zona de tolerância.
+const _activeTouchGuard = (e: TouchEvent) => {
+    if (SwipeMachine.state !== 'DETECTING') return;
+
+    const touch = e.touches[0];
+    if (!touch) return;
+
+    const dx = touch.clientX - SwipeMachine.startX;
+    const dy = touch.clientY - SwipeMachine.startY;
+    
+    // Distância Euclidiana (mais precisa que apenas DY)
+    // Se o dedo se mover pouco (tremor natural), bloqueamos o navegador.
+    // Isso evita que o Chrome dispare 'pointercancel' prematuramente.
+    if (Math.abs(dx) < LONG_PRESS_DRIFT_TOLERANCE && Math.abs(dy) < LONG_PRESS_DRIFT_TOLERANCE) {
+        if (e.cancelable) e.preventDefault();
+    }
+    // Se passar da tolerância, deixamos o navegador assumir (scroll nativo acontece).
+};
+
 // --- VISUAL ENGINE ---
 
 const _renderFrame = () => {
@@ -101,11 +122,10 @@ const _renderFrame = () => {
         // HAPTICS & VISUAL LOGIC
         if (absX >= actionPoint) {
             // LIMIT REACHED: Aplica resistência elástica (Rubber Banding)
-            // Em vez de travar (clamp), permitimos passar um pouco com resistência.
             
             const excess = absX - actionPoint;
-            const resistanceFactor = 0.25; // 1px de movimento visual a cada 4px de movimento real
-            const maxVisualOvershoot = 20; // Máximo que pode esticar visualmente
+            const resistanceFactor = 0.25; 
+            const maxVisualOvershoot = 20; 
             
             // Fórmula de amortecimento linear com teto
             const visualOvershoot = Math.min(excess * resistanceFactor, maxVisualOvershoot);
@@ -154,6 +174,8 @@ const _cleanListeners = () => {
     window.removeEventListener('pointerup', _onPointerUp);
     window.removeEventListener('pointercancel', _forceReset);
     window.removeEventListener('blur', _forceReset);
+    // Remove o guarda de toque
+    window.removeEventListener('touchmove', _activeTouchGuard);
 };
 
 const _forceReset = () => {
@@ -163,7 +185,6 @@ const _forceReset = () => {
     _stopLimitVibration();
     
     // 2. Clean DOM State
-    // SCROLL LOCK FIX: Garante que a trava do container seja removida (caso tenha sido aplicada pelo Drag)
     if (SwipeMachine.container) {
         SwipeMachine.container.classList.remove('is-locking-scroll');
     }
@@ -275,46 +296,33 @@ const _onPointerMove = (e: PointerEvent) => {
     if (SwipeMachine.state === 'DETECTING') {
         // --- ZONA DE PROTEÇÃO DE LONG PRESS ---
         if (SwipeMachine.longPressTimer !== 0) {
-            // SCROLL LOCK BREAK [2025-06-09]:
-            // Se o usuário mover verticalmente mais que um limiar curto (ex: 15px),
-            // entendemos como INTENÇÃO DE SCROLL explícita.
+            // A lógica de cancelamento por movimento vertical excessivo agora é tratada principalmente
+            // pelo _activeTouchGuard deixando o evento passar.
+            // Aqui, mantemos uma verificação de segurança para mouse/pointer events puros.
             
-            const SCROLL_INTENT_THRESHOLD = 15;
-            
-            if (absDy > SCROLL_INTENT_THRESHOLD) {
-                // Abort Long Press -> Revert to Browser Scroll
-                clearTimeout(SwipeMachine.longPressTimer);
-                SwipeMachine.longPressTimer = 0;
-                
-                if (SwipeMachine.card) {
-                    SwipeMachine.card.classList.remove('is-pressing');
-                    try {
-                        // CRITICAL: Libera a captura para que o navegador processe o restante do gesto (rolagem)
-                        // ou pare de enviar eventos para cá.
-                        SwipeMachine.card.releasePointerCapture(e.pointerId);
-                    } catch (err) {}
-                }
-                
-                _forceReset();
-                return;
-            }
-            
-            // Se mover horizontalmente, inicia Swipe
-            if (absDx > DIRECTION_LOCKED_THRESHOLD) {
+            // Se o movimento horizontal for claro, iniciamos o Swipe
+            if (absDx > DIRECTION_LOCKED_THRESHOLD && absDx > absDy) {
                 // Horizontal -> Start Swipe
                 if (SwipeMachine.longPressTimer) clearTimeout(SwipeMachine.longPressTimer);
+                // Remove touch guard já que decidimos que é um swipe
+                window.removeEventListener('touchmove', _activeTouchGuard);
                 
                 SwipeMachine.state = 'SWIPING';
                 document.body.classList.add('is-interaction-active');
                 if (SwipeMachine.card) {
                     SwipeMachine.card.classList.remove('is-pressing'); // Remove press state
                     SwipeMachine.card.classList.add(CSS_CLASSES.IS_SWIPING);
-                    // Maintain Capture
                 }
                 return;
             }
             
-            // Se estiver dentro da tolerância, não faz nada (continua esperando timer com CAPTURA ATIVA)
+            // Se o movimento vertical for muito grande, o Touch Guard já deve ter liberado o scroll.
+            // Apenas para garantir, se o JS detectar movimento excessivo antes do navegador roubar, cancelamos.
+            if (absDy > LONG_PRESS_DRIFT_TOLERANCE) {
+                 if (SwipeMachine.longPressTimer) clearTimeout(SwipeMachine.longPressTimer);
+                 _forceReset();
+            }
+            
             return;
         }
     }
@@ -358,39 +366,27 @@ export function setupSwipeHandler(container: HTMLElement) {
     SwipeMachine.container = container;
     
     // PREVENT CONTEXT MENU (Android Fix for Long Press Drop)
-    // O Chrome no Android dispara 'contextmenu' no long press, o que cancela o evento de ponteiro.
-    // Prevenimos isso para permitir que nossa lógica de Long Press (Drag) funcione.
     container.addEventListener('contextmenu', (e) => {
-        // Apenas previne se cancelável e se parece ser um gesto de toque/long press
         if (e.cancelable) {
             e.preventDefault();
         }
     });
     
     container.addEventListener('pointerdown', (e) => {
-        // Ignora cliques com botão direito ou se já estiver arrastando
         if (e.button !== 0 || isDragActive()) return;
         
-        // Garante reset de estado anterior
         _forceReset();
 
         const cw = (e.target as HTMLElement).closest<HTMLElement>(DOM_SELECTORS.HABIT_CONTENT_WRAPPER);
         const card = cw?.closest<HTMLElement>(DOM_SELECTORS.HABIT_CARD);
         if (!card || !cw) return;
 
-        // SCROLL LOCK INIT [2025-06-09] (HYBRID):
-        // 1. NÃO aplica overflow:hidden no container imediatamente. Isso matava a rolagem normal.
-        // 2. Aplica classe visual ao cartão.
+        // SCROLL LOCK INIT:
         card.classList.add('is-pressing');
         
-        // 3. Captura o ponteiro. Isso impede que o navegador inicie rolagem nativa Imediatamente,
-        // dando chance ao JS de detectar "Hold" ou "Swipe".
-        // Se o usuário mover verticalmente depois, liberamos a captura no `pointermove`.
         try {
             card.setPointerCapture(e.pointerId);
-        } catch (err) {
-            // Falha silenciosa se captura não for permitida
-        }
+        } catch (err) {}
 
         const openCards = container.querySelectorAll(`.${CSS_CLASSES.IS_OPEN_LEFT}, .${CSS_CLASSES.IS_OPEN_RIGHT}`);
         openCards.forEach(c => {
@@ -416,5 +412,8 @@ export function setupSwipeHandler(container: HTMLElement) {
         window.addEventListener('pointerup', _onPointerUp);
         window.addEventListener('pointercancel', _forceReset);
         window.addEventListener('blur', _forceReset);
+        
+        // ATIVA O TOUCH GUARD: Bloqueia micro-scrolls nativos durante a detecção
+        window.addEventListener('touchmove', _activeTouchGuard, { passive: false });
     });
 }
