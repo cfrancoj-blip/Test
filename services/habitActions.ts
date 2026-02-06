@@ -22,7 +22,6 @@ import { PREDEFINED_HABITS } from '../data/predefinedHabits';
 import { 
     getEffectiveScheduleForHabitOnDate, clearSelectorInternalCaches,
     calculateHabitStreak, shouldHabitAppearOnDate, getHabitDisplayInfo,
-    getScheduleForDate,
     getHabitPropertiesForDate
 } from './selectors';
 import { 
@@ -57,6 +56,18 @@ const ActionContext = {
     }
 };
 
+/**
+ * BOOT LOCK PROTECTION: Durante o boot, usamos timestamp incremental simples.
+ * Após o sync, usamos o relógio real para garantir LWW.
+ */
+function _bumpLastModified() {
+    if (!state.initialSyncDone) {
+        state.lastModified = state.lastModified + 1;
+    } else {
+        state.lastModified = Math.max(Date.now(), (state.lastModified || 0) + 1);
+    }
+}
+
 function _notifyChanges(fullRebuild = false, immediate = false) {
     if (fullRebuild) {
         clearScheduleCache();
@@ -69,13 +80,7 @@ function _notifyChanges(fullRebuild = false, immediate = false) {
     clearActiveHabitsCache();
     state.uiDirtyState.habitListStructure = state.uiDirtyState.calendarVisuals = true;
     
-    // BOOT LOCK PROTECTION: Durante o boot, usamos timestamp incremental simples.
-    // Após o sync, usamos o relógio real para garantir LWW.
-    if (!state.initialSyncDone) {
-        state.lastModified = state.lastModified + 1;
-    } else {
-        state.lastModified = Math.max(Date.now(), (state.lastModified || 0) + 1);
-    }
+    _bumpLastModified();
 
     document.body.classList.remove('is-interaction-active', 'is-dragging-active');
     saveState(immediate);
@@ -89,15 +94,11 @@ function _notifyPartialUIRefresh(date: string, habitIds: string[]) {
     // Em vez de marcar o calendário inteiro como sujo (uiDirtyState.calendarVisuals = true),
     // invalidamos os caches de dados e chamamos updateDayVisuals() diretamente para o dia afetado.
     // Isso evita o reflow global da fita do calendário.
-    invalidateCachesForDateChange(date, habitIds);
+    invalidateCachesForDateChange(date);
     
     // state.uiDirtyState.calendarVisuals = true; // REMOVED: Managed surgically now
     
-    if (!state.initialSyncDone) {
-        state.lastModified = state.lastModified + 1;
-    } else {
-        state.lastModified = Math.max(Date.now(), (state.lastModified || 0) + 1);
-    }
+    _bumpLastModified();
 
     saveState();
     
@@ -213,12 +214,8 @@ const _applyHabitDeletion = async () => {
     });
 
     // Cleanup de Cache de Aparição e Streaks
-    if (state.streaksCache.has(habit.id)) {
-        state.streaksCache.delete(habit.id);
-    }
-    if (state.habitAppearanceCache.has(habit.id)) {
-        state.habitAppearanceCache.delete(habit.id);
-    }
+    state.streaksCache.delete(habit.id);
+    state.habitAppearanceCache.delete(habit.id);
 
     // 4. Limpeza Profunda de Arquivos Mortos (Background Worker)
     runWorkerTask<Record<string, any>>('prune-habit', { 
@@ -528,7 +525,7 @@ export function markAllHabitsForDate(dateISO: string, status: 'completed' | 'sno
             if (habitChanged) { changed = true; BATCH_IDS_POOL.push(h.id); BATCH_HABITS_POOL.push(h); }
         });
         if (changed) { 
-            invalidateCachesForDateChange(dateISO, BATCH_IDS_POOL); 
+            invalidateCachesForDateChange(dateISO); 
             if (status === 'completed') BATCH_HABITS_POOL.forEach(h => _checkStreakMilestones(h, dateISO)); 
             
             // BATCH OPTIMIZATION: Para mudanças em massa (Completar Dia), ainda usamos o refresh completo 

@@ -94,7 +94,7 @@ const _handleCardUpdate = (e: Event) => {
         updateHabitCardElement(cardElement, habit, time, undefined, { animate: shouldAnimate });
     }
     const targetDate = date || state.selectedDate;
-    invalidateCachesForDateChange(targetDate, [habitId]);
+    invalidateCachesForDateChange(targetDate);
     updateDayVisuals(targetDate);
 };
 

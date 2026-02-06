@@ -129,17 +129,6 @@ export function cancelPendingSave() {
     }
 }
 
-export async function flushSaveBuffer(): Promise<void> {
-    if (saveTimeout !== undefined) {
-        clearTimeout(saveTimeout);
-        saveTimeout = undefined;
-        const resolve = pendingSaveResolve;
-        pendingSaveResolve = null;
-        await saveStateInternal(true);
-        resolve?.();
-    }
-}
-
 export async function saveState(immediate = false, suppressSync = false): Promise<void> {
     if (saveTimeout !== undefined) {
         clearTimeout(saveTimeout);

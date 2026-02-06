@@ -72,51 +72,6 @@ export function arrayBufferToHex(buffer: ArrayBuffer): string {
     return hex;
 }
 
-// --- GZIP COMPRESSION (NATIVE C++) ---
-
-/**
- * Comprime string para Uint8Array (GZIP).
- * Usa API nativa do browser (CompressionStream).
- */
-export async function compressToBuffer(data: string): Promise<Uint8Array> {
-    if (typeof CompressionStream === 'undefined') {
-        throw new Error("CompressionStream not supported.");
-    }
-    const stream = new Blob([data]).stream();
-    const compressedStream = stream.pipeThrough(new CompressionStream('gzip'));
-    const response = new Response(compressedStream);
-    const blob = await response.blob();
-    const arrayBuffer = await blob.arrayBuffer();
-    return new Uint8Array(arrayBuffer);
-}
-
-/**
- * Descomprime Buffer GZIP para string.
- */
-export async function decompressFromBuffer(compressed: Uint8Array | ArrayBuffer): Promise<string> {
-    if (typeof DecompressionStream === 'undefined') {
-        throw new Error("DecompressionStream not supported.");
-    }
-    try {
-        const buffer = (compressed instanceof Uint8Array) ? compressed : new Uint8Array(compressed);
-        const stream = new Blob([buffer]).stream();
-        const decompressedStream = stream.pipeThrough(new DecompressionStream('gzip'));
-        const response = new Response(decompressedStream);
-        return await response.text();
-    } catch (e) {
-        logger.error("Binary Decompression failed", e);
-        throw new Error("Failed to decompress binary data.");
-    }
-}
-
-/**
- * Helper legado para strings Base64 antigas (Mantido para compatibilidade de leitura)
- */
-export async function decompressString(base64Data: string): Promise<string> {
-    const buffer = base64ToArrayBuffer(base64Data);
-    return await decompressFromBuffer(buffer);
-}
-
 // --- UUID (Crypto Strong) ---
 export function generateUUID(): string {
     try {

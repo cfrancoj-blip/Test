@@ -39,13 +39,6 @@ export class HabitService {
     }
 
     /**
-     * Valida se um valor BigInt é um log de bitmask válido para um mês.
-     */
-    static isValidLog(val: any): val is bigint {
-        return typeof val === 'bigint';
-    }
-
-    /**
      * Leitura Otimizada com lógica de Lápide (Tombstone).
      * Se o bit de lápide (bit 2 do bloco de 3) for 1, o status é forçado para NULL (0).
      */

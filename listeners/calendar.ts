@@ -19,7 +19,7 @@ import {
     CALENDAR_BASE_BATCH_SIZE,
     CALENDAR_TURBO_BATCH_SIZE,
     CALENDAR_TURBO_TIME_WINDOW_MS,
-    CALENDAR_DOM_CAP,
+    CALENDAR_MAX_DOM_NODES,
     CALENDAR_LONG_PRESS_MS
 } from '../constants';
 import { markAllHabitsForDate } from '../services/habitActions';
@@ -29,7 +29,7 @@ const SCROLL_THRESHOLD_PX = CALENDAR_SCROLL_THRESHOLD_PX; // Pixels antes da bor
 const BASE_BATCH_SIZE = CALENDAR_BASE_BATCH_SIZE;      // Modo Padrão: Navegação casual
 const TURBO_BATCH_SIZE = CALENDAR_TURBO_BATCH_SIZE;     // Modo Turbo: Navegação rápida ("Viagem no tempo")
 const TURBO_TIME_WINDOW_MS = CALENDAR_TURBO_TIME_WINDOW_MS; // Janela de tempo para ativar o Turbo
-const DOM_CAP = CALENDAR_DOM_CAP;             // Limite de nós no DOM
+const DOM_CAP = CALENDAR_MAX_DOM_NODES;       // Limite de nós no DOM
 
 // --- STATE MACHINE ---
 const CalendarGestureState = {
@@ -228,49 +228,6 @@ const _handleResetToToday = () => {
     }
 };
 
-// --- FULL CALENDAR ACTIONS ---
-
-const _handleFullCalendarGridClick = (e: MouseEvent) => {
-    const dayEl = (e.target as HTMLElement).closest('.full-calendar-day') as HTMLElement;
-    
-    if (dayEl && dayEl.dataset.date && !dayEl.classList.contains('other-month')) {
-        const date = dayEl.dataset.date;
-        triggerHaptic('selection');
-        
-        state.selectedDate = date;
-        closeModal(ui.fullCalendarModal);
-        
-        // TELETRANSPORTE (Hard Reset):
-        // 1. Recria a fita na nova data (renderApp -> renderCalendar)
-        state.uiDirtyState.calendarVisuals = true;
-        state.uiDirtyState.habitListStructure = true;
-        renderApp(); 
-        
-        // 2. Ajusta o scroll instantaneamente (sem animação) para evitar "viagem" visual
-        requestAnimationFrame(() => scrollToSelectedDate(false));
-    }
-};
-
-const _handleFullCalendarPrevClick = () => {
-    if (!state.fullCalendar) return;
-    let { month, year } = state.fullCalendar;
-    month--;
-    if (month < 0) { month = 11; year--; }
-    state.fullCalendar = { month, year };
-    renderFullCalendar();
-    triggerHaptic('light');
-};
-
-const _handleFullCalendarNextClick = () => {
-    if (!state.fullCalendar) return;
-    let { month, year } = state.fullCalendar;
-    month++;
-    if (month > 11) { month = 0; year++; }
-    state.fullCalendar = { month, year };
-    renderFullCalendar();
-    triggerHaptic('light');
-};
-
 // --- SETUP ---
 
 export function setupCalendarListeners() {
@@ -309,9 +266,4 @@ export function setupCalendarListeners() {
     ui.quickActionDone.addEventListener('click', () => _handleQuickAction('completed'));
     ui.quickActionSnooze.addEventListener('click', () => _handleQuickAction('snoozed'));
     ui.quickActionAlmanac.addEventListener('click', () => _handleQuickAction('almanac'));
-
-    // Full Calendar Controls
-    ui.fullCalendarPrevBtn.addEventListener('click', _handleFullCalendarPrevClick);
-    ui.fullCalendarNextBtn.addEventListener('click', _handleFullCalendarNextClick);
-    ui.fullCalendarGrid.addEventListener('click', _handleFullCalendarGridClick);
 }

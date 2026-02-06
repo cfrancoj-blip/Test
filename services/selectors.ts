@@ -76,7 +76,7 @@ export function getHabitDisplayInfo(habit: Habit | PredefinedHabit, dateISO?: st
     const effectiveDate = dateISO || getTodayUTCIso();
 
     if ('scheduleHistory' in habit && habit.scheduleHistory.length > 0) {
-        source = getHabitPropertiesForDate(habit as Habit, effectiveDate) || habit.scheduleHistory[habit.scheduleHistory.length-1];
+        source = getHabitPropertiesForDate(habit as Habit, effectiveDate);
     }
     
     const baseInfo = {

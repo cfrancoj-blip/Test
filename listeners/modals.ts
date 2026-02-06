@@ -346,26 +346,29 @@ const _handleEditClick = () => {
 };
 
 const _handleFullCalendarPrevClick = () => {
-    state.fullCalendar.month--;
-    if (state.fullCalendar.month < 0) {
-        state.fullCalendar.month = 11;
-        state.fullCalendar.year--;
-    }
+    if (!state.fullCalendar) return;
+    let { month, year } = state.fullCalendar;
+    month--;
+    if (month < 0) { month = 11; year--; }
+    state.fullCalendar = { month, year };
     renderFullCalendar();
+    triggerHaptic('light');
 };
 
 const _handleFullCalendarNextClick = () => {
-    state.fullCalendar.month++;
-    if (state.fullCalendar.month > 11) {
-        state.fullCalendar.month = 0;
-        state.fullCalendar.year++;
-    }
+    if (!state.fullCalendar) return;
+    let { month, year } = state.fullCalendar;
+    month++;
+    if (month > 11) { month = 0; year++; }
+    state.fullCalendar = { month, year };
     renderFullCalendar();
+    triggerHaptic('light');
 };
 
 const _handleFullCalendarGridClick = (e: MouseEvent) => {
     const dayEl = (e.target as HTMLElement).closest<HTMLElement>('.full-calendar-day');
-    if (dayEl && dayEl.dataset.date) {
+    if (dayEl && dayEl.dataset.date && !dayEl.classList.contains('other-month')) {
+        triggerHaptic('selection');
         _navigateToDateFromAlmanac(dayEl.dataset.date);
     }
 };

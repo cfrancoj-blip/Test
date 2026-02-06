@@ -205,15 +205,6 @@ export function setSyncStatus(statusKey: 'syncSaving' | 'syncSynced' | 'syncErro
     }
 }
 
-export function setupNotificationListeners() {
-    pushToOneSignal((OneSignal: OneSignalLike) => {
-        OneSignal.Notifications.addEventListener('permissionChange', () => {
-            setTimeout(updateNotificationUI, 500);
-        });
-        updateNotificationUI();
-    });
-}
-
 async function resolveConflictWithServerState(serverShards: Record<string, string>) {
     const syncKey = getSyncKey();
     if (!syncKey) return setSyncStatus('syncError');

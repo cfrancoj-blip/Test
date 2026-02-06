@@ -70,12 +70,6 @@ const DAY_FORMAT_OPTS: Intl.DateTimeFormatOptions = { weekday: 'short', timeZone
 const WEEKDAY_REF_DATES = Array.from({ length: 7 }, (_, i) => new Date(Date.UTC(1970, 0, 4 + i)));
 
 // PERFORMANCE: Lookup Table para TimeOfDay.
-const TIME_ICONS: Record<TimeOfDay, string> = {
-    'Morning': 'filterMorning',
-    'Afternoon': 'filterAfternoon',
-    'Evening': 'filterEvening'
-};
-
 const TIME_OF_DAY_KEYS: Record<TimeOfDay, string> = {
     'Morning': 'filterMorning',
     'Afternoon': 'filterAfternoon',
@@ -99,7 +93,6 @@ let latestLangRequestId = 0;
 const INTERPOLATION_REGEX = /{([^{}]+)}/g;
 
 // NETWORK TIMEOUT: Evita Zombie State.
-const LANG_LOAD_TIMEOUT = LANG_LOAD_TIMEOUT_MS;
 
 /**
  * Carrega o arquivo JSON de tradução.
@@ -120,7 +113,7 @@ function loadLanguage(langCode: string): Promise<boolean> {
     // 3. Initiate Network Request with Timeout
     const promise = (async () => {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), LANG_LOAD_TIMEOUT);
+        const timeoutId = setTimeout(() => controller.abort(), LANG_LOAD_TIMEOUT_MS);
 
         try {
             const response = await fetch(`./locales/${langCode}.json`, { signal: controller.signal });
