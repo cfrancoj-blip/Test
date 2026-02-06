@@ -276,13 +276,16 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     /* UX FIX [2025-06-16]: Previne seleção de texto em Android durante o hold */
     user-select: none;
     -webkit-user-select: none;
+    
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
 }
 
-/* REFACTOR [2025-06-09]: A classe .is-pressing agora serve apenas para feedback visual (escala).
-   REMOVIDO: 'touch-action: pan-x'. Isso travava o início do scroll se o dedo tocasse no cartão.
-   Agora confiamos apenas na Pointer Capture do JS para segurar o evento. */
+/* PRESS STATE: Efeito de respiração e escala para feedback de "Segurando" */
 .habit-card.is-pressing {
-    transform: scale(0.98);
+    transform: scale(0.97);
+    /* Efeito sutil de brilho pulsante */
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1), 0 0 15px rgba(255, 255, 255, 0.05);
+    z-index: 10;
 }
 
 .habit-group .habit-card:last-child { margin-block-end: 0; }
@@ -740,7 +743,7 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     
     /* RE-SCALE ON PRESS (Manual Override) */
     .habit-card.is-pressing {
-        transform: scale(0.98) !important;
+        /* O estilo visual foi movido para a classe base para funcionar sem scroll animations */
     }
 
     /* DRAG SPECIAL CASE: O cartão deve ficar invisível (apenas fantasma visível) */
