@@ -165,8 +165,8 @@ export function updateHabitCardElement(card: HTMLElement, habit: Habit, time: Ti
 
     if (els.cachedIconHtml !== schedule.icon) { els.icon.innerHTML = els.cachedIconHtml = schedule.icon; }
     els.icon.style.color = schedule.color;
-    // UI UPDATE [2025-06-14]: Remove background for minimal look
-    els.icon.style.backgroundColor = 'transparent';
+    // RESTORED [2025-06-15]: Match Explore Modal style (Color + Opacity 30 for background)
+    els.icon.style.backgroundColor = schedule.color + '30';
     
     const isCons = streak >= STREAK_CONSOLIDATED, isSemi = streak >= STREAK_SEMI_CONSOLIDATED && !isCons;
     card.classList.toggle('consolidated', isCons); card.classList.toggle('semi-consolidated', isSemi);
