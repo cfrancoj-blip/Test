@@ -16,8 +16,8 @@
     max-height: none;
     overflow: visible; /* CRÍTICO: Permite que o tooltip saia da caixa */
     
-    /* UI FIX: Margem superior reduzida para aproximar dos cartões (space-lg -> space-sm). */
-    margin-top: var(--space-sm);
+    /* UI FIX: Margem superior ajustada para space-lg (16px) para equilíbrio visual. */
+    margin-top: var(--space-lg);
     margin-inline: var(--space-lg); 
     
     /* Margem inferior para não colar na borda da tela */
