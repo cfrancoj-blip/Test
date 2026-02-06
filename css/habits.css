@@ -269,17 +269,16 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
        Isso permite que o navegador gerencie a física de rolagem por padrão.
        A lógica JS (pointer capture + container lock) irá interceptar a rolagem condicionalmente. */
     touch-action: pan-y;
-    
-    transition: transform 0.1s cubic-bezier(0.25, 1, 0.5, 1);
+
+    /* SYSTEM UI FIX: Desabilita callouts nativos (magnifier/context menu) para garantir long-press limpo */
+    -webkit-touch-callout: none;
 }
 
 /* REFACTOR [2025-06-09]: A classe .is-pressing agora serve apenas para feedback visual (escala).
    REMOVIDO: 'touch-action: pan-x'. Isso travava o início do scroll se o dedo tocasse no cartão.
    Agora confiamos apenas na Pointer Capture do JS para segurar o evento. */
 .habit-card.is-pressing {
-    transform: scale(0.96);
-    /* Desativa transição durante o press para resposta imediata */
-    transition: transform 0.05s ease-out;
+    transform: scale(0.98);
 }
 
 .habit-group .habit-card:last-child { margin-block-end: 0; }
@@ -616,7 +615,7 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     z-index: var(--z-index-base);
     display: flex;
     align-items: center;
-    width: 50%; /* UPDATED [2025-06-25]: 50% width to allow full half-card swipe */
+    width: 200px; /* Largura grande para permitir um over-swipe */
     
     /* A11Y [2025-01-18]: Esconde do foco e leitura quando não ativos */
     visibility: hidden;
@@ -733,7 +732,7 @@ body:not(.is-dragging-active) .empty-group-placeholder.show-smart-placeholder .p
     
     /* RE-SCALE ON PRESS (Manual Override) */
     .habit-card.is-pressing {
-        transform: scale(0.96) !important;
+        transform: scale(0.98) !important;
     }
 
     /* DRAG SPECIAL CASE: O cartão deve ficar invisível (apenas fantasma visível) */
