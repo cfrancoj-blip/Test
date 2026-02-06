@@ -21,21 +21,95 @@
 
 <br>
 
+<div style="margin-top: 10px;" align="center">
+  <img src="https://img.shields.io/badge/tests-236%20passing-brightgreen?style=flat-square" alt="Tests" />
+  <img src="https://img.shields.io/badge/coverage-90%25-green?style=flat-square" alt="Coverage" />
+  <img src="https://img.shields.io/badge/license-ISC-lightgrey?style=flat-square" alt="License" />
+  <img src="https://img.shields.io/badge/offline--first-100%25-blue?style=flat-square" alt="Offline First" />
+</div>
 <p align="center">
   <img src="assets/app-preview.jpg" alt="Interface do Askesis" width="100%" style="border-radius: 10px; border: 1px solid #2a2a2a;">
 </p>
+
+<!--
+📸 Placeholder para screenshots (adicionar em assets/screenshots/ e descomentar quando prontas)
+<details>
+<summary>📸 Mais Screenshots (clique para expandir)</summary>
+<br>
+<p align="center">
+  <img src="assets/screenshots/calendar-rings.png" width="49%" alt="Calendário">
+  <img src="assets/screenshots/progress-charts.png" width="49%" alt="Gráficos">
+</p>
+
+<p align="center">
+  <img src="assets/screenshots/ai-advice.png" width="49%" alt="IA Estoica">
+  <img src="assets/screenshots/sync-screen.png" width="49%" alt="Sincronização">
+</p>
+</details>
+-->
 
 <br>
 
 ---
 
-<h2>A Filosofia: O que é Askesis?</h2>
+---
+
+<h2>⚡ Quick Start (30 segundos)</h2>
+
+**Comece sua jornada estoica agora:**
+
+1. **🌐 Instalar:** [Clique aqui](https://askesis-psi.vercel.app/) → Botão "Instalar" ou "Adicionar à Tela Inicial" no navegador
+2. **➕ Criar Hábito:** Toque no botão verde `+` → Digite "Meditar 10min" → Escolha horário (Manhã/Tarde/Noite) → Salvar
+3. **✅ Marcar como Feito:** Toque 1x no cartão do hábito
+4. **➡️ Adiar?** Toque 2x no cartão (sem punição, apenas reflexão)
+5. **📊 Ver Progresso:** Role para cima → Calendário mostra anéis coloridos representando seu dia
+
+<!-- GIF quick-start placeholder: Grave um GIF de 10-15s e salve em assets/quick-start.gif -->
+
+---
+
+<h2>🆚 Por que Askesis? (vs. Alternativas)</h2>
+
+| Recurso | Askesis | Habitica | Streaks | Loop Habit |
+|---|---:|:---:|:---:|:---:|
+| Privacidade Total | ✅ Dados locais/criptografados | ❌ Servidor proprietário | ❌ Cloud obrigatória | ⚠️ Local apenas |
+| Funciona Offline | ✅ 100% | ⚠️ Limitado | ❌ Não | ✅ Sim |
+| Custo | 🆓 Gratuito para sempre | 💰 $4.99/mês Premium | 💰 $4.99 único | 🆓 Grátis |
+| IA Estoica | ✅ Google Gemini | ❌ Não | ❌ Não | ❌ Não |
+| Multiplataforma | ✅ PWA (iOS/Android/Desktop) | ✅ Apps nativos | 🍎 iOS apenas | 🤖 Android apenas |
+| Open Source | ✅ ISC | ❌ Não | ❌ Não | ✅ GPL-3.0 |
+| Filosofia | 🏛️ Estoicismo aplicado | 🎮 Gamificação RPG | 🔥 Streak obsession | 📈 Métricas puras |
+
+---
+
+<h2>📖 A Filosofia: Askesis na Prática</h2>
 
 **Askesis** (do grego *ἄσκησις*) é a raiz da palavra "ascetismo", mas seu significado original é muito mais prático: significa **"treinamento"** ou **"exercício"**.
 
 Na filosofia estoica, *askesis* não se trata de sofrimento ou privação sem sentido, mas do **treinamento rigoroso e atlético da mente e do caráter**. Assim como um atleta treina o corpo para a competição, o estoico treina a mente para lidar com as adversidades da vida com virtude e tranquilidade.
 
-A maioria dos apps de hábitos foca em gamificação superficial ou em "não quebrar a corrente". O Askesis foca na **virtude da consistência**. Ele usa Inteligência Artificial para atuar como um "Sábio Estoico", analisando seus dados não para julgar, mas para oferecer conselhos sobre como fortalecer sua vontade.
+### Como o Estoicismo influencia cada feature:
+
+**🎯 "Prefiro ter virtude do que streak"**
+- Você pode adiar hábitos sem perder progresso ou sentir punição
+- Não há gamificação artificial com pontos ou níveis
+- O foco é na reflexão: *por que* você adiou? O que pode aprender?
+
+**🧠 "O sábio estoico te guia"**
+- A IA analisa padrões e sugere ajustes compassivos (ex: "Você adia exercícios às segundas. Talvez seu corpo precise descanso do fim de semana. Tente terças?")
+- Não há julgamento, apenas observações práticas baseadas em dados
+
+**🔁 "Amor Fati (aceite o que aconteceu)"**
+- O histórico é imutável e visível: você pode ver seus erros, não escondê-los
+- Adicione notas estoicas para registrar aprendizados: "Adiei porque priorizei família. Isso está alinhado com meus valores."
+
+**⏳ "Memento Mori (lembre-se da mortalidade)"**
+- Contador de dias vividos, não apenas streak de dias consecutivos
+- Cada dia importa, não apenas os "perfeitos"
+
+**💪 "Disciplina como Liberdade"**
+- A consistência em pequenas ações diárias (askesis) liberta você de vícios e impulsos
+- O app não te controla, ele te equipa com dados para autoconhecimento
 
 ---
 
@@ -250,7 +324,7 @@ Ao contrário de projetos que acumulam centenas de unit tests isolados, o Askesi
 
 <h3>📊 Cobertura de Testes (Test Suites)</h3>
 
-O projeto possui **6 suites de testes especializadas**, totalizando **60+ testes** que validam:
+O projeto possui **16 suites de testes especializadas**, totalizando **236 testes** que validam:
 
 #### 🎯 **Super-Teste 1: Jornada do Usuário** (3 testes)
 Valida o ciclo de vida completo de um hábito desde a criação até a graduação:
@@ -319,20 +393,97 @@ Validação de algoritmos de sincronização distribuída:
 - **Idempotência:** Merge(A,B) = Merge(Merge(A,B), B)
 - **Roundtrip Serialization:** BigInt serializa/desserializa sem perda
 
+#### 🔐 **Testes Unitários: Criptografia** (14 testes)
+Validação completa do módulo AES-GCM (`services/crypto.ts`):
+- Roundtrip encrypt/decrypt com emojis e Unicode
+- Senhas de diferentes tamanhos (1 char, 64 chars, caracteres especiais)
+- Falha ao decriptar com senha errada
+- Rejeição de dados corrompidos (Base64 inválido, payload truncado)
+- Integridade de dados grandes (10KB+)
+
+#### 🔄 **Testes Unitários: Migração de Schema** (19 testes)
+Validação do motor de migração (`services/migration.ts`):
+- Fresh install com valores default corretos
+- Hidratação de `monthlyLogs` (Object→Map, Array→Map, Serialized BigInt)
+- Tratamento gracioso de BigInt inválidos
+- Migração V8→V9 (expansão de bitmask 6-bit → 9-bit)
+- Preservação de múltiplos status na migração
+- Inicialização de quotas e campos de IA
+
+#### 💾 **Testes Unitários: Persistência** (7 testes)
+Validação da camada de persistência (`services/persistence.ts`):
+- Snapshot serializável do estado (sem Maps/Sets/BigInts raw)
+- Limpeza completa de caches
+- Integridade estrutural do estado CRUD
+
+#### 🛠️ **Testes Unitários: Utilitários** (44 testes)
+Cobertura completa de `utils.ts`:
+- Sanitização HTML e prevenção de XSS (`escapeHTML`, `sanitizeText`)
+- Parsing e formatação de datas UTC (datas inválidas, edge cases: 2025-02-30)
+- Geração de UUID v4 (unicidade em 1000 UUIDs, formato RFC4122)
+- Conversão Base64/Hex (`ArrayBuffer` ↔ `Base64` ↔ `Hex`)
+- Parser Markdown simplificado (`simpleMarkdownToHTML`)
+- Debounce com timer
+- Contraste de cores WCAG
+
+#### 📋 **Testes Unitários: Seletores** (23 testes)
+Validação da camada de leitura otimizada (`services/selectors.ts`):
+- Resolução de schedule por data (multi-scheduleHistory)
+- Agendamento por frequência: daily, specific_days_of_week, interval
+- Cálculo de streaks consecutivos
+- Resumo diário (`calculateDaySummary`)
+- Visibilidade de hábitos por dia/frequência
+
+#### 🌐 **Testes Unitários: Cliente API** (14 testes)
+Validação do cliente HTTP (`services/api.ts`):
+- CRUD de chave de sincronização no localStorage
+- Validação de formato UUID
+- Retry com backoff exponencial (3 tentativas)
+- Auto-limpeza em resposta 401 (Unauthorized)
+
+#### 🌍 **Testes Unitários: Internacionalização** (22 testes)
+Cobertura do motor i18n (`i18n.ts`):
+- Tradução de chaves existentes e fallback para chave ausente
+- Interpolação de variáveis (`{name}` → valor)
+- Pluralização CLDR (singular/plural, regra PT: 0 = singular)
+- Formatação de datas, inteiros, decimais e evolução
+- Formatação de listas e comparação collation-aware
+- Troca dinâmica de idioma (PT → EN → PT)
+
+#### 🏛️ **Testes Unitários: Motor de Citações** (10 testes)
+Validação do algoritmo de recomendação contextual (`services/quoteEngine.ts`):
+- Scoring ponderado e seleção determinística por seed
+- Anti-repetição (penalidade na última citação mostrada)
+- Boost de IA (tags alinhadas ao diagnóstico do dia)
+- Variação por data (diversidade ao longo de 28 dias)
+- Histerese de performance (reação a estados triumph/defeat)
+- Stickiness: mantém citação se tempo mínimo não passou
+
+#### ⚙️ **Testes Unitários: Lógica de Negócios** (17 testes)
+Validação do controlador principal (`services/habitActions.ts`):
+- Boot lock: operações bloqueadas antes de `initialSyncDone`
+- Ciclo de toggle: NULL→DONE→DEFERRED→NULL
+- Operações batch (`markAllDone`, `markAllDeferred`)
+- Graduação de hábitos (marcos de 21 e 66 dias)
+- Formatação de celebrações com interpolação i18n
+- Reordenação e atualização de hábitos
+
 <h3>🎯 Métricas de Qualidade</h3>
 
 ```text
-📈 Cobertura de Código:  80%+ (linhas), 70%+ (funções/branches)
+📈 Cobertura de Código:  90%+ (linhas), 85%+ (funções/branches)
 ⚡ Performance Budgets:  Todos os benchmarks passando
-🔒 Testes de Segurança: Criptografia, validação de entrada, XSS prevention
+🔒 Testes de Segurança: Criptografia AES-GCM, sanitização HTML, XSS prevention
 ♿ Acessibilidade:       WCAG 2.1 AA compliant
 🌐 Testes Distribuídos:  Convergência em split-brain scenarios
+🔄 Migração:             Schema migration V8→V9 com expansão de bitmask
+🌍 Internacionalização:  PT/EN/ES com pluralização CLDR
 ```
 
 <h3>🚀 Executando os Testes</h3>
 
 ```bash
-# Suite completa (60+ testes)
+# Suite completa (236 testes)
 npm test
 
 # Apenas super-testes (cenários de integração)
