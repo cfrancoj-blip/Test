@@ -128,6 +128,7 @@ function _requestFutureScheduleChange(habitId: string, targetDate: string, updat
     state.streaksCache.delete(habitId);
 
     const history = habit.scheduleHistory;
+    if (history.length === 0) return;
     const idx = history.findIndex(s => targetDate >= s.startDate && (!s.endDate || targetDate < s.endDate));
 
     if (idx !== -1) {
@@ -472,7 +473,7 @@ export function importData() {
         const file = (e.target as HTMLInputElement).files?.[0]; if (!file) return;
         try {
             const data = JSON.parse(await file.text());
-            if (data.habits && data.version) {
+            if (data.habits && data.version && Array.isArray(data.habits) && data.habits.every((h: any) => h?.id && Array.isArray(h?.scheduleHistory))) {
                 // FIX: Rehidratar monthlyLogsSerialized antes do loadState
                 // exportData() serializa os bitmask logs como [key, hex][] em monthlyLogsSerialized,
                 // mas JSON.stringify(Map) produz '{}'. Precisamos injetar os logs de volta.
@@ -491,6 +492,7 @@ export function importData() {
 export function toggleHabitStatus(habitId: string, time: TimeOfDay, dateISO: string) {
     // BOOT LOCK: Previne escrita até que o sync inicial (se houver) termine
     if (!state.initialSyncDone) return;
+    if (!state.habits.some(h => h.id === habitId)) return;
 
     const currentStatus = HabitService.getStatus(habitId, dateISO, time);
     let nextStatus: number = HABIT_STATE.DONE;

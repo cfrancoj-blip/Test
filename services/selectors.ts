@@ -229,7 +229,7 @@ export function getSmartGoalForHabit(habit: Habit, dateISO: string, time: TimeOf
     }
 
     const streak = calculateHabitStreak(habit, toUTCIsoDateString(new Date(targetTs - MS_PER_DAY)));
-    return Math.max(5, baseGoal + (Math.floor(streak / 7) * 5));
+    return Math.min(baseGoal * 4, Math.max(5, baseGoal + (Math.floor(streak / 7) * 5)));
 }
 
 export function getCurrentGoalForInstance(habit: Habit, dateISO: string, time: TimeOfDay): number {

@@ -326,7 +326,8 @@ const _handleConfirmClick = () => {
     state.confirmAction = null;
     state.confirmEditAction = null;
     
-    closeModal(ui.confirmModal, true);
+    // Sem suppressCallbacks: onCancel roda como safety-net para ActionContext.reset()
+    closeModal(ui.confirmModal);
 };
 
 const _handleEditClick = () => {
@@ -342,7 +343,7 @@ const _handleEditClick = () => {
     state.confirmAction = null;
     state.confirmEditAction = null;
     
-    closeModal(ui.confirmModal, true);
+    closeModal(ui.confirmModal);
 };
 
 const _handleFullCalendarPrevClick = () => {

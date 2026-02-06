@@ -69,7 +69,8 @@ export async function checkAndAnalyzeDayContext(dateISO: string) {
                 saveState(); 
             }
         } catch (e) { 
-            logger.error("Context analysis failed", e); 
+            logger.error("Context analysis failed", e);
+            state.dailyDiagnoses[dateISO] = { level: 'error', themes: [], timestamp: Date.now() };
         } finally { 
             _analysisInFlight.delete(dateISO); 
         }
