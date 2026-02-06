@@ -6,11 +6,10 @@
 
 /**
  * @file listeners/swipe.ts
- * @description Motor de Gestos Híbrido (Neural Grip + Long Press + Swipe).
+ * @description Motor de Gestos Híbrido (Long Press + Swipe).
  * 
- * [ESTRATÉGIA DE INTERAÇÃO DUPLA]:
- * 1. CAMINHO RÁPIDO (Ícone): Tocar no ícone inicia o Drag IMEDIATAMENTE.
- * 2. CAMINHO LENTO (Corpo): Tocar no corpo inicia um Long Press (500ms).
+ * [ESTRATÉGIA DE INTERAÇÃO]:
+ * Tocar no corpo inicia um Long Press (500ms) para arrastar.
  *    - Usa 'Active Touch Guard' para diferenciar Scroll vs Hold.
  *    - Feedback visual (.is-charging) informa o usuário.
  */
@@ -47,7 +46,6 @@ const SwipeMachine = {
     // State Flags
     wasOpenLeft: false,
     wasOpenRight: false,
-    isIconGrip: false, 
     
     // Timers
     longPressTimer: 0,
@@ -82,7 +80,7 @@ const _stopLimitVibration = () => {
 // --- TOUCH GUARD (Para Long Press no Corpo) ---
 // Impede o scroll nativo se o usuário estiver tentando segurar o cartão imóvel
 const _activeTouchGuard = (e: TouchEvent) => {
-    if (SwipeMachine.state !== 'DETECTING' || SwipeMachine.isIconGrip) return;
+    if (SwipeMachine.state !== 'DETECTING') return;
 
     const touch = e.touches[0];
     if (!touch) return;
@@ -219,7 +217,6 @@ const _forceReset = () => {
     SwipeMachine.initialEvent = null;
     SwipeMachine.pointerId = -1;
     SwipeMachine.rafId = 0;
-    SwipeMachine.isIconGrip = false;
     
     if (state.uiDirtyState.habitListStructure && !isDragActive()) {
         requestAnimationFrame(() => renderApp());
@@ -317,13 +314,6 @@ const _onPointerMove = (e: PointerEvent) => {
         return;
     }
 
-    // Se for Icon Grip, o Drag já deveria ter começado no Down.
-    // Se chegamos aqui, apenas reforçamos.
-    if (SwipeMachine.isIconGrip) {
-        _triggerDrag();
-        return;
-    }
-
     const x = e.clientX | 0;
     const y = e.clientY | 0;
     const dx = x - SwipeMachine.startX;
@@ -415,9 +405,6 @@ export function setupSwipeHandler(container: HTMLElement) {
         const card = cw?.closest<HTMLElement>(DOM_SELECTORS.HABIT_CARD);
         if (!card || !cw) return;
 
-        // VERIFICA SE O TOQUE FOI NO ÍCONE (Grip)
-        const isIcon = !!target.closest('.habit-icon');
-
         SwipeMachine.card = card;
         SwipeMachine.content = cw;
         SwipeMachine.initialEvent = e;
@@ -428,35 +415,28 @@ export function setupSwipeHandler(container: HTMLElement) {
         SwipeMachine.wasOpenRight = card.classList.contains(CSS_CLASSES.IS_OPEN_RIGHT);
         SwipeMachine.lastFeedbackStep = 0;
         SwipeMachine.limitVibrationTimer = 0;
-        SwipeMachine.isIconGrip = isIcon;
 
         const openCards = container.querySelectorAll(`.${CSS_CLASSES.IS_OPEN_LEFT}, .${CSS_CLASSES.IS_OPEN_RIGHT}`);
         openCards.forEach(c => {
             if (c !== card) c.classList.remove(CSS_CLASSES.IS_OPEN_LEFT, CSS_CLASSES.IS_OPEN_RIGHT);
         });
 
-        if (isIcon) {
-            // MODO 1: GRIP (Arrasto Instantâneo)
-            if (e.cancelable) e.preventDefault();
-            _triggerDrag();
-        } else {
-            // MODO 2: CORPO (Detecção de Swipe, Scroll ou Long Press)
-            SwipeMachine.state = 'DETECTING';
-            
-            // Inicia Timer de Long Press
-            SwipeMachine.longPressTimer = window.setTimeout(_triggerDrag, LONG_PRESS_DELAY);
-            
-            // Visual Feedback
-            card.classList.add('is-pressing');
-            card.classList.add('is-charging');
-            
-            window.addEventListener('pointermove', _onPointerMove, { passive: false });
-            window.addEventListener('pointerup', _onPointerUp);
-            window.addEventListener('pointercancel', _forceReset);
-            window.addEventListener('blur', _forceReset);
-            
-            // Touch Guard para garantir Long Press sem scroll
-            window.addEventListener('touchmove', _activeTouchGuard, { passive: false });
-        }
+        // Detecção de Swipe, Scroll ou Long Press
+        SwipeMachine.state = 'DETECTING';
+        
+        // Inicia Timer de Long Press
+        SwipeMachine.longPressTimer = window.setTimeout(_triggerDrag, LONG_PRESS_DELAY);
+        
+        // Visual Feedback
+        card.classList.add('is-pressing');
+        card.classList.add('is-charging');
+        
+        window.addEventListener('pointermove', _onPointerMove, { passive: false });
+        window.addEventListener('pointerup', _onPointerUp);
+        window.addEventListener('pointercancel', _forceReset);
+        window.addEventListener('blur', _forceReset);
+        
+        // Touch Guard para garantir Long Press sem scroll
+        window.addEventListener('touchmove', _activeTouchGuard, { passive: false });
     });
 }
