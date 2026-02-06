@@ -63,6 +63,16 @@ const DragMachine = {
 
 export const isDragging = () => DragMachine.isActive;
 
+// --- SCROLL LOCKER (LEGACY TOUCH SUPPORT) ---
+// Em navegadores modernos (Chrome Android), pointer capture pode não ser suficiente 
+// se touch-action: pan-y estiver ativo no início do gesto.
+// Adicionamos um listener de 'touchmove' não-passivo para matar o scroll nativo com preventDefault.
+const _preventTouchScroll = (e: TouchEvent) => {
+    if (DragMachine.isActive) {
+        e.preventDefault();
+    }
+};
+
 // --- DOM UTILS ---
 
 function _cleanupListeners() {
@@ -70,6 +80,8 @@ function _cleanupListeners() {
     window.removeEventListener('pointerup', _onPointerUp);
     window.removeEventListener('pointercancel', _forceReset);
     window.removeEventListener('blur', _forceReset);
+    // Remove o bloqueador de scroll nativo
+    window.removeEventListener('touchmove', _preventTouchScroll);
 }
 
 const _forceReset = (arg?: boolean | Event) => {
@@ -476,6 +488,10 @@ export function startDragSession(card: HTMLElement, content: HTMLElement, startE
     window.addEventListener('pointerup', _onPointerUp);
     window.addEventListener('pointercancel', _forceReset);
     window.addEventListener('blur', _forceReset);
+    
+    // SCROLL KILLER: Intercepta o evento 'touchmove' nativo e o mata.
+    // Isso impede que o navegador inicie o scroll mesmo se 'touch-action' falhar.
+    window.addEventListener('touchmove', _preventTouchScroll, { passive: false });
 }
 
 export function setupDragHandler(container: HTMLElement) {
