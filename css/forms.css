@@ -53,7 +53,7 @@
     padding: var(--space-md) var(--space-lg);
     position: relative;
 }
-.form-row:not(:last-child)::after {
+.form-row:not(:last-child):not(.form-row--no-border)::after {
     content: '';
     position: absolute;
     bottom: 0;
