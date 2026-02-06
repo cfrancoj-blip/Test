@@ -26,7 +26,9 @@ import {
 
 // CONFIGURAÇÃO FÍSICA
 const DIRECTION_LOCKED_THRESHOLD = 5; // Pixels para definir intenção direcional
-const LONG_PRESS_DRIFT_TOLERANCE = 24; 
+// UPDATE [2025-06-16]: Tolerância aumentada significativamente (40px).
+// Isso cria uma "Zona Morta" maior onde o usuário pode mover o dedo sem cancelar o Long Press.
+const LONG_PRESS_DRIFT_TOLERANCE = 40; 
 const ACTION_THRESHOLD = SWIPE_ACTION_THRESHOLD;
 const LONG_PRESS_DELAY = 500; 
 
@@ -296,11 +298,7 @@ const _onPointerMove = (e: PointerEvent) => {
     if (SwipeMachine.state === 'DETECTING') {
         // --- ZONA DE PROTEÇÃO DE LONG PRESS ---
         if (SwipeMachine.longPressTimer !== 0) {
-            // A lógica de cancelamento por movimento vertical excessivo agora é tratada principalmente
-            // pelo _activeTouchGuard deixando o evento passar.
-            // Aqui, mantemos uma verificação de segurança para mouse/pointer events puros.
-            
-            // Se o movimento horizontal for claro, iniciamos o Swipe
+            // Se o movimento horizontal for claro, iniciamos o Swipe imediatamente
             if (absDx > DIRECTION_LOCKED_THRESHOLD && absDx > absDy) {
                 // Horizontal -> Start Swipe
                 if (SwipeMachine.longPressTimer) clearTimeout(SwipeMachine.longPressTimer);
@@ -316,12 +314,11 @@ const _onPointerMove = (e: PointerEvent) => {
                 return;
             }
             
-            // Se o movimento vertical for muito grande, o Touch Guard já deve ter liberado o scroll.
-            // Apenas para garantir, se o JS detectar movimento excessivo antes do navegador roubar, cancelamos.
-            if (absDy > LONG_PRESS_DRIFT_TOLERANCE) {
-                 if (SwipeMachine.longPressTimer) clearTimeout(SwipeMachine.longPressTimer);
-                 _forceReset();
-            }
+            // ROBUSTEZ: Não cancelamos mais o Long Press manualmente aqui se absDy > limiar.
+            // Delegamos essa decisão para o _activeTouchGuard e para o navegador.
+            // Se o movimento sair da tolerância (40px), o _activeTouchGuard para de chamar preventDefault,
+            // o navegador assume o scroll e dispara 'pointercancel', que chamará _forceReset.
+            // Isso evita condições de corrida e "drops" prematuros.
             
             return;
         }
