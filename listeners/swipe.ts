@@ -357,6 +357,16 @@ export function setupSwipeHandler(container: HTMLElement) {
     updateLayoutMetrics();
     SwipeMachine.container = container;
     
+    // PREVENT CONTEXT MENU (Android Fix for Long Press Drop)
+    // O Chrome no Android dispara 'contextmenu' no long press, o que cancela o evento de ponteiro.
+    // Prevenimos isso para permitir que nossa lógica de Long Press (Drag) funcione.
+    container.addEventListener('contextmenu', (e) => {
+        // Apenas previne se cancelável e se parece ser um gesto de toque/long press
+        if (e.cancelable) {
+            e.preventDefault();
+        }
+    });
+    
     container.addEventListener('pointerdown', (e) => {
         // Ignora cliques com botão direito ou se já estiver arrastando
         if (e.button !== 0 || isDragActive()) return;
