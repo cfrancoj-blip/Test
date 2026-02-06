@@ -171,6 +171,7 @@ const _handleStripClick = (e: MouseEvent) => {
         const clickedDate = item.dataset.date;
         
         if (state.selectedDate !== clickedDate) {
+            const flipDir = clickedDate < state.selectedDate ? 'forward' : 'back';
             triggerHaptic('selection');
             state.selectedDate = clickedDate;
             
@@ -187,7 +188,7 @@ const _handleStripClick = (e: MouseEvent) => {
             // Render App Content (Habits)
             state.uiDirtyState.habitListStructure = true;
             state.uiDirtyState.chartData = true;
-            viewTransitionRender();
+            viewTransitionRender(flipDir);
         }
     }
 };
@@ -221,10 +222,11 @@ const _handleResetToToday = () => {
         scrollToSelectedDate(true);
     } else {
         // Reset Total: Limpa e recria em volta de hoje
+        const flipDir = today > state.selectedDate ? 'back' : 'forward';
         state.selectedDate = today;
         state.uiDirtyState.calendarVisuals = true; 
         state.uiDirtyState.habitListStructure = true;
-        viewTransitionRender();
+        viewTransitionRender(flipDir);
     }
 };
 

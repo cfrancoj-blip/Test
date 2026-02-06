@@ -64,6 +64,7 @@ import { setTextContent } from '../render/dom';
 // --- STATIC HELPERS ---
 
 function _navigateToDateFromAlmanac(dateISO: string) {
+    const flipDir = dateISO < state.selectedDate ? 'forward' : 'back';
     state.selectedDate = dateISO;
     
     closeModal(ui.fullCalendarModal);
@@ -72,7 +73,7 @@ function _navigateToDateFromAlmanac(dateISO: string) {
     state.uiDirtyState.habitListStructure = true;
     invalidateChartCache();
     
-    viewTransitionRender();
+    viewTransitionRender(flipDir);
 
     requestAnimationFrame(() => {
         const selectedEl = ui.calendarStrip.querySelector('.day-item.selected');

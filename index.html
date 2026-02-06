@@ -368,7 +368,7 @@
     </div>
 
     <!-- Modals -->
-    <div id="explore-modal" class="modal-overlay">
+    <div id="explore-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-spacer"></div>
@@ -380,7 +380,7 @@
         </div>
     </div>
     
-    <div id="manage-modal" class="modal-overlay">
+    <div id="manage-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content modal-content--sticky-header">
             <div class="modal-header">
                 <div class="modal-header-spacer"></div>
@@ -447,7 +447,7 @@
                                 <p class="sync-warning" id="sync-warning-text"></p>
                                 <div class="sync-key-display">
                                     <span id="sync-key-text"></span>
-                                    <button id="copy-key-btn" class="icon-btn" aria-label="Copiar Chave"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                                    <button id="copy-key-btn" class="icon-btn" aria-label="Copiar Chave"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
                                 </div>
                                 <button id="key-saved-btn" class="btn btn--primary"></button>
                             </div>
@@ -484,7 +484,7 @@
         </div>
     </div>
 
-    <div id="ai-modal" class="modal-overlay">
+    <div id="ai-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-spacer"></div>
@@ -495,7 +495,7 @@
         </div>
     </div>
 
-    <div id="ai-options-modal" class="modal-overlay">
+    <div id="ai-options-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-spacer"></div>
@@ -520,14 +520,14 @@
         </div>
     </div>
 
-    <div id="confirm-modal" class="modal-overlay">
+    <div id="confirm-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-spacer"></div>
                 <h2>Confirmar Ação</h2>
                 <div class="modal-header-spacer"></div>
             </div>
-            <p id="confirm-modal-text"></p>
+            <p id="confirm-modal-text" aria-live="assertive"></p>
             <div class="modal-actions">
                 <button id="confirm-modal-edit-btn" class="btn hidden">Editar</button>
                 <button id="confirm-modal-confirm-btn" class="btn btn--primary">Confirmar</button>
@@ -535,7 +535,7 @@
         </div>
     </div>
 
-    <div id="notes-modal" class="modal-overlay">
+    <div id="notes-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-spacer"></div>
@@ -551,7 +551,7 @@
     </div>
 
     <!-- Modal: Ícone Picker -->
-    <div id="icon-picker-modal" class="modal-overlay">
+    <div id="icon-picker-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-spacer"></div>
@@ -563,7 +563,7 @@
     </div>
 
     <!-- Modal: Color Picker -->
-    <div id="color-picker-modal" class="modal-overlay">
+    <div id="color-picker-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-spacer"></div>
@@ -575,7 +575,7 @@
     </div>
 
     <!-- Modal: Edit Habit (Apple Style Form) -->
-    <div id="edit-habit-modal" class="modal-overlay">
+    <div id="edit-habit-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-header-spacer"></div>
@@ -611,14 +611,14 @@
     </div>
 
     <!-- Modal: Full Calendar -->
-    <div id="full-calendar-modal" class="modal-overlay">
+    <div id="full-calendar-modal" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="modal-content">
             <div id="full-calendar-header" class="modal-header">
-                <button id="full-calendar-prev" class="icon-btn">
+                <button id="full-calendar-prev" class="icon-btn" aria-label="Mês anterior">
                     <svg width="24" height="24"><use href="#icon-chevron-left"></use></svg>
                 </button>
                 <h2 id="full-calendar-month-year"></h2>
-                <button id="full-calendar-next" class="icon-btn">
+                <button id="full-calendar-next" class="icon-btn" aria-label="Próximo mês">
                     <svg width="24" height="24"><use href="#icon-chevron-right"></use></svg>
                 </button>
             </div>
@@ -628,7 +628,7 @@
     </div>
 
     <!-- Quick Actions Popover -->
-    <div id="calendar-quick-actions" class="modal-overlay">
+    <div id="calendar-quick-actions" class="modal-overlay" role="dialog" aria-modal="true">
         <div class="quick-actions-content">
             <button id="quick-action-done" class="quick-action-btn"></button>
             <div class="quick-action-divider"></div>

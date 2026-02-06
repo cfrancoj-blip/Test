@@ -316,7 +316,7 @@ async function performSync() {
                 if (payload?.fallback) {
                     addSyncLog("Fallback sem Lua aplicado.", "info");
                 }
-            } catch {}
+            } catch (e) { logger.warn('[Sync] Failed to parse POST response body', e); }
             addSyncLog("Nuvem atualizada.", "success");
             setSyncStatus('syncSynced');
             pendingHashUpdates.forEach((hash, shard) => lastSyncedHashes.set(shard, hash));
@@ -332,6 +332,9 @@ async function performSync() {
     } catch (error: any) {
         addSyncLog(`Falha no envio: ${error.message}`, "error");
         setSyncStatus('syncError');
+        if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            navigator.serviceWorker.ready.then(reg => (reg as any).sync?.register('sync-cloud-pending')).catch(() => {});
+        }
     } finally {
         isSyncInProgress = false;
         if (pendingSyncState) setTimeout(performSync, 500);
@@ -340,7 +343,7 @@ async function performSync() {
 
 export function syncStateWithCloud(appState: AppState, immediate = false) {
     if (!hasLocalSyncKey()) return;
-    pendingSyncState = appState; 
+    pendingSyncState = structuredClone(appState); 
     setSyncStatus('syncSaving');
     if (isSyncInProgress) return;
     if (immediate) {
@@ -368,17 +371,23 @@ async function reconstructStateFromShards(shards: Record<string, string>): Promi
         
         persistHashCache();
 
+        const core = decryptedShards['core'];
+        if (core && (!Array.isArray(core.habits) || !core.habits.every((h: any) => h && typeof h.id === 'string' && Array.isArray(h.scheduleHistory)))) {
+            logger.error('[Sync] Decrypted core data has invalid structure. Aborting reconstruction.');
+            return undefined;
+        }
+
         const result: any = {
-            version: decryptedShards['core']?.version || 0,
+            version: core?.version || 0,
             lastModified: parseInt(shards.lastModified || '0', 10),
-            habits: decryptedShards['core']?.habits || [],
-            dailyData: decryptedShards['core']?.dailyData || {},
-            dailyDiagnoses: decryptedShards['core']?.dailyDiagnoses || {},
+            habits: core?.habits || [],
+            dailyData: core?.dailyData || {},
+            dailyDiagnoses: core?.dailyDiagnoses || {},
             archives: {},
             monthlyLogs: new Map(),
-            notificationsShown: decryptedShards['core']?.notificationsShown || [],
-            hasOnboarded: decryptedShards['core']?.hasOnboarded ?? true,
-            quoteState: decryptedShards['core']?.quoteState
+            notificationsShown: core?.notificationsShown || [],
+            hasOnboarded: core?.hasOnboarded ?? true,
+            quoteState: core?.quoteState
         };
         for (const key in decryptedShards) {
             if (key.startsWith('archive:')) { result.archives[key.replace('archive:', '')] = decryptedShards[key]; }

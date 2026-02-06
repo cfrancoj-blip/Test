@@ -205,9 +205,12 @@ export function updateUIText() {
  * a transição via GPU usando os pseudo-elementos ::view-transition-*.
  * Em navegadores sem suporte, executa renderApp() normalmente (graceful degradation).
  */
-export function viewTransitionRender() {
+export function viewTransitionRender(direction?: 'forward' | 'back') {
     if ('startViewTransition' in document) {
-        (document as any).startViewTransition(() => renderApp());
+        const dir = direction || 'forward';
+        document.documentElement.dataset.flipDir = dir;
+        const vt = (document as any).startViewTransition(() => renderApp());
+        vt.finished.then(() => { delete document.documentElement.dataset.flipDir; }).catch(() => { delete document.documentElement.dataset.flipDir; });
     } else {
         renderApp();
     }

@@ -326,9 +326,6 @@ export function saveHabitFromModal() {
                 times: cleanFormData.times as readonly TimeOfDay[], 
                 frequency: cleanFormData.frequency 
             }), false);
-            
-            // Explicit notify since we might have modified deletedOn/graduatedOn outside of schedule change
-            _notifyChanges(true); 
         } else {
             state.habits.push({ id: generateUUID(), createdOn: targetDate, scheduleHistory: [{ startDate: targetDate, times: cleanFormData.times as readonly TimeOfDay[], frequency: cleanFormData.frequency, name: cleanFormData.name, nameKey: cleanFormData.nameKey, subtitleKey: cleanFormData.subtitleKey, scheduleAnchor: targetDate, icon: cleanFormData.icon, color: cleanFormData.color, goal: cleanFormData.goal, philosophy: cleanFormData.philosophy }] });
             _notifyChanges(true);

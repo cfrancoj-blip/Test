@@ -279,6 +279,8 @@
 #sync-status {
     font-size: 11px; color: var(--text-tertiary); font-style: italic;
     transition: opacity var(--transition-duration-slow); text-align: right;
+    text-decoration: underline dotted; text-underline-offset: 3px;
+    cursor: pointer;
 }
 
 /* --- Modal: Explorar Hábitos (Layout Mobile-First) --- */

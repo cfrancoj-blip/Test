@@ -59,9 +59,45 @@ body.is-booting {
     view-transition-name: app-header;
 }
 
-/* O corpo principal (lista de hábitos) anima separadamente */
+/* O corpo principal (lista de hábitos) anima com efeito page-flip */
 main {
     view-transition-name: main-content;
+}
+
+/* --- PAGE FLIP: Forward (indo para o passado / página anterior) --- */
+[data-flip-dir="forward"]::view-transition-old(main-content) {
+    animation: pageFlipOutForward 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+[data-flip-dir="forward"]::view-transition-new(main-content) {
+    animation: pageFlipInForward 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* --- PAGE FLIP: Back (voltando para o futuro / página seguinte) --- */
+[data-flip-dir="back"]::view-transition-old(main-content) {
+    animation: pageFlipOutBack 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+[data-flip-dir="back"]::view-transition-new(main-content) {
+    animation: pageFlipInBack 0.35s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* Keyframes: virar página para frente (sai pela esquerda, entra pela direita) */
+@keyframes pageFlipOutForward {
+    from { transform: perspective(1200px) rotateY(0deg); opacity: 1; }
+    to   { transform: perspective(1200px) rotateY(-15deg) translateX(-8%); opacity: 0; }
+}
+@keyframes pageFlipInForward {
+    from { transform: perspective(1200px) rotateY(10deg) translateX(6%); opacity: 0; }
+    to   { transform: perspective(1200px) rotateY(0deg); opacity: 1; }
+}
+
+/* Keyframes: virar página para trás (sai pela direita, entra pela esquerda) */
+@keyframes pageFlipOutBack {
+    from { transform: perspective(1200px) rotateY(0deg); opacity: 1; }
+    to   { transform: perspective(1200px) rotateY(15deg) translateX(8%); opacity: 0; }
+}
+@keyframes pageFlipInBack {
+    from { transform: perspective(1200px) rotateY(-10deg) translateX(-6%); opacity: 0; }
+    to   { transform: perspective(1200px) rotateY(0deg); opacity: 1; }
 }
 
 /* CHAOS FIX: GLOBAL INTERACTION LOCK
