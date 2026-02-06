@@ -8,8 +8,8 @@
     /* FIX [2025-06-10]: Add Safe Area support for iOS PWA (Notch/Status Bar overlap) */
     padding-block-start: calc(var(--space-section) + env(safe-area-inset-top));
     
-    /* PADDING UPDATE [2025-02-26]: Increased from 0 to --space-md to separate quote from habits */
-    padding-block-end: var(--space-md);
+    /* PADDING UPDATE [2025-06-15]: Aumentado de space-md para space-xl para maior respiro entre citação e hábitos */
+    padding-block-end: var(--space-xl);
     
     padding-inline: var(--space-lg); /* Restore horizontal padding */
     flex-shrink: 0; /* Prevent shrinking */
