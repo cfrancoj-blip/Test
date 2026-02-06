@@ -197,6 +197,20 @@ export function updateUIText() {
     if (state.editingHabit) refreshEditModalUI();
 }
 
+/**
+ * Executa renderApp() dentro de uma View Transition nativa (se suportada).
+ * O navegador captura um snapshot do DOM antes, aplica as mudanças, e anima
+ * a transição via GPU usando os pseudo-elementos ::view-transition-*.
+ * Em navegadores sem suporte, executa renderApp() normalmente (graceful degradation).
+ */
+export function viewTransitionRender() {
+    if ('startViewTransition' in document) {
+        (document as any).startViewTransition(() => renderApp());
+    } else {
+        renderApp();
+    }
+}
+
 export function renderApp() {
     _renderHeaderIcons();
     _updateHeaderTitle();

@@ -42,6 +42,7 @@ import {
     renderColorPicker,
     renderFullCalendar,
     renderApp,
+    viewTransitionRender,
 } from '../render';
 import {
     saveHabitFromModal,
@@ -71,7 +72,7 @@ function _navigateToDateFromAlmanac(dateISO: string) {
     state.uiDirtyState.habitListStructure = true;
     invalidateChartCache();
     
-    renderApp();
+    viewTransitionRender();
 
     requestAnimationFrame(() => {
         const selectedEl = ui.calendarStrip.querySelector('.day-item.selected');

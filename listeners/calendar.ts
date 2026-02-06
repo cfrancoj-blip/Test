@@ -10,7 +10,7 @@
 
 import { ui } from '../render/ui';
 import { state } from '../state';
-import { renderApp, renderFullCalendar, openModal, closeModal } from '../render';
+import { renderApp, renderFullCalendar, openModal, closeModal, viewTransitionRender } from '../render';
 import { appendDayToStrip, prependDayToStrip, scrollToSelectedDate } from '../render/calendar';
 import { parseUTCIsoDate, triggerHaptic, getTodayUTCIso } from '../utils';
 import { CSS_CLASSES, DOM_SELECTORS } from '../render/constants';
@@ -187,7 +187,7 @@ const _handleStripClick = (e: MouseEvent) => {
             // Render App Content (Habits)
             state.uiDirtyState.habitListStructure = true;
             state.uiDirtyState.chartData = true;
-            document.dispatchEvent(new CustomEvent('render-app'));
+            viewTransitionRender();
         }
     }
 };
@@ -224,7 +224,7 @@ const _handleResetToToday = () => {
         state.selectedDate = today;
         state.uiDirtyState.calendarVisuals = true; 
         state.uiDirtyState.habitListStructure = true;
-        renderApp();
+        viewTransitionRender();
     }
 };
 
