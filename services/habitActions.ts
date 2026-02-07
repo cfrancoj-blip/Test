@@ -115,7 +115,7 @@ function _lockActionHabit(habitId: string): Habit | null {
     ActionContext.isLocked = true;
     const h = state.habits.find(x => x.id === habitId);
     if (!h) ActionContext.reset();
-    return h;
+    return h ?? null;
 }
 
 function _requestFutureScheduleChange(habitId: string, targetDate: string, updateFn: (s: HabitSchedule) => HabitSchedule, immediate = false) {
@@ -164,7 +164,7 @@ const _applyDropJustToday = () => {
         if (!sch.includes(ctx.toTime)) sch.push(ctx.toTime);
         const currentBit = HabitService.getStatus(ctx.habitId, target, ctx.fromTime);
         if (currentBit !== HABIT_STATE.NULL) { HabitService.setStatus(ctx.habitId, target, ctx.toTime, currentBit); HabitService.setStatus(ctx.habitId, target, ctx.fromTime, HABIT_STATE.NULL); }
-        if (info.instances[ctx.fromTime]) { info.instances[ctx.toTime] = info.instances[ctx.fromTime]; delete info.instances[ctx.fromTime]; }
+        if (info.instances[ctx.fromTime as TimeOfDay]) { info.instances[ctx.toTime as TimeOfDay] = info.instances[ctx.fromTime as TimeOfDay]; delete info.instances[ctx.fromTime as TimeOfDay]; }
         info.dailySchedule = sch;
         if (ctx.reorderInfo) reorderHabit(ctx.habitId, ctx.reorderInfo.id, ctx.reorderInfo.pos, true);
         _notifyChanges(false);
@@ -179,7 +179,7 @@ const _applyDropFromNowOn = () => {
     info.dailySchedule = undefined;
     const currentBit = HabitService.getStatus(ctx.habitId, target, ctx.fromTime);
     if (currentBit !== HABIT_STATE.NULL) { HabitService.setStatus(ctx.habitId, target, ctx.toTime, currentBit); HabitService.setStatus(ctx.habitId, target, ctx.fromTime, HABIT_STATE.NULL); }
-    if (info.instances[ctx.fromTime]) { info.instances[ctx.toTime] = info.instances[ctx.fromTime]; delete info.instances[ctx.fromTime]; }
+    if (info.instances[ctx.fromTime as TimeOfDay]) { info.instances[ctx.toTime as TimeOfDay] = info.instances[ctx.fromTime as TimeOfDay]; delete info.instances[ctx.fromTime as TimeOfDay]; }
     if (ctx.reorderInfo) reorderHabit(ctx.habitId, ctx.reorderInfo.id, ctx.reorderInfo.pos, true);
     _requestFutureScheduleChange(ctx.habitId, target, (s) => {
         const times = [...s.times], fIdx = times.indexOf(ctx.fromTime);

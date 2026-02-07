@@ -65,7 +65,7 @@ describe('import/export round-trip', () => {
         const file = new File([JSON.stringify(payload)], 'backup.json', { type: 'application/json' });
         (fileInput as any).files = [file];
 
-        await fileInput?.onchange?.({ target: fileInput } as any);
+        await (fileInput as unknown as HTMLInputElement)?.onchange?.({ target: fileInput } as any);
         await new Promise(resolve => setTimeout(resolve, 0));
 
         expect(loadState).toHaveBeenCalled();

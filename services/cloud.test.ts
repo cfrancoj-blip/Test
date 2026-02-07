@@ -67,9 +67,9 @@ beforeEach(() => {
 describe('cloud sync basics', () => {
     it('envia shards core e logs quando ha mudancas', async () => {
         const { apiFetch, getSyncKey, hasLocalSyncKey } = await import('./api');
-        hasLocalSyncKey.mockReturnValue(true);
-        getSyncKey.mockReturnValue('k');
-        apiFetch.mockResolvedValue({ ok: true, status: 200, json: async () => ({}) });
+        vi.mocked(hasLocalSyncKey).mockReturnValue(true);
+        vi.mocked(getSyncKey).mockReturnValue('k');
+        vi.mocked(apiFetch).mockResolvedValue({ ok: true, status: 200, json: async () => ({}) } as any);
 
         const habitId = createTestHabit({ name: 'H', time: 'Morning', goalType: 'check' });
         HabitService.setStatus(habitId, '2024-01-01', 'Morning', 1);
@@ -82,8 +82,8 @@ describe('cloud sync basics', () => {
         await new Promise(resolve => setTimeout(resolve, 0));
 
         expect(apiFetch).toHaveBeenCalled();
-        const [, opts] = apiFetch.mock.calls[0];
-        const payload = JSON.parse(opts.body);
+        const [, opts] = vi.mocked(apiFetch).mock.calls[0];
+        const payload = JSON.parse(opts!.body as string);
         expect(payload.lastModified).toBe(123);
         expect(Object.keys(payload.shards)).toContain('core');
         expect(Object.keys(payload.shards)).toContain('logs:2024-01');
@@ -95,13 +95,13 @@ describe('cloud sync basics', () => {
         const { loadState, persistStateLocally } = await import('./persistence');
         const { renderApp } = await import('../render');
 
-        hasLocalSyncKey.mockReturnValue(true);
-        getSyncKey.mockReturnValue('k');
-        apiFetch.mockResolvedValue({
+        vi.mocked(hasLocalSyncKey).mockReturnValue(true);
+        vi.mocked(getSyncKey).mockReturnValue('k');
+        vi.mocked(apiFetch).mockResolvedValue({
             ok: true,
             status: 200,
             json: async () => ({ lastModified: '2000', core: 'coreEnc', 'logs:2024-01': 'logsEnc' })
-        });
+        } as any);
 
         state.lastModified = 1000;
 
