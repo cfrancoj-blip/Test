@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 
-import { createClient } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 
 export const config = {
   runtime: 'edge',
@@ -73,7 +73,7 @@ function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function applyShardsNonLua(kv: ReturnType<typeof createClient>, dataKey: string, lastModified: number, shards: Record<string, string>) {
+async function applyShardsNonLua(kv: Redis, dataKey: string, lastModified: number, shards: Record<string, string>) {
     const currentTsRaw = await kv.hget(dataKey, 'lastModified');
     const currentTs = Number(currentTsRaw || 0);
     if (lastModified < currentTs) {
@@ -99,7 +99,7 @@ export default async function handler(req: Request) {
          return new Response(JSON.stringify({ error: 'Server Config Error' }), { status: 500, headers: HEADERS_BASE });
     }
 
-    const kv = createClient({ url: dbUrl, token: dbToken });
+    const kv = new Redis({ url: dbUrl, token: dbToken });
 
     try {
         let keyHash = req.headers.get('x-sync-key-hash');
