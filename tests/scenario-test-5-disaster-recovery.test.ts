@@ -1,5 +1,5 @@
 /**
- * SUPER-TESTE 5: RECUPERAÇÃO DE DESASTRES (Chaos Engineering)
+ * TESTE DE CENARIO 5: RECUPERAÇÃO DE DESASTRES (Chaos Engineering)
  * 
  * Este teste valida simultaneamente:
  * ✓ Error boundaries
@@ -178,7 +178,7 @@ class RecoveryValidator {
   }
 }
 
-describe('🔥 SUPER-TESTE 5: Recuperação de Desastres', () => {
+describe('🔥 TESTE DE CENARIO 5: Recuperação de Desastres', () => {
   let chaos: ChaosMonkey;
   let validator: RecoveryValidator;
 

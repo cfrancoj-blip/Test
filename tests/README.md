@@ -4,15 +4,15 @@
 
 Esta suíte de testes combina duas abordagens complementares:
 
-1. **Super-Testes (Integration-First):** Validam jornadas completas do usuário, combinando múltiplos subsistemas.
+1. **Testes de Cenario (Integration-First):** Validam jornadas completas do usuário, combinando múltiplos subsistemas.
 2. **Testes Unitários:** Cobertura detalhada de cada módulo crítico do sistema.
 
 **Total: 16 arquivos de teste | 236 testes | 16 suites**
 
-## Os 5 Super-Testes
+## Os Testes de Cenario
 
-### 🚀 Super-Teste 1: Jornada do Novo Usuário
-**Arquivo:** `tests/super-test-1-user-journey.test.ts`
+### 🚀 Teste de Cenario 1: Jornada do Novo Usuário
+**Arquivo:** `tests/scenario-test-1-user-journey.test.ts`
 
 Simula a experiência completa de um novo usuário desde o primeiro acesso até o uso avançado.
 
@@ -35,8 +35,8 @@ Simula a experiência completa de um novo usuário desde o primeiro acesso até 
 
 ---
 
-### 🔄 Super-Teste 2: Sincronização Conflitante
-**Arquivo:** `tests/super-test-2-sync-conflicts.test.ts`
+### 🔄 Teste de Cenario 2: Sincronização Conflitante
+**Arquivo:** `tests/scenario-test-2-sync-conflicts.test.ts`
 
 Simula conflitos entre dispositivos offline e testa o algoritmo CRDT-lite de merge.
 
@@ -58,8 +58,8 @@ Simula conflitos entre dispositivos offline e testa o algoritmo CRDT-lite de mer
 
 ---
 
-### ⚡ Super-Teste 3: Estresse e Performance
-**Arquivo:** `tests/super-test-3-performance.test.ts`
+### ⚡ Teste de Cenario 3: Estresse e Performance
+**Arquivo:** `tests/scenario-test-3-performance.test.ts`
 
 Testa limites de escalabilidade e performance budgets.
 
@@ -88,8 +88,8 @@ Serializar 10 anos       | 1000ms    | < 500ms
 
 ---
 
-### ♿ Super-Teste 4: Acessibilidade Total
-**Arquivo:** `tests/super-test-4-accessibility.test.ts`
+### ♿ Teste de Cenario 4: Acessibilidade Total
+**Arquivo:** `tests/scenario-test-4-accessibility.test.ts`
 
 Valida conformidade com WCAG 2.1 AA e navegação completa por teclado.
 
@@ -113,8 +113,22 @@ Valida conformidade com WCAG 2.1 AA e navegação completa por teclado.
 
 ---
 
-### 🔥 Super-Teste 5: Recuperação de Desastres
-**Arquivo:** `tests/super-test-5-disaster-recovery.test.ts`
+### 🔥 Teste de Cenario 5: Recuperação de Desastres
+**Arquivo:** `tests/scenario-test-5-disaster-recovery.test.ts`
+
+---
+
+### 🔴 Teste de Cenario 6: Segurança (Pentest)
+**Arquivo:** `tests/scenario-test-6-security-pentest.test.ts`
+
+Valida resiliência contra XSS, prototype pollution, injection em API, import path traversal e SSRF.
+
+---
+
+### 🟠 Teste de Cenario 7: Cloud e Resiliência de Rede
+**Arquivo:** `tests/scenario-test-7-cloud-network-resilience.test.ts`
+
+Valida sync com falhas de rede, debounce de sync, race conditions e merges avançados.
 
 Testa resiliência do sistema sob condições extremas (Chaos Engineering).
 
@@ -308,9 +322,9 @@ Statements:  90%+
 npm test
 ```
 
-### Apenas os 5 super-testes
+### Apenas os testes de cenario
 ```bash
-npm run test:super
+npm run test:scenario
 ```
 
 ### Com interface visual
@@ -357,7 +371,7 @@ Falhas de recuperação mostram:
 
 Para considerar o sistema **"Production Ready"**, todos os seguintes devem passar:
 
-1. **Todos os 5 super-testes passam** (0 falhas)
+1. **Todos os testes de cenario passam** (0 falhas)
 2. **Coverage mínimo atingido** (80%+ linhas)
 3. **Performance budgets respeitados**
 4. **Zero erros críticos de A11y**
@@ -369,7 +383,7 @@ Para considerar o sistema **"Production Ready"**, todos os seguintes devem passa
 
 > "Um teste que valida 20 coisas é melhor que 20 testes que validam 1 coisa cada"
 
-Cada super-teste simula uma **jornada real do usuário**, garantindo que:
+Cada teste de cenario simula uma **jornada real do usuário**, garantindo que:
 - Componentes funcionam **em conjunto** (não apenas isolados)
 - Edge cases são testados **em contexto**
 - Performance é validada **sob carga real**
@@ -404,7 +418,7 @@ npx playwright test
 ## 🤝 Contribuindo
 
 Ao adicionar novos testes:
-1. Prefira **adicionar casos aos super-testes existentes**
+1. Prefira **adicionar casos aos testes de cenario existentes**
 2. Só crie novo arquivo se for funcionalidade completamente nova
 3. Mantenha foco em **jornadas do usuário**, não testes unitários isolados
 4. Sempre adicione **métricas de performance** quando relevante
@@ -413,8 +427,8 @@ Ao adicionar novos testes:
 
 ## 📝 Notas Técnicas
 
-### Por que "Super-Testes"?
-Testes tradicionais focam em **isolamento** (mocks, stubs). Super-testes focam em **integração real**.
+### Por que "Testes de Cenario"?
+Testes tradicionais focam em **isolamento** (mocks, stubs). Testes de cenario focam em **integração real**.
 
 **Vantagens:**
 - ✅ Detectam bugs de integração
@@ -434,11 +448,13 @@ Para o Askesis, as vantagens superam as desvantagens.
 ## 🏆 Status Atual
 
 ```
-✅ Super-Teste 1: Jornada do Novo Usuário         (3 testes)
-✅ Super-Teste 2: Sincronização Conflitante        (5 testes)
-✅ Super-Teste 3: Estresse e Performance            (9 testes)
-✅ Super-Teste 4: Acessibilidade Total              (12 testes)
-✅ Super-Teste 5: Recuperação de Desastres          (10 testes)
+✅ Teste de Cenario 1: Jornada do Novo Usuário      (3 testes)
+✅ Teste de Cenario 2: Sincronização Conflitante    (5 testes)
+✅ Teste de Cenario 3: Estresse e Performance       (9 testes)
+✅ Teste de Cenario 4: Acessibilidade Total         (12 testes)
+✅ Teste de Cenario 5: Recuperação de Desastres     (10 testes)
+✅ Teste de Cenario 6: Segurança (Pentest)
+✅ Teste de Cenario 7: Cloud e Resiliência de Rede
 ✅ Nuclear QA: HabitService (Fuzzing & Oracle)      (16 testes)
 ✅ Nuclear QA: dataMerge (Distributed Chaos)        (11 testes)
 ✅ Unitário: Criptografia AES-GCM                  (14 testes)

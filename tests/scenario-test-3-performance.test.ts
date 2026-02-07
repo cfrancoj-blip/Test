@@ -1,5 +1,5 @@
 /**
- * SUPER-TESTE 3: ESTRESSE E PERFORMANCE (Performance Under Pressure)
+ * TESTE DE CENARIO 3: ESTRESSE E PERFORMANCE (Performance Under Pressure)
  * 
  * Este teste valida simultaneamente:
  * ✓ Bitmask scalability (BigInt operations)
@@ -89,7 +89,7 @@ const PERF_BUDGETS = {
   serialize10YearsMs: 1000
 } as const;
 
-describe('⚡ SUPER-TESTE 3: Estresse e Performance', () => {
+describe('⚡ TESTE DE CENARIO 3: Estresse e Performance', () => {
   const TEST_DATE = '2024-01-15';
   let monitor: PerformanceMonitor;
 

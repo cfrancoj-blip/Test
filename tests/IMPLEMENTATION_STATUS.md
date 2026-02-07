@@ -7,11 +7,11 @@
 /tests/
 ├── README.md                           # Documentação completa dos testes
 ├── test-utils.ts                       # Helpers e utilitários de teste
-├── super-test-1-user-journey.test.ts   # Jornada completa do usuário
-├── super-test-2-sync-conflicts.test.ts # Sincronização e conflitos
-├── super-test-3-performance.test.ts    # Benchmarks de performance
-├── super-test-4-accessibility.test.ts  # Acessibilidade WCAG
-└── super-test-5-disaster-recovery.test.ts # Recuperação de desastres
+├── scenario-test-1-user-journey.test.ts   # Jornada completa do usuário
+├── scenario-test-2-sync-conflicts.test.ts # Sincronização e conflitos
+├── scenario-test-3-performance.test.ts    # Benchmarks de performance
+├── scenario-test-4-accessibility.test.ts  # Acessibilidade WCAG
+└── scenario-test-5-disaster-recovery.test.ts # Recuperação de desastres
 
 /services/
 ├── crypto.test.ts                      # Criptografia AES-GCM
@@ -30,7 +30,7 @@
 ```
 
 ### 📊 Métricas de Cobertura
-- **16 suites de teste** (5 super-testes + 2 nuclear QA + 9 unitários)
+- **16 suites de teste** (testes de cenario + 2 nuclear QA + 9 unitários)
 - **236 testes** passando
 - **Performance budgets** definidos para todas operações críticas
 - **A11y compliance** WCAG 2.1 AA validado
@@ -68,11 +68,11 @@ Todos os ajustes entre a documentação do README e a estrutura real do código 
 | `services/habitActions.ts` | `services/habitActions.test.ts` | 17 | ✅ |
 | `services/HabitService.ts` | `services/HabitService.test.ts` | 16 | ✅ |
 | `services/dataMerge.ts` | `services/dataMerge.test.ts` | 11 | ✅ |
-| Jornada do Usuário | `tests/super-test-1-*.test.ts` | 3 | ✅ |
-| Sync & Conflitos | `tests/super-test-2-*.test.ts` | 5 | ✅ |
-| Performance | `tests/super-test-3-*.test.ts` | 9 | ✅ |
-| Acessibilidade | `tests/super-test-4-*.test.ts` | 12 | ✅ |
-| Disaster Recovery | `tests/super-test-5-*.test.ts` | 10 | ✅ |
+| Jornada do Usuário | `tests/scenario-test-1-*.test.ts` | 3 | ✅ |
+| Sync & Conflitos | `tests/scenario-test-2-*.test.ts` | 5 | ✅ |
+| Performance | `tests/scenario-test-3-*.test.ts` | 9 | ✅ |
+| Acessibilidade | `tests/scenario-test-4-*.test.ts` | 12 | ✅ |
+| Disaster Recovery | `tests/scenario-test-5-*.test.ts` | 10 | ✅ |
 | **TOTAL** | **16 arquivos** | **236** | **✅** |
 
 ---
@@ -83,8 +83,8 @@ Todos os ajustes entre a documentação do README e a estrutura real do código 
 # Suite completa (236 testes)
 npm test
 
-# Apenas super-testes (cenários de integração)
-npm run test:super
+# Apenas testes de cenario (cenários de integração)
+npm run test:scenario
 
 # Com relatório de cobertura
 npm run test:coverage
@@ -101,7 +101,7 @@ npm run test:watch
 ## 📊 Status Atual
 
 ```
-✅ 5 Super-Testes passando (39 testes)
+✅ Testes de Cenario passando
 ✅ 2 Nuclear QA passando (27 testes)
 ✅ 9 Testes Unitários passando (170 testes)
 ✅ Total: 236 testes em 16 arquivos

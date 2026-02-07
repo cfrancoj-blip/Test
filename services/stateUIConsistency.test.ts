@@ -645,8 +645,12 @@ describe('🔒 Consistência Base de Dados ↔ UI', () => {
             const startDate = new Date(baseDate);
             startDate.setUTCDate(startDate.getUTCDate() - 30);
             habit.createdOn = startDate.toISOString().split('T')[0];
-            habit.scheduleHistory[0].startDate = habit.createdOn;
-            habit.scheduleHistory[0] = { ...habit.scheduleHistory[0], scheduleAnchor: habit.createdOn };
+            const updatedSchedule = {
+                ...habit.scheduleHistory[0],
+                startDate: habit.createdOn,
+                scheduleAnchor: habit.createdOn
+            };
+            habit.scheduleHistory = [updatedSchedule, ...habit.scheduleHistory.slice(1)];
 
             for (let d = 24; d >= 0; d--) {
                 const isoDate = new Date(baseDate);
@@ -673,8 +677,12 @@ describe('🔒 Consistência Base de Dados ↔ UI', () => {
             const startDate = new Date(baseDate);
             startDate.setUTCDate(startDate.getUTCDate() - 80);
             habit.createdOn = startDate.toISOString().split('T')[0];
-            habit.scheduleHistory[0].startDate = habit.createdOn;
-            habit.scheduleHistory[0] = { ...habit.scheduleHistory[0], scheduleAnchor: habit.createdOn };
+            const updatedSchedule = {
+                ...habit.scheduleHistory[0],
+                startDate: habit.createdOn,
+                scheduleAnchor: habit.createdOn
+            };
+            habit.scheduleHistory = [updatedSchedule, ...habit.scheduleHistory.slice(1)];
 
             for (let d = 69; d >= 0; d--) {
                 const isoDate = new Date(baseDate);

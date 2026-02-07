@@ -1,5 +1,5 @@
 /**
- * SUPER-TESTE 2: SINCRONIZAÇÃO CONFLITANTE (Multi-Device Hell)
+ * TESTE DE CENARIO 2: SINCRONIZAÇÃO CONFLITANTE (Multi-Device Hell)
  * 
  * Este teste valida simultaneamente:
  * ✓ Criptografia AES-GCM (encrypt/decrypt isomórfico)
@@ -17,7 +17,7 @@ import { HabitService } from '../services/HabitService';
 import { mergeStates } from '../services/dataMerge';
 import { createTestHabit, clearTestState } from './test-utils';
 
-describe('🔄 SUPER-TESTE 2: Sincronização com Conflitos', () => {
+describe('🔄 TESTE DE CENARIO 2: Sincronização com Conflitos', () => {
   const TEST_DATE = '2024-01-15';
 
   beforeEach(() => {

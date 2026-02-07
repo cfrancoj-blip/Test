@@ -326,19 +326,19 @@ Ao contrário de projetos que acumulam centenas de unit tests isolados, o Askesi
 
 O projeto possui **16 suites de testes especializadas**, totalizando **236 testes** que validam:
 
-#### 🎯 **Super-Teste 1: Jornada do Usuário** (3 testes)
+#### 🎯 **Teste de Cenario 1: Jornada do Usuário** (3 testes)
 Valida o ciclo de vida completo de um hábito desde a criação até a graduação:
 - Criação de hábito → Marcação de status → Adição de notas → Persistência → Recuperação após reload
 - Verifica que dados sobrevivem a reinicializações e que o DOM reflete corretamente o estado
 
-#### 🔄 **Super-Teste 2: Conflitos de Sincronização** (5 testes)
+#### 🔄 **Teste de Cenario 2: Conflitos de Sincronização** (5 testes)
 Simula sincronização multi-dispositivo com conflitos:
 - Merge de bitmasks (União de dados binários)
 - Resolução CRDT-lite (Tombstone precedence: Delete > Update)
 - Serialização/Desserialização de dados criptografados
 - Garante que nenhum progresso é perdido em sincronizações concorrentes
 
-#### ⚡ **Super-Teste 3: Performance e Estresse** (10 testes)
+#### ⚡ **Teste de Cenario 3: Performance e Estresse** (10 testes)
 Benchmarks com budgets rigorosos de performance:
 - **100 hábitos criados** em < 100ms
 - **3 anos de histórico** (54.750 registros) populados em < 500ms
@@ -347,7 +347,7 @@ Benchmarks com budgets rigorosos de performance:
 - Verifica que não há vazamento de memória após 10.000 operações
 - Performance constante independente do volume de dados (prova de O(1))
 
-#### ♿ **Super-Teste 4: Acessibilidade Total** (12 testes)
+#### ♿ **Teste de Cenario 4: Acessibilidade Total** (12 testes)
 Validação WCAG 2.1 AA compliance:
 - Navegação completa apenas com teclado (Tab, Enter, Escape)
 - Focus trap em modais (navegação não escapa do contexto)
@@ -357,7 +357,7 @@ Validação WCAG 2.1 AA compliance:
 - Respeito a `prefers-reduced-motion`
 - Skip links para navegação rápida
 
-#### 🔥 **Super-Teste 5: Recuperação de Desastres** (10 testes)
+#### 🔥 **Teste de Cenario 5: Recuperação de Desastres** (10 testes)
 Chaos Engineering - valida resiliência em cenários extremos:
 - Recuperação de localStorage corrompido (JSON inválido)
 - Dados parcialmente deletados (estado fragmentado)
@@ -486,8 +486,8 @@ Validação do controlador principal (`services/habitActions.ts`):
 # Suite completa (236 testes)
 npm test
 
-# Apenas super-testes (cenários de integração)
-npm run test:super
+# Apenas testes de cenario (cenários de integração)
+npm run test:scenario
 
 # Com relatório de cobertura
 npm run test:coverage

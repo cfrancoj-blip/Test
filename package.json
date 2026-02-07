@@ -11,7 +11,7 @@
     "test:ui": "vitest --ui",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:super": "vitest run tests/super-test-*.test.ts"
+    "test:scenario": "vitest run tests/scenario-test-*.test.ts"
   },
   "keywords": [
     "habit-tracker",

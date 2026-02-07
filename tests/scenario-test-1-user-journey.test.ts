@@ -1,5 +1,5 @@
 /**
- * SUPER-TESTE 1: JORNADA DO NOVO USUÁRIO (Onboarding Completo)
+ * TESTE DE CENARIO 1: JORNADA DO NOVO USUÁRIO (Onboarding Completo)
  * 
  * Este teste valida simultaneamente:
  * ✓ IndexedDB persistence
@@ -21,7 +21,7 @@ import {
   getHabitName, getTestNote, isHabitActive, clickTestHabit
 } from './test-utils';
 
-describe('🚀 SUPER-TESTE 1: Jornada do Novo Usuário', () => {
+describe('🚀 TESTE DE CENARIO 1: Jornada do Novo Usuário', () => {
   const TEST_DATE = '2024-01-15';
   
   beforeEach(() => {

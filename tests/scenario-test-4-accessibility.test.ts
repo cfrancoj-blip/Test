@@ -1,5 +1,5 @@
 /**
- * SUPER-TESTE 4: ACESSIBILIDADE TOTAL (A11y Nightmare Mode)
+ * TESTE DE CENARIO 4: ACESSIBILIDADE TOTAL (A11y Nightmare Mode)
  * 
  * Este teste valida simultaneamente:
  * ✓ Semantic HTML
@@ -135,7 +135,7 @@ class A11yValidator {
   }
 }
 
-describe('♿ SUPER-TESTE 4: Acessibilidade Total', () => {
+describe('♿ TESTE DE CENARIO 4: Acessibilidade Total', () => {
   let keyboard: KeyboardSimulator;
   let validator: A11yValidator;
 

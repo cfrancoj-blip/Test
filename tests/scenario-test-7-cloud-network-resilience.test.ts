@@ -1,6 +1,6 @@
 /**
- * @file tests/super-test-7-cloud-network-resilience.test.ts
- * @description Super Test 7 — Cloud Sync, Network Resilience e Data Merge avançado
+ * @file tests/scenario-test-7-cloud-network-resilience.test.ts
+ * @description Teste de Cenario 7 — Cloud Sync, Network Resilience e Data Merge avançado
  * 
  * Testa cenários que faltavam na cobertura:
  * - Cloud sync com falhas de rede (timeout, DNS, 5xx)
@@ -72,7 +72,7 @@ vi.mock('../services/api', () => ({
     isValidKeyFormat: vi.fn((k: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(k))
 }));
 
-describe('🟠 SUPER TEST 7: Cloud, Network & Data Resilience', () => {
+describe('🟠 TESTE DE CENARIO 7: Cloud, Network & Data Resilience', () => {
 
     beforeEach(() => {
         clearTestState();
