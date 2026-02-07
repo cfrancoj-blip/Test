@@ -324,8 +324,22 @@ export function saveHabitFromModal() {
                 nameKey: cleanFormData.nameKey, 
                 subtitleKey: cleanFormData.subtitleKey, 
                 times: cleanFormData.times as readonly TimeOfDay[], 
-                frequency: cleanFormData.frequency 
+                frequency: cleanFormData.frequency,
+                endDate: undefined // RESURRECTION FIX: Explicitly clear endDate on resurrected entry
             }), false);
+
+            // RESURRECTION FIX [2025-06-17]: Remove stale schedule entries left over from
+            // the previous "ending" action. When a habit was ended (creating a split entry with
+            // endDate) and then deleted, those old ending entries remain in scheduleHistory.
+            // After resurrection via _requestFutureScheduleChange (which adds a new open-ended
+            // entry at targetDate), entries AFTER the resurrection point are orphaned and cause
+            // the Manage Habits modal to show "Encerrado" instead of "Ativo" because
+            // setupManageModal checks scheduleHistory[last].endDate.
+            existingHabit.scheduleHistory = existingHabit.scheduleHistory.filter(s => {
+                if (s.startDate > targetDate) return false; // Remove entries after resurrection point
+                if (s.startDate === targetDate && s.endDate) return false; // Remove stale same-date entries with endDate
+                return true;
+            });
         } else {
             state.habits.push({ id: generateUUID(), createdOn: targetDate, scheduleHistory: [{ startDate: targetDate, times: cleanFormData.times as readonly TimeOfDay[], frequency: cleanFormData.frequency, name: cleanFormData.name, nameKey: cleanFormData.nameKey, subtitleKey: cleanFormData.subtitleKey, scheduleAnchor: targetDate, icon: cleanFormData.icon, color: cleanFormData.color, goal: cleanFormData.goal, philosophy: cleanFormData.philosophy }] });
             _notifyChanges(true);

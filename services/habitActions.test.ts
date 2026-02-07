@@ -49,7 +49,8 @@ import {
     graduateHabit,
     handleDayTransition,
     consumeAndFormatCelebrations,
-    exportData
+    exportData,
+    saveHabitFromModal
 } from './habitActions';
 
 describe('⚙️ Lógica de Negócios (habitActions.ts)', () => {
@@ -259,6 +260,124 @@ describe('⚙️ Lógica de Negócios (habitActions.ts)', () => {
             createElementSpy.mockRestore();
             revokeObjectURLSpy.mockRestore();
             createObjectURLSpy.mockRestore();
+        });
+    });
+
+    describe('saveHabitFromModal — Resurrection bug fix', () => {
+        it('hábito ressuscitado deve ter status "ativo" e não "encerrado" (scheduleHistory[last].endDate = undefined)', () => {
+            // SETUP: Create a habit on D1
+            const D1 = '2025-01-10';
+            const D3 = '2025-01-15';
+            const habitId = generateUUID();
+            const habit: Habit = {
+                id: habitId,
+                createdOn: D1,
+                scheduleHistory: [{
+                    startDate: D1,
+                    icon: '🏃',
+                    color: '#3498db',
+                    goal: { type: 'check' },
+                    name: 'Exercício',
+                    times: ['Morning'] as any,
+                    frequency: { type: 'daily' as const },
+                    scheduleAnchor: D1,
+                }]
+            };
+            state.habits.push(habit);
+
+            // STEP 1: End the habit on D3 (simulates _requestFutureScheduleChange with endDate)
+            // This creates a split: [{ sD: D1, eD: D3 }, { sD: D3, eD: D3 }]
+            const sh = habit.scheduleHistory;
+            const original = sh[0];
+            original.endDate = D3;
+            sh.push({ ...original, startDate: D3, endDate: D3 });
+
+            // STEP 2: Simulate permanent deletion (sets tombstone, doesn't modify scheduleHistory)
+            habit.deletedOn = habit.createdOn;
+
+            // STEP 3: Re-add the same habit via resurrection (saveHabitFromModal)
+            state.selectedDate = D3;
+            state.editingHabit = {
+                isNew: true,
+                habitId: undefined,
+                originalData: undefined,
+                formData: {
+                    icon: '🏃',
+                    color: '#3498db',
+                    goal: { type: 'check' },
+                    name: 'Exercício',
+                    times: ['Morning'],
+                    frequency: { type: 'daily' },
+                },
+                targetDate: D3
+            } as any;
+
+            saveHabitFromModal();
+
+            // VERIFY: The habit should NOT have deletedOn
+            expect(habit.deletedOn).toBeUndefined();
+
+            // VERIFY: The LAST schedule entry must have endDate = undefined (active, not ended)
+            const lastEntry = habit.scheduleHistory[habit.scheduleHistory.length - 1];
+            expect(lastEntry.endDate).toBeUndefined();
+
+            // VERIFY: Status determination matches "active" logic from setupManageModal
+            const status = habit.graduatedOn
+                ? 'graduated'
+                : (habit.scheduleHistory[habit.scheduleHistory.length - 1].endDate ? 'ended' : 'active');
+            expect(status).toBe('active');
+        });
+
+        it('hábito ressuscitado em data anterior ao encerramento deve limpar entradas stale', () => {
+            // Scenario: Habit created D1, ended D3, deleted, re-added on D2 (between D1 and D3)
+            const D1 = '2025-01-10';
+            const D2 = '2025-01-12';
+            const D3 = '2025-01-15';
+            const habitId = generateUUID();
+            const habit: Habit = {
+                id: habitId,
+                createdOn: D1,
+                scheduleHistory: [
+                    { startDate: D1, endDate: D3, icon: '🏃', color: '#3498db', goal: { type: 'check' }, name: 'Exercício', times: ['Morning'] as any, frequency: { type: 'daily' as const }, scheduleAnchor: D1 },
+                    { startDate: D3, endDate: D3, icon: '🏃', color: '#3498db', goal: { type: 'check' }, name: 'Exercício', times: ['Morning'] as any, frequency: { type: 'daily' as const }, scheduleAnchor: D3 },
+                ]
+            };
+            state.habits.push(habit);
+            habit.deletedOn = D1;
+
+            // Re-add on D2 (before the old endDate D3)
+            state.selectedDate = D2;
+            state.editingHabit = {
+                isNew: true,
+                habitId: undefined,
+                originalData: undefined,
+                formData: {
+                    icon: '🏃',
+                    color: '#e74c3c',
+                    goal: { type: 'check' },
+                    name: 'Exercício',
+                    times: ['Morning'],
+                    frequency: { type: 'daily' },
+                },
+                targetDate: D2
+            } as any;
+
+            saveHabitFromModal();
+
+            // The stale entry at D3 with endDate D3 should be REMOVED
+            const entriesAfterD2 = habit.scheduleHistory.filter(s => s.startDate > D2);
+            expect(entriesAfterD2.length).toBe(0);
+
+            // Last entry should be the resurrection entry with no endDate
+            const lastEntry = habit.scheduleHistory[habit.scheduleHistory.length - 1];
+            expect(lastEntry.endDate).toBeUndefined();
+            expect(lastEntry.startDate).toBe(D2);
+
+            // Status should be active
+            const status = habit.graduatedOn
+                ? 'graduated'
+                : (habit.scheduleHistory[habit.scheduleHistory.length - 1].endDate ? 'ended' : 'active');
+            expect(status).toBe('active');
         });
     });
 });
