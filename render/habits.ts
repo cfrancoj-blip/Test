@@ -190,7 +190,7 @@ export function updateHabitCardElement(card: HTMLElement, habit: Habit, time: Ti
     else _renderPendingGoalControls(habit, time, info, els);
 }
 
-export function createHabitCardElement(habit: Habit, time: TimeOfDay, preInfo?: Record<string, HabitDailyInfo>): HTMLElement {
+function createHabitCardElement(habit: Habit, time: TimeOfDay, preInfo?: Record<string, HabitDailyInfo>): HTMLElement {
     const card = getHabitCardTemplate().cloneNode(true) as HTMLElement;
     card.dataset.habitId = habit.id; card.dataset.time = time;
     const key = _getCacheKey(habit.id, time);

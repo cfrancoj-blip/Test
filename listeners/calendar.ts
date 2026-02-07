@@ -24,13 +24,6 @@ import {
 } from '../constants';
 import { markAllHabitsForDate } from '../services/habitActions';
 
-// --- CONFIGURAÇÃO ADAPTATIVA ---
-const SCROLL_THRESHOLD_PX = CALENDAR_SCROLL_THRESHOLD_PX; // Pixels antes da borda para disparar
-const BASE_BATCH_SIZE = CALENDAR_BASE_BATCH_SIZE;      // Modo Padrão: Navegação casual
-const TURBO_BATCH_SIZE = CALENDAR_TURBO_BATCH_SIZE;     // Modo Turbo: Navegação rápida ("Viagem no tempo")
-const TURBO_TIME_WINDOW_MS = CALENDAR_TURBO_TIME_WINDOW_MS; // Janela de tempo para ativar o Turbo
-const DOM_CAP = CALENDAR_MAX_DOM_NODES;       // Limite de nós no DOM
-
 // --- STATE MACHINE ---
 const CalendarGestureState = {
     isScrolling: false,
@@ -65,11 +58,11 @@ const _handleScroll = () => {
         // HEURÍSTICA ADAPTATIVA:
         // Determina a intenção do usuário baseada na velocidade de consumo de dados.
         const now = Date.now();
-        const isTurbo = (now - CalendarGestureState.lastFetchTime) < TURBO_TIME_WINDOW_MS;
-        const currentBatch = isTurbo ? TURBO_BATCH_SIZE : BASE_BATCH_SIZE;
+        const isTurbo = (now - CalendarGestureState.lastFetchTime) < CALENDAR_TURBO_TIME_WINDOW_MS;
+        const currentBatch = isTurbo ? CALENDAR_TURBO_BATCH_SIZE : CALENDAR_BASE_BATCH_SIZE;
 
         // 1. Chegou no início (Passado) -> Prepend
-        if (scrollLeft < SCROLL_THRESHOLD_PX) {
+        if (scrollLeft < CALENDAR_SCROLL_THRESHOLD_PX) {
             CalendarGestureState.lastFetchTime = now;
             
             const firstEl = strip.firstElementChild as HTMLElement;
@@ -91,14 +84,13 @@ const _handleScroll = () => {
                 strip.scrollLeft += (newWidth - oldWidth);
 
                 // DOM CAP: Remove do final se muito grande para poupar memória
-                if (strip.children.length > DOM_CAP) {
-                    for (let i = 0; i < currentBatch; i++) strip.lastElementChild?.remove();
+                if (strip.children.length > CALENDAR_MAX_DOM_NODES) {
                 }
             }
         }
         
         // 2. Chegou no final (Futuro) -> Append
-        else if (maxScroll - scrollLeft < SCROLL_THRESHOLD_PX) {
+        else if (maxScroll - scrollLeft < CALENDAR_SCROLL_THRESHOLD_PX) {
             CalendarGestureState.lastFetchTime = now;
             
             const lastEl = strip.lastElementChild as HTMLElement;
@@ -112,7 +104,7 @@ const _handleScroll = () => {
                 strip.appendChild(frag);
 
                 // DOM CAP: Remove do início
-                if (strip.children.length > DOM_CAP) {
+                if (strip.children.length > CALENDAR_MAX_DOM_NODES) {
                     const removeCount = currentBatch;
                     // Ao remover do início, o scrollLeft muda automaticamente.
                     // Precisamos compensar essa mudança para manter a posição relativa.

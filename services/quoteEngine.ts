@@ -36,19 +36,6 @@ import {
     QUOTE_HISTORY_GOOD_THRESHOLD
 } from '../constants';
 
-// --- TUNING CONSTANTS ---
-const WEIGHTS = QUOTE_WEIGHTS;
-
-// HYSTERESIS CONSTANTS
-const MIN_DISPLAY_DURATION = QUOTE_MIN_DISPLAY_DURATION_MS;
-const TRIUMPH_ENTER = QUOTE_TRIUMPH_ENTER; 
-const TRIUMPH_EXIT = QUOTE_TRIUMPH_EXIT;  
-const STRUGGLE_ENTER = QUOTE_STRUGGLE_ENTER;
-const STRUGGLE_EXIT = QUOTE_STRUGGLE_EXIT;  
-
-const HISTORY_LOOKBACK = QUOTE_HISTORY_LOOKBACK;
-const HISTORY_GOOD_THRESHOLD = QUOTE_HISTORY_GOOD_THRESHOLD;
-
 type PerformanceState = 'neutral' | 'struggle' | 'urgency' | 'triumph' | 'defeat';
 
 // --- TYPES ---
@@ -88,7 +75,7 @@ function _analyzeRecentHistory(todayISO: string): number {
     let validDays = 0;
     let successfulDays = 0;
 
-    for (let i = 1; i <= HISTORY_LOOKBACK; i++) {
+    for (let i = 1; i <= QUOTE_HISTORY_LOOKBACK; i++) {
         const pastDate = new Date(today);
         pastDate.setUTCDate(today.getUTCDate() - i);
         const pastISO = toUTCIsoDateString(pastDate);
@@ -97,7 +84,7 @@ function _analyzeRecentHistory(todayISO: string): number {
 
         if (summary.total > 0) {
             validDays++;
-            if ((summary.completed / summary.total) >= HISTORY_GOOD_THRESHOLD) {
+            if ((summary.completed / summary.total) >= QUOTE_HISTORY_GOOD_THRESHOLD) {
                 successfulDays++;
             }
         }
@@ -213,8 +200,8 @@ function _getPerformanceStateWithHysteresis(dateISO: string, lastContextHash?: s
     const completionRate = summary.completed / summary.total;
     const snoozeRate = summary.snoozed / summary.total;
     
-    if (completionRate >= TRIUMPH_ENTER) return 'triumph'; 
-    if (snoozeRate > STRUGGLE_ENTER) return 'struggle';
+    if (completionRate >= QUOTE_TRIUMPH_ENTER) return 'triumph'; 
+    if (snoozeRate > QUOTE_STRUGGLE_ENTER) return 'struggle';
     
     const isToday = dateISO === getTodayUTCIso();
     if (isToday && timeOfDay === 'evening' && completionRate < 0.1 && snoozeRate < 0.1) {
@@ -235,8 +222,8 @@ function _getPerformanceStateWithHysteresis(dateISO: string, lastContextHash?: s
         if (parts[4]) previousState = parts[4] as PerformanceState;
     }
 
-    if (previousState === 'triumph' && completionRate >= TRIUMPH_EXIT) return 'triumph';
-    if (previousState === 'struggle' && snoozeRate > STRUGGLE_EXIT) return 'struggle';
+    if (previousState === 'triumph' && completionRate >= QUOTE_TRIUMPH_EXIT) return 'triumph';
+    if (previousState === 'struggle' && snoozeRate > QUOTE_STRUGGLE_EXIT) return 'struggle';
 
     return 'neutral';
 }
@@ -302,50 +289,50 @@ function _scoreQuote(quote: Quote, context: ContextVector): number {
 
     // 0. ANTI-REPETITION
     if (context.lastShownId === quote.id) {
-        score += WEIGHTS.RECENTLY_SHOWN;
+        score += QUOTE_WEIGHTS.RECENTLY_SHOWN;
     }
 
     // 1. AI BOOST
     if (context.aiThemes.size > 0) {
         const matches = quote.metadata.tags.filter(tag => context.aiThemes.has(tag));
-        score += matches.length * WEIGHTS.AI_MATCH;
+        score += matches.length * QUOTE_WEIGHTS.AI_MATCH;
     }
 
     // 2. SPHERE SENSITIVITY
     if (context.neglectedSphere && quote.metadata.sphere === context.neglectedSphere) {
-        score += WEIGHTS.SPHERE_MATCH;
+        score += QUOTE_WEIGHTS.SPHERE_MATCH;
     }
 
     // 3. RECOVERY
-    applyTagRule(context.isRecovery, ['resilience', 'growth', 'hope'], WEIGHTS.RECOVERY);
+    applyTagRule(context.isRecovery, ['resilience', 'growth', 'hope'], QUOTE_WEIGHTS.RECOVERY);
 
     // 4. TIME OF DAY
-    if (context.timeOfDay === 'morning') applyTagRule(true, ['morning'], WEIGHTS.TIME_OF_DAY);
-    if (context.timeOfDay === 'evening') applyTagRule(true, ['evening', 'reflection', 'rest'], WEIGHTS.TIME_OF_DAY);
+    if (context.timeOfDay === 'morning') applyTagRule(true, ['morning'], QUOTE_WEIGHTS.TIME_OF_DAY);
+    if (context.timeOfDay === 'evening') applyTagRule(true, ['evening', 'reflection', 'rest'], QUOTE_WEIGHTS.TIME_OF_DAY);
 
     // 5. VIRTUE RESONANCE
     if (context.dominantVirtues.has(quote.metadata.virtue)) {
-        score += WEIGHTS.VIRTUE_ALIGN;
+        score += QUOTE_WEIGHTS.VIRTUE_ALIGN;
     }
 
     // 6. PERFORMANCE REACTION
     // AUDIT FIX: Renamed shadowed variable 'state' to 'perfState'
     const perfState = context.performanceState;
     if (perfState === 'defeat') {
-        applyTagRule(true, ['resilience', 'acceptance', 'fate'], WEIGHTS.PERFORMANCE);
+        applyTagRule(true, ['resilience', 'acceptance', 'fate'], QUOTE_WEIGHTS.PERFORMANCE);
     } else if (perfState === 'triumph') {
-        applyTagRule(true, ['humility', 'temperance', 'death'], WEIGHTS.PERFORMANCE);
+        applyTagRule(true, ['humility', 'temperance', 'death'], QUOTE_WEIGHTS.PERFORMANCE);
     } else if (perfState === 'struggle') {
-        applyTagRule(true, ['discipline', 'action', 'focus'], WEIGHTS.PERFORMANCE);
+        applyTagRule(true, ['discipline', 'action', 'focus'], QUOTE_WEIGHTS.PERFORMANCE);
     } else if (perfState === 'urgency') {
         if (quote.metadata.tags.includes('urgency') || quote.metadata.tags.includes('time') || 
             quote.metadata.tags.includes('action') || quote.metadata.tags.includes('death')) {
-            score += WEIGHTS.PERFORMANCE * 1.2;
+            score += QUOTE_WEIGHTS.PERFORMANCE * 1.2;
         }
     }
 
     // 7. MOMENTUM CONTEXT
-    applyTagRule(context.momentumState === 'unbroken', ['consistency', 'habit'], WEIGHTS.MOMENTUM);
+    applyTagRule(context.momentumState === 'unbroken', ['consistency', 'habit'], QUOTE_WEIGHTS.MOMENTUM);
 
     return score;
 }
@@ -368,7 +355,7 @@ export function selectBestQuote(quotes: readonly Quote[], dateISO: string): Quot
     // STICKINESS CHECK (Today Only)
     if (isToday && state.quoteState && !context.isMajorShift) {
         const elapsed = Date.now() - state.quoteState.displayedAt;
-        if (elapsed < MIN_DISPLAY_DURATION) {
+        if (elapsed < QUOTE_MIN_DISPLAY_DURATION_MS) {
             const current = quotes.find(q => q.id === state.quoteState!.currentId);
             if (current) return current;
         }

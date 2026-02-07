@@ -1,1 +1,1 @@
-// REMOVED: Dead shim file. Use render.ts at root.
+// DEAD FILE — Scheduled for deletion. No imports reference this file.

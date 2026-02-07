@@ -118,7 +118,7 @@ async function saveStateInternal(immediate = false, suppressSync = false) {
     }
 }
 
-export function cancelPendingSave() {
+function cancelPendingSave() {
     if (saveTimeout !== undefined) {
         clearTimeout(saveTimeout);
         saveTimeout = undefined;

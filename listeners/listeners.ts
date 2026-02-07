@@ -1,1 +1,1 @@
-// REMOVED: Dead file.
+// DEAD FILE — Scheduled for deletion. No imports reference this file.

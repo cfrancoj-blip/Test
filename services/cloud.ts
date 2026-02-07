@@ -25,17 +25,11 @@ import {
     CLOUD_WORKER_TIMEOUT_MS
 } from '../constants';
 
-// PERFORMANCE: Debounce para evitar salvar na nuvem a cada pequena alteração
-const DEBOUNCE_DELAY = CLOUD_SYNC_DEBOUNCE_MS; 
 const HASH_STORAGE_KEY = 'askesis_sync_hashes';
-const SYNC_LOG_MAX_ENTRIES = CLOUD_SYNC_LOG_MAX_ENTRIES;
-const SYNC_LOG_MAX_AGE_MS = CLOUD_SYNC_LOG_MAX_AGE_MS;
-const HASH_CACHE_MAX_ENTRIES = CLOUD_HASH_CACHE_MAX_ENTRIES;
-const WORKER_TIMEOUT_MS = CLOUD_WORKER_TIMEOUT_MS;
 
 let isSyncInProgress = false;
 let pendingSyncState: AppState | null = null;
-const debouncedSync = createDebounced(() => { if (!isSyncInProgress) performSync(); }, DEBOUNCE_DELAY);
+const debouncedSync = createDebounced(() => { if (!isSyncInProgress) performSync(); }, CLOUD_SYNC_DEBOUNCE_MS);
 
 // --- WORKER INFRASTRUCTURE ---
 let syncWorker: Worker | null = null;
@@ -73,7 +67,7 @@ export function runWorkerTask<T>(type: 'encrypt' | 'decrypt' | 'build-ai-prompt'
         const timeoutId = window.setTimeout(() => {
             workerCallbacks.delete(id);
             reject(new Error('Worker timeout'));
-        }, WORKER_TIMEOUT_MS);
+        }, CLOUD_WORKER_TIMEOUT_MS);
         workerCallbacks.set(id, { 
             resolve: (val) => { clearTimeout(timeoutId); resolve(val); }, 
             reject: (err) => { clearTimeout(timeoutId); reject(err); } 
@@ -143,8 +137,8 @@ function persistHashCache() {
 }
 
 function pruneHashCache() {
-    if (lastSyncedHashes.size <= HASH_CACHE_MAX_ENTRIES) return;
-    while (lastSyncedHashes.size > HASH_CACHE_MAX_ENTRIES) {
+    if (lastSyncedHashes.size <= CLOUD_HASH_CACHE_MAX_ENTRIES) return;
+    while (lastSyncedHashes.size > CLOUD_HASH_CACHE_MAX_ENTRIES) {
         const firstKey = lastSyncedHashes.keys().next().value;
         if (firstKey === undefined) break;
         lastSyncedHashes.delete(firstKey);
@@ -193,9 +187,9 @@ export function addSyncLog(msg: string, type: 'success' | 'error' | 'info' = 'in
 
 function pruneSyncLogs() {
     if (!state.syncLogs || state.syncLogs.length === 0) return;
-    const cutoff = Date.now() - SYNC_LOG_MAX_AGE_MS;
+    const cutoff = Date.now() - CLOUD_SYNC_LOG_MAX_AGE_MS;
     while (state.syncLogs.length > 0 && state.syncLogs[0].time < cutoff) state.syncLogs.shift();
-    while (state.syncLogs.length > SYNC_LOG_MAX_ENTRIES) state.syncLogs.shift();
+    while (state.syncLogs.length > CLOUD_SYNC_LOG_MAX_ENTRIES) state.syncLogs.shift();
 }
 
 export function setSyncStatus(statusKey: 'syncSaving' | 'syncSynced' | 'syncError' | 'syncInitial') {

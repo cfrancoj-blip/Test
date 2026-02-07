@@ -96,8 +96,6 @@ function _notifyPartialUIRefresh(date: string, habitIds: string[]) {
     // Isso evita o reflow global da fita do calendário.
     invalidateCachesForDateChange(date);
     
-    // state.uiDirtyState.calendarVisuals = true; // REMOVED: Managed surgically now
-    
     _bumpLastModified();
 
     saveState();
@@ -282,6 +280,32 @@ export function saveHabitFromModal() {
     // NAVIGATION FIX [2025-06-14]: Suppress onClose callback (reopen Explore) on successful save.
     // The user has completed their action, so we shouldn't force them back to the list.
     closeModal(ui.editHabitModal, true);
+
+    // EMPTY TIMES FIX [2025-02-07]: Se nenhum horário foi selecionado, não adicionar/ressuscitar
+    // o hábito. Se já existia e está ativo, encerrá-lo. Caso contrário, não fazer nada.
+    if (cleanFormData.times.length === 0) {
+        if (isNew) {
+            // Verifica se existe um hábito ativo com este nome para encerrá-lo
+            const activeHabit = state.habits.find(h => {
+                if (h.deletedOn || h.graduatedOn) return false;
+                const info = getHabitDisplayInfo(h, targetDate);
+                const lastName = h.scheduleHistory[h.scheduleHistory.length - 1]?.name || info.name;
+                if ((lastName || '').trim().toLowerCase() !== nameToUse.trim().toLowerCase()) return false;
+                const lastSchedule = h.scheduleHistory[h.scheduleHistory.length - 1];
+                return !lastSchedule.endDate || lastSchedule.endDate > targetDate;
+            });
+            if (activeHabit) {
+                _requestFutureScheduleChange(activeHabit.id, targetDate, s => ({ ...s, endDate: targetDate }), true);
+            }
+        } else {
+            // Edição de hábito existente: encerrar o hábito
+            const h = state.habits.find(x => x.id === habitId);
+            if (h) {
+                _requestFutureScheduleChange(h.id, targetDate, s => ({ ...s, endDate: targetDate }), true);
+            }
+        }
+        return;
+    }
     
     if (isNew) {
         // RESURRECTION LOGIC: 

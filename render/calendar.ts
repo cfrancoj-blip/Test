@@ -17,10 +17,6 @@ import { setTextContent } from './dom';
 import { CSS_CLASSES } from './constants';
 import { CALENDAR_INITIAL_BUFFER_DAYS, CALENDAR_MAX_DOM_NODES } from '../constants';
 
-// --- CONFIGURAÇÃO SWEET SPOT ---
-const INITIAL_BUFFER_DAYS = CALENDAR_INITIAL_BUFFER_DAYS;
-const MAX_DOM_NODES = CALENDAR_MAX_DOM_NODES;
-
 let dayItemTemplate: HTMLElement | null = null;
 let fullCalendarDayTemplate: HTMLElement | null = null;
 type DayCacheEntry = { el: HTMLElement; ringEl: HTMLElement; numEl: HTMLElement };
@@ -126,7 +122,7 @@ export function renderCalendar() {
     
     const frag = document.createDocumentFragment();
 
-    for (let i = -INITIAL_BUFFER_DAYS; i <= INITIAL_BUFFER_DAYS; i++) {
+    for (let i = -CALENDAR_INITIAL_BUFFER_DAYS; i <= CALENDAR_INITIAL_BUFFER_DAYS; i++) {
         const d = addDays(centerDate, i);
         const iso = toUTCIsoDateString(d);
         const el = createDayElement(iso, iso === centerDateISO, iso === todayISO);
@@ -144,7 +140,7 @@ export function renderCalendar() {
 
 /**
  * [INFINITE SCROLL] Adiciona um dia ao final da lista (Futuro).
- * OTIMIZAÇÃO: Remove nós antigos do topo se exceder MAX_DOM_NODES.
+ * OTIMIZAÇÃO: Remove nós antigos do topo se exceder CALENDAR_MAX_DOM_NODES.
  */
 export function appendDayToStrip(lastDateISO: string, container: Node = ui.calendarStrip): string {
     const nextDate = addDays(parseUTCIsoDate(lastDateISO), 1);
@@ -155,7 +151,7 @@ export function appendDayToStrip(lastDateISO: string, container: Node = ui.calen
     container.appendChild(el);
 
     // [GARBAGE COLLECTION] Mantém o DOM leve
-    if (container === ui.calendarStrip && ui.calendarStrip.children.length > MAX_DOM_NODES) {
+    if (container === ui.calendarStrip && ui.calendarStrip.children.length > CALENDAR_MAX_DOM_NODES) {
         const removed = ui.calendarStrip.firstElementChild as HTMLElement | null;
         if (removed?.dataset.date) dayElementCache.delete(removed.dataset.date);
         removed?.remove();
@@ -166,7 +162,7 @@ export function appendDayToStrip(lastDateISO: string, container: Node = ui.calen
 
 /**
  * [INFINITE SCROLL] Adiciona um dia ao início da lista (Passado).
- * OTIMIZAÇÃO: Remove nós futuros do final se exceder MAX_DOM_NODES.
+ * OTIMIZAÇÃO: Remove nós futuros do final se exceder CALENDAR_MAX_DOM_NODES.
  */
 export function prependDayToStrip(firstDateISO: string, container: Node = ui.calendarStrip): string {
     const prevDate = addDays(parseUTCIsoDate(firstDateISO), -1);
@@ -182,7 +178,7 @@ export function prependDayToStrip(firstDateISO: string, container: Node = ui.cal
     }
 
     // [GARBAGE COLLECTION] Mantém o DOM leve
-    if (container === ui.calendarStrip && ui.calendarStrip.children.length > MAX_DOM_NODES) {
+    if (container === ui.calendarStrip && ui.calendarStrip.children.length > CALENDAR_MAX_DOM_NODES) {
         const removed = ui.calendarStrip.lastElementChild as HTMLElement | null;
         if (removed?.dataset.date) dayElementCache.delete(removed.dataset.date);
         removed?.remove();

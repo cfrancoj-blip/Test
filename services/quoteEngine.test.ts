@@ -194,10 +194,12 @@ describe('🏛️ Motor de Citações Estoicas (quoteEngine.ts)', () => {
 
             // Configura como a citação acabou de ser mostrada HOJE
             const today = new Date().toISOString().split('T')[0];
+            const hour = new Date().getHours();
+            const timeOfDay = hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening';
             state.quoteState = {
                 currentId: 'sticky',
                 displayedAt: Date.now() - 1000, // 1 segundo atrás (< MIN_DISPLAY_DURATION)
-                lockedContext: `${today}-morning-neutral--none`
+                lockedContext: `${today}-${timeOfDay}-neutral--none`
             };
 
             const result = selectBestQuote(quotes, today);

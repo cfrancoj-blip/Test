@@ -30,12 +30,12 @@ import { t, formatDate, formatDecimal, formatEvolution } from '../i18n';
 import { getTodayUTCIso, parseUTCIsoDate, toUTCIsoDateString, MS_PER_DAY, logger } from '../utils';
 import { setTextContent } from './dom';
 import {
-    CHART_DAYS as CHART_DAYS_CONST,
+    CHART_DAYS,
     CHART_INITIAL_SCORE,
     CHART_MAX_DAILY_CHANGE_RATE,
     CHART_PLUS_BONUS_MULTIPLIER,
     CHART_SVG_HEIGHT,
-    CHART_PADDING as CHART_PADDING_CONST,
+    CHART_PADDING,
     CHART_MIN_VISUAL_AMPLITUDE,
     CHART_SAFETY_PADDING_RATIO,
     CHART_FALLBACK_WIDTH,
@@ -44,21 +44,15 @@ import {
     CHART_CURVE_TENSION
 } from '../constants';
 
-const CHART_DAYS = CHART_DAYS_CONST;
-const INITIAL_SCORE = CHART_INITIAL_SCORE;
-const MAX_DAILY_CHANGE_RATE = CHART_MAX_DAILY_CHANGE_RATE;
-const PLUS_BONUS_MULTIPLIER = CHART_PLUS_BONUS_MULTIPLIER;
-
-// VISUAL CONSTANTS
+// Re-exports for listeners/chart.ts
 export const SVG_HEIGHT = CHART_SVG_HEIGHT;
-export const CHART_PADDING = CHART_PADDING_CONST;
+export { CHART_PADDING };
 
 // PERFORMANCE [2025-04-13]: Hoisted Intl Options.
 const OPTS_AXIS_LABEL_SHORT: Intl.DateTimeFormatOptions = { 
     month: 'short', 
     day: 'numeric', 
-    timeZone: 'UTC',
-    year: undefined // Default
+    timeZone: 'UTC'
 };
 
 const OPTS_AXIS_LABEL_WITH_YEAR: Intl.DateTimeFormatOptions = { 
@@ -117,7 +111,7 @@ function calculateChartData(): ChartDataPoint[] {
         let currentTimestamp = endDate.getTime() - ((CHART_DAYS - 1) * MS_PER_DAY);
         const iteratorDate = new Date(currentTimestamp);
         const todayISO = getTodayUTCIso();
-        let previousDayValue = INITIAL_SCORE;
+        let previousDayValue = CHART_INITIAL_SCORE;
 
         for (let i = 0; i < CHART_DAYS; i = (i + 1) | 0) {
             iteratorDate.setTime(currentTimestamp);
@@ -134,9 +128,9 @@ function calculateChartData(): ChartDataPoint[] {
                 const completionRatio = completedCount / scheduledCount;
                 let performanceFactor = (completionRatio - 0.5) * 2;
                 if (showPlusIndicator) {
-                    performanceFactor = 1.0 * PLUS_BONUS_MULTIPLIER;
+                    performanceFactor = 1.0 * CHART_PLUS_BONUS_MULTIPLIER;
                 }
-                const dailyChange = performanceFactor * MAX_DAILY_CHANGE_RATE;
+                const dailyChange = performanceFactor * CHART_MAX_DAILY_CHANGE_RATE;
                 currentValue = previousDayValue * (1 + dailyChange);
             } else {
                 currentValue = previousDayValue;

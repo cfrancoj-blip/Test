@@ -174,23 +174,6 @@ export class HabitService {
     }
 
     /**
-     * Deserialização.
-     */
-    static deserializeLogsFromCloud(serialized: [string, string][]) {
-        if (!Array.isArray(serialized)) return;
-        serialized.forEach(([key, hexVal]) => {
-            try {
-                const hexClean = hexVal.startsWith("0x") ? hexVal : "0x" + hexVal;
-                state.monthlyLogs.set(key, BigInt(hexClean));
-                    } catch (e) {
-                        logger.warn(`[HabitService] Skipping invalid hex log: ${key}`);
-            }
-        });
-        // Como estamos injetando dados externos, invalidamos o cache para garantir consistência.
-        this.resetCache();
-    }
-    
-    /**
      * INTELLIGENT MERGE (CRDT-Lite para Bitmasks).
      */
     static mergeLogs(winnerMap: Map<string, bigint> | undefined, loserMap: Map<string, bigint> | undefined): Map<string, bigint> {
