@@ -154,6 +154,14 @@ export async function mergeStates(local: AppState, incoming: AppState): Promise<
                 }
             }
 
+            if (winnerHabit.deletedOn) {
+                if (!winnerHabit.deletedName && loserHabit.deletedName) {
+                    winnerHabit.deletedName = loserHabit.deletedName;
+                }
+            } else if (winnerHabit.deletedName) {
+                winnerHabit.deletedName = undefined;
+            }
+
             // Graduação: data mais antiga vence (primeira vez que o usuário conquistou)
             if (loserHabit.graduatedOn) {
                 if (!winnerHabit.graduatedOn || loserHabit.graduatedOn < winnerHabit.graduatedOn) {
