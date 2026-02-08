@@ -973,6 +973,7 @@ describe('🔒 Consistência Base de Dados ↔ UI', () => {
             const id = createTestHabit({ name: 'Resurrect', time: 'Morning' });
             const date = getTodayUTCIso();
             const habit = state.habits.find(h => h.id === id)!;
+            const baseSchedule = habit.scheduleHistory[0];
 
             HabitService.setStatus(id, date, 'Morning', HABIT_STATE.DONE);
 
@@ -983,15 +984,15 @@ describe('🔒 Consistência Base de Dados ↔ UI', () => {
                 isNew: true,
                 targetDate: date,
                 formData: {
-                    icon: habit.scheduleHistory[0].icon,
-                    color: habit.scheduleHistory[0].color,
+                    icon: baseSchedule.icon,
+                    color: baseSchedule.color,
                     times: ['Morning'],
-                    goal: habit.scheduleHistory[0].goal,
-                    frequency: habit.scheduleHistory[0].frequency,
-                    name: habit.scheduleHistory[0].name || 'Resurrect',
-                    nameKey: habit.scheduleHistory[0].nameKey,
-                    subtitleKey: habit.scheduleHistory[0].subtitleKey,
-                    philosophy: habit.scheduleHistory[0].philosophy
+                    goal: baseSchedule.goal,
+                    frequency: baseSchedule.frequency,
+                    name: baseSchedule.name || 'Resurrect',
+                    nameKey: baseSchedule.nameKey,
+                    subtitleKey: baseSchedule.subtitleKey,
+                    philosophy: baseSchedule.philosophy
                 }
             };
 

@@ -75,6 +75,7 @@ export interface Habit {
     createdOn: string; 
     graduatedOn?: string; 
     deletedOn?: string; // LOGICAL DELETION (Tombstone)
+    deletedName?: string;
     scheduleHistory: HabitSchedule[];
 }
 

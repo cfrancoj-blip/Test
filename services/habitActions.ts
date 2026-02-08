@@ -213,6 +213,8 @@ const _applyHabitDeletion = async () => {
     // 1. Marcação Lógica para Sync (Tombstone do Objeto Hábito)
     // Para Hard Delete, definimos a data de deleção para o início da existência do hábito (ou antes),
     // garantindo que ele não apareça em nenhum filtro de data (shouldHabitAppearOnDate).
+    const lastSchedule = habit.scheduleHistory[habit.scheduleHistory.length - 1];
+    habit.deletedName = lastSchedule?.nameKey ? t(lastSchedule.nameKey) : lastSchedule?.name;
     habit.deletedOn = habit.createdOn;
     habit.graduatedOn = undefined;
     habit.scheduleHistory = [];
@@ -329,8 +331,8 @@ export function saveHabitFromModal() {
         // RESURRECTION LOGIC:
         // Reuse an existing habit with the same name to avoid duplicates.
         const candidates = state.habits.filter(h => {
-             const info = getHabitDisplayInfo(h, targetDate);
-             const lastName = h.scheduleHistory[h.scheduleHistory.length - 1]?.name || info.name;
+               const info = getHabitDisplayInfo(h, targetDate);
+               const lastName = h.scheduleHistory[h.scheduleHistory.length - 1]?.name || h.deletedName || info.name;
              return (lastName || '').trim().toLowerCase() === nameToUse.trim().toLowerCase();
         });
 
@@ -357,6 +359,7 @@ export function saveHabitFromModal() {
             const wasDeleted = !!existingHabit.deletedOn;
             if (existingHabit.deletedOn) existingHabit.deletedOn = undefined;
             if (existingHabit.graduatedOn) existingHabit.graduatedOn = undefined;
+            if (existingHabit.deletedName) existingHabit.deletedName = undefined;
             if (targetDate < existingHabit.createdOn) existingHabit.createdOn = targetDate;
 
             if (wasDeleted) {
