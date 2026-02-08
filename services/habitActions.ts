@@ -327,7 +327,7 @@ export function saveHabitFromModal() {
     
     if (isNew) {
         // RESURRECTION LOGIC:
-        // Only reuse an ACTIVE habit that already covers the target date.
+        // Reuse an existing habit with the same name to avoid duplicates.
         const candidates = state.habits.filter(h => {
              const info = getHabitDisplayInfo(h, targetDate);
              const lastName = h.scheduleHistory[h.scheduleHistory.length - 1]?.name || info.name;
@@ -336,43 +336,77 @@ export function saveHabitFromModal() {
 
         // Pick priority:
         // 1. Active (not deleted, not graduated, covers targetDate or has no endDate)
-        let existingHabit = candidates.find(h => 
+        let existingHabit = candidates.find(h =>
             !h.deletedOn && !h.graduatedOn && 
             (!h.scheduleHistory[h.scheduleHistory.length-1].endDate || h.scheduleHistory[h.scheduleHistory.length-1].endDate! > targetDate)
         );
+        
+        if (!existingHabit && candidates.length > 0) {
+            const sorted = [...candidates].sort((a, b) => {
+                const aLast = a.scheduleHistory[a.scheduleHistory.length - 1];
+                const bLast = b.scheduleHistory[b.scheduleHistory.length - 1];
+                const aKey = aLast?.startDate || a.createdOn;
+                const bKey = bLast?.startDate || b.createdOn;
+                return bKey.localeCompare(aKey);
+            });
+            existingHabit = sorted[0];
+        }
 
         if (existingHabit) {
             // Restore Logical state
+            const wasDeleted = !!existingHabit.deletedOn;
             if (existingHabit.deletedOn) existingHabit.deletedOn = undefined;
             if (existingHabit.graduatedOn) existingHabit.graduatedOn = undefined;
             if (targetDate < existingHabit.createdOn) existingHabit.createdOn = targetDate;
 
-            _requestFutureScheduleChange(existingHabit.id, targetDate, (s) => ({ 
-                ...s, 
-                icon: cleanFormData.icon, 
-                color: cleanFormData.color, 
-                goal: cleanFormData.goal, 
-                philosophy: cleanFormData.philosophy ?? s.philosophy, 
-                name: cleanFormData.name, 
-                nameKey: cleanFormData.nameKey, 
-                subtitleKey: cleanFormData.subtitleKey, 
-                times: cleanFormData.times as readonly TimeOfDay[], 
-                frequency: cleanFormData.frequency,
-                endDate: undefined // RESURRECTION FIX: Explicitly clear endDate on resurrected entry
-            }), false);
+            if (wasDeleted) {
+                existingHabit.scheduleHistory = [];
+            }
 
-            // RESURRECTION FIX [2025-06-17]: Remove stale schedule entries left over from
-            // the previous "ending" action. When a habit was ended (creating a split entry with
-            // endDate) and then deleted, those old ending entries remain in scheduleHistory.
-            // After resurrection via _requestFutureScheduleChange (which adds a new open-ended
-            // entry at targetDate), entries AFTER the resurrection point are orphaned and cause
-            // the Manage Habits modal to show "Encerrado" instead of "Ativo" because
-            // setupManageModal checks scheduleHistory[last].endDate.
-            existingHabit.scheduleHistory = existingHabit.scheduleHistory.filter(s => {
-                if (s.startDate > targetDate) return false; // Remove entries after resurrection point
-                if (s.startDate === targetDate && s.endDate) return false; // Remove stale same-date entries with endDate
-                return true;
-            });
+            if (existingHabit.scheduleHistory.length === 0) {
+                existingHabit.scheduleHistory.push({
+                    startDate: targetDate,
+                    times: cleanFormData.times as readonly TimeOfDay[],
+                    frequency: cleanFormData.frequency,
+                    name: cleanFormData.name,
+                    nameKey: cleanFormData.nameKey,
+                    subtitleKey: cleanFormData.subtitleKey,
+                    scheduleAnchor: targetDate,
+                    icon: cleanFormData.icon,
+                    color: cleanFormData.color,
+                    goal: cleanFormData.goal,
+                    philosophy: cleanFormData.philosophy
+                });
+                existingHabit.createdOn = targetDate;
+                _notifyChanges(true);
+            } else {
+                _requestFutureScheduleChange(existingHabit.id, targetDate, (s) => ({ 
+                    ...s, 
+                    icon: cleanFormData.icon, 
+                    color: cleanFormData.color, 
+                    goal: cleanFormData.goal, 
+                    philosophy: cleanFormData.philosophy ?? s.philosophy, 
+                    name: cleanFormData.name, 
+                    nameKey: cleanFormData.nameKey, 
+                    subtitleKey: cleanFormData.subtitleKey, 
+                    times: cleanFormData.times as readonly TimeOfDay[], 
+                    frequency: cleanFormData.frequency,
+                    endDate: undefined // RESURRECTION FIX: Explicitly clear endDate on resurrected entry
+                }), false);
+
+                // RESURRECTION FIX [2025-06-17]: Remove stale schedule entries left over from
+                // the previous "ending" action. When a habit was ended (creating a split entry with
+                // endDate) and then deleted, those old ending entries remain in scheduleHistory.
+                // After resurrection via _requestFutureScheduleChange (which adds a new open-ended
+                // entry at targetDate), entries AFTER the resurrection point are orphaned and cause
+                // the Manage Habits modal to show "Encerrado" instead of "Ativo" because
+                // setupManageModal checks scheduleHistory[last].endDate.
+                existingHabit.scheduleHistory = existingHabit.scheduleHistory.filter(s => {
+                    if (s.startDate > targetDate) return false; // Remove entries after resurrection point
+                    if (s.startDate === targetDate && s.endDate) return false; // Remove stale same-date entries with endDate
+                    return true;
+                });
+            }
         } else {
             state.habits.push({ id: generateUUID(), createdOn: targetDate, scheduleHistory: [{ startDate: targetDate, times: cleanFormData.times as readonly TimeOfDay[], frequency: cleanFormData.frequency, name: cleanFormData.name, nameKey: cleanFormData.nameKey, subtitleKey: cleanFormData.subtitleKey, scheduleAnchor: targetDate, icon: cleanFormData.icon, color: cleanFormData.color, goal: cleanFormData.goal, philosophy: cleanFormData.philosophy }] });
             _notifyChanges(true);
