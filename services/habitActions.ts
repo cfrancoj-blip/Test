@@ -214,6 +214,8 @@ const _applyHabitDeletion = async () => {
     // Para Hard Delete, definimos a data de deleção para o início da existência do hábito (ou antes),
     // garantindo que ele não apareça em nenhum filtro de data (shouldHabitAppearOnDate).
     habit.deletedOn = habit.createdOn;
+    habit.graduatedOn = undefined;
+    habit.scheduleHistory = [];
     
     // 2. Limpeza Profunda de Logs (Bitmasks)
     HabitService.pruneLogsForHabit(habit.id);
