@@ -331,7 +331,6 @@ export function saveHabitFromModal() {
         // RESURRECTION LOGIC:
         // Reuse an existing habit with the same name to avoid duplicates.
         const candidates = state.habits.filter(h => {
-               if (h.scheduleHistory.length === 0 && !h.deletedName) return false;
                const info = getHabitDisplayInfo(h, targetDate);
                const lastName = h.scheduleHistory[h.scheduleHistory.length - 1]?.name || h.deletedName || info.name;
              return (lastName || '').trim().toLowerCase() === nameToUse.trim().toLowerCase();

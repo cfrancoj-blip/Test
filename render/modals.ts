@@ -103,7 +103,6 @@ export function closeModal(modal: HTMLElement, suppressCallbacks = false) {
 }
 
 export function setupManageModal() {
-    if (!state.uiDirtyState.habitListStructure && ui.habitList.children.length > 0) return;
     // FILTER: Hide logically deleted habits
     const activeHabits = state.habits.filter(h => !h.deletedOn);
 
