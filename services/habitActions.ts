@@ -12,7 +12,7 @@
 import { 
     state, Habit, HabitSchedule, TimeOfDay, ensureHabitDailyInfo, 
     ensureHabitInstanceData, clearScheduleCache,
-    clearActiveHabitsCache, invalidateCachesForDateChange, getPersistableState,
+    clearActiveHabitsCache, clearAllCaches, invalidateCachesForDateChange, getPersistableState,
     HabitDayData, STREAK_SEMI_CONSOLIDATED, STREAK_CONSOLIDATED, MAX_HABIT_NAME_LENGTH,
     getHabitDailyInfoForDate, AppState, HABIT_STATE, AI_DAILY_LIMIT,
     pruneHabitAppearanceCache, pruneStreaksCache, HabitDailyInfo
@@ -76,6 +76,7 @@ function _notifyChanges(fullRebuild = false, immediate = false) {
         // FIX [2025-06-13]: Limpa cache de sumário diário (anéis) em mudanças estruturais.
         // Garante que a adição de hábitos no passado atualize visualmente todos os dias afetados.
         state.daySummaryCache.clear();
+        state.uiDirtyState.chartData = true;
     }
     clearActiveHabitsCache();
     state.uiDirtyState.habitListStructure = state.uiDirtyState.calendarVisuals = true;
@@ -127,6 +128,21 @@ function _requestFutureScheduleChange(habitId: string, targetDate: string, updat
 
     const history = habit.scheduleHistory;
     if (history.length === 0) return;
+
+    const earliest = history.reduce((min, s) => (s.startDate < min.startDate ? s : min), history[0]);
+    if (targetDate < earliest.startDate) {
+        const newEntry = updateFn({
+            ...earliest,
+            startDate: targetDate,
+            endDate: earliest.startDate,
+            scheduleAnchor: targetDate
+        });
+        history.push(newEntry);
+        history.sort((a, b) => a.startDate.localeCompare(b.startDate));
+        habit.graduatedOn = undefined;
+        _notifyChanges(true, immediate);
+        return;
+    }
     const idx = history.findIndex(s => targetDate >= s.startDate && (!s.endDate || targetDate < s.endDate));
 
     if (idx !== -1) {
@@ -337,6 +353,7 @@ export function saveHabitFromModal() {
             // Restore Logical state
             if (existingHabit.deletedOn) existingHabit.deletedOn = undefined;
             if (existingHabit.graduatedOn) existingHabit.graduatedOn = undefined;
+            if (targetDate < existingHabit.createdOn) existingHabit.createdOn = targetDate;
 
             _requestFutureScheduleChange(existingHabit.id, targetDate, (s) => ({ 
                 ...s, 
@@ -639,7 +656,16 @@ export function requestHabitPermanentDeletion(habitId: string) {
 }
 export function graduateHabit(habitId: string) { if (!state.initialSyncDone) return; const h = state.habits.find(x => x.id === habitId); if (h) { h.graduatedOn = getSafeDate(state.selectedDate); _notifyChanges(true, true); triggerHaptic('success'); } }
 export async function resetApplicationData() { 
-    state.habits = []; state.dailyData = {}; state.archives = {}; state.notificationsShown = []; state.pending21DayHabitIds = []; state.pendingConsolidationHabitIds = []; state.monthlyLogs = new Map();
+    state.habits = [];
+    state.dailyData = {};
+    state.archives = {};
+    state.notificationsShown = [];
+    state.pending21DayHabitIds = [];
+    state.pendingConsolidationHabitIds = [];
+    state.monthlyLogs = new Map();
+    clearAllCaches();
+    state.uiDirtyState = { calendarVisuals: true, habitListStructure: true, chartData: true };
+    HabitService.resetCache();
     state.aiDailyCount = 0; state.lastAIContextHash = null;
     document.dispatchEvent(new CustomEvent('render-app'));
     try { await clearLocalPersistence(); } catch (e) { logger.error('Clear persistence failed', e); } finally { clearKey(); window.location.reload(); } 
