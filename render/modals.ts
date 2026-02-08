@@ -103,7 +103,8 @@ export function closeModal(modal: HTMLElement, suppressCallbacks = false) {
 }
 
 export function setupManageModal() {
-    if (!state.uiDirtyState.habitListStructure && ui.habitList.children.length > 0) return;
+    const lastRenderKey = ui.manageModal.dataset.manageListLastModified;
+    if (!state.uiDirtyState.habitListStructure && ui.habitList.children.length > 0 && lastRenderKey === String(state.lastModified)) return;
     // FILTER: Hide logically deleted habits
     const activeHabits = state.habits.filter(h => !h.deletedOn);
 
@@ -112,6 +113,7 @@ export function setupManageModal() {
         ui.noHabitsMessage.classList.remove('hidden'); 
         ui.habitList.innerHTML = '';
         state.uiDirtyState.habitListStructure = false;
+        ui.manageModal.dataset.manageListLastModified = String(state.lastModified);
         return; 
     }
     
@@ -140,6 +142,7 @@ export function setupManageModal() {
         return `<li class="habit-list-item ${st}" data-habit-id="${h.id}"><span class="habit-main-info"><span class="habit-icon-slot" style="color:${escapeHTML(lastSchedule.color)}">${lastSchedule.icon && lastSchedule.icon.trim().startsWith('<svg') ? lastSchedule.icon : escapeHTML(lastSchedule.icon || '')}</span><div style="display:flex;flex-direction:column;flex-grow:1;"><span class="habit-name">${safeName}</span>${subtitle ? `<span class="habit-subtitle" style="font-size:11px;color:var(--text-tertiary)">${safeSubtitle}</span>` : ''}</div>${st !== 'active' ? `<span class="habit-name-status">${t(st === 'graduated' ? 'modalStatusGraduated' : 'modalStatusEnded')}</span>` : ''}</span><div class="habit-list-actions">${st === 'active' ? `${calculateHabitStreak(h, today) >= STREAK_CONSOLIDATED ? `<button class="graduate-habit-btn" aria-label="${ariaGraduate}">${UI_ICONS.graduateAction}</button>` : `<button class="end-habit-btn" aria-label="${ariaEnd}">${UI_ICONS.endAction}</button>`}` : `<button class="permanent-delete-habit-btn" aria-label="${ariaDelete}">${UI_ICONS.deletePermanentAction}</button>`}</div></li>`;
     }).join('');
     state.uiDirtyState.habitListStructure = false;
+    ui.manageModal.dataset.manageListLastModified = String(state.lastModified);
 }
 
 export function showConfirmationModal(text: string, onConfirm: () => void, opts?: any) {
