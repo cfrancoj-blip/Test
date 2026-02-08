@@ -249,7 +249,6 @@ const _applyHabitDeletion = async () => {
         saveState();
     }).catch(e => logger.error("Archive pruning failed", e));
 
-    state.uiDirtyState.habitListStructure = true;
     _notifyChanges(true, true);
     ActionContext.reset();
 };
@@ -331,32 +330,33 @@ export function saveHabitFromModal() {
     if (isNew) {
         // RESURRECTION LOGIC:
         // Reuse an existing habit with the same name to avoid duplicates.
-        const normalizedName = nameToUse.trim().toLowerCase();
         const candidates = state.habits.filter(h => {
-            if (h.scheduleHistory.length === 0 && !h.deletedName) return false;
-            const info = getHabitDisplayInfo(h, targetDate);
-            const lastName = h.scheduleHistory[h.scheduleHistory.length - 1]?.name || h.deletedName || info.name;
-            return (lastName || '').trim().toLowerCase() === normalizedName;
+               if (h.scheduleHistory.length === 0 && !h.deletedName) return false;
+               const info = getHabitDisplayInfo(h, targetDate);
+               const lastName = h.scheduleHistory[h.scheduleHistory.length - 1]?.name || h.deletedName || info.name;
+             return (lastName || '').trim().toLowerCase() === nameToUse.trim().toLowerCase();
         });
 
-        const pickMostRecent = (list: Habit[]) => {
-            if (list.length === 0) return undefined;
-            return [...list].sort((a, b) => {
+        // Pick priority:
+        // 1. Active (not deleted, not graduated, covers targetDate or has no endDate)
+        let existingHabit = candidates.find(h =>
+            !h.deletedOn && !h.graduatedOn && 
+            (!h.scheduleHistory[h.scheduleHistory.length-1].endDate || h.scheduleHistory[h.scheduleHistory.length-1].endDate! > targetDate)
+        );
+        
+        if (!existingHabit && candidates.length > 0) {
+            const sorted = [...candidates].sort((a, b) => {
                 const aLast = a.scheduleHistory[a.scheduleHistory.length - 1];
                 const bLast = b.scheduleHistory[b.scheduleHistory.length - 1];
                 const aKey = aLast?.startDate || a.createdOn;
                 const bKey = bLast?.startDate || b.createdOn;
                 return bKey.localeCompare(aKey);
-            })[0];
-        };
-
-        // Priority: active -> ended (not deleted) -> deleted
-        const activeMatch = candidates.find(h => !h.deletedOn && !h.graduatedOn && shouldHabitAppearOnDate(h, targetDate));
-        const endedMatch = pickMostRecent(candidates.filter(h => !h.deletedOn && !h.graduatedOn));
-        const deletedMatch = pickMostRecent(candidates.filter(h => !!h.deletedOn));
-        const existingHabit = activeMatch || endedMatch || deletedMatch;
+            });
+            existingHabit = sorted[0];
+        }
 
         if (existingHabit) {
+            // Restore Logical state
             const wasDeleted = !!existingHabit.deletedOn;
             if (existingHabit.deletedOn) existingHabit.deletedOn = undefined;
             if (existingHabit.graduatedOn) existingHabit.graduatedOn = undefined;
@@ -364,7 +364,6 @@ export function saveHabitFromModal() {
             if (targetDate < existingHabit.createdOn) existingHabit.createdOn = targetDate;
 
             if (wasDeleted) {
-                // Deleted habits return with a clean history.
                 existingHabit.scheduleHistory = [];
             }
 
@@ -385,20 +384,32 @@ export function saveHabitFromModal() {
                 existingHabit.createdOn = targetDate;
                 _notifyChanges(true);
             } else {
-                // Ended or active habits re-open on the same record.
-                _requestFutureScheduleChange(existingHabit.id, targetDate, (s) => ({
-                    ...s,
-                    icon: cleanFormData.icon,
-                    color: cleanFormData.color,
-                    goal: cleanFormData.goal,
-                    philosophy: cleanFormData.philosophy ?? s.philosophy,
-                    name: cleanFormData.name,
-                    nameKey: cleanFormData.nameKey,
-                    subtitleKey: cleanFormData.subtitleKey,
-                    times: cleanFormData.times as readonly TimeOfDay[],
+                _requestFutureScheduleChange(existingHabit.id, targetDate, (s) => ({ 
+                    ...s, 
+                    icon: cleanFormData.icon, 
+                    color: cleanFormData.color, 
+                    goal: cleanFormData.goal, 
+                    philosophy: cleanFormData.philosophy ?? s.philosophy, 
+                    name: cleanFormData.name, 
+                    nameKey: cleanFormData.nameKey, 
+                    subtitleKey: cleanFormData.subtitleKey, 
+                    times: cleanFormData.times as readonly TimeOfDay[], 
                     frequency: cleanFormData.frequency,
-                    endDate: undefined
+                    endDate: undefined // RESURRECTION FIX: Explicitly clear endDate on resurrected entry
                 }), false);
+
+                // RESURRECTION FIX [2025-06-17]: Remove stale schedule entries left over from
+                // the previous "ending" action. When a habit was ended (creating a split entry with
+                // endDate) and then deleted, those old ending entries remain in scheduleHistory.
+                // After resurrection via _requestFutureScheduleChange (which adds a new open-ended
+                // entry at targetDate), entries AFTER the resurrection point are orphaned and cause
+                // the Manage Habits modal to show "Encerrado" instead of "Ativo" because
+                // setupManageModal checks scheduleHistory[last].endDate.
+                existingHabit.scheduleHistory = existingHabit.scheduleHistory.filter(s => {
+                    if (s.startDate > targetDate) return false; // Remove entries after resurrection point
+                    if (s.startDate === targetDate && s.endDate) return false; // Remove stale same-date entries with endDate
+                    return true;
+                });
             }
         } else {
             state.habits.push({ id: generateUUID(), createdOn: targetDate, scheduleHistory: [{ startDate: targetDate, times: cleanFormData.times as readonly TimeOfDay[], frequency: cleanFormData.frequency, name: cleanFormData.name, nameKey: cleanFormData.nameKey, subtitleKey: cleanFormData.subtitleKey, scheduleAnchor: targetDate, icon: cleanFormData.icon, color: cleanFormData.color, goal: cleanFormData.goal, philosophy: cleanFormData.philosophy }] });
