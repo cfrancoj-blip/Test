@@ -90,6 +90,7 @@ async function build() {
         if (isProd) {
             html = html.replace(/<script type="module" src="\/index\.tsx"><\/script>/g, '');
             html = html.replace(/<script type="module" src="\/@vite\/client"><\/script>/g, '');
+            html = html.replace(/<link rel="stylesheet" href="\/index\.css">\s*/g, '');
             // Ensure bundle.js is loaded
             if (!html.includes('src="bundle.js"')) {
                  html = html.replace('</body>', '<script src="bundle.js" type="module"></script></body>');
