@@ -23,6 +23,7 @@ import {
     CALENDAR_LONG_PRESS_MS
 } from '../constants';
 import { markAllHabitsForDate } from '../services/habitActions';
+import { pullRemoteChanges } from '../services/cloud';
 
 // --- STATE MACHINE ---
 const CalendarGestureState = {
@@ -207,6 +208,7 @@ const _openQuickActions = (anchorEl: HTMLElement) => {
 const _handleResetToToday = () => {
     triggerHaptic('light');
     const today = getTodayUTCIso();
+    pullRemoteChanges();
     
     const todayEl = ui.calendarStrip.querySelector(`.${CSS_CLASSES.TODAY}`);
     

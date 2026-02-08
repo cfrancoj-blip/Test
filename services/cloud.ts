@@ -348,6 +348,11 @@ export function syncStateWithCloud(appState: AppState, immediate = false) {
     }
 }
 
+export async function pullRemoteChanges(): Promise<void> {
+    if (isSyncInProgress) return;
+    await fetchStateFromCloud();
+}
+
 async function reconstructStateFromShards(shards: Record<string, string>): Promise<AppState | undefined> {
     const syncKey = getSyncKey();
     if (!syncKey) return undefined;

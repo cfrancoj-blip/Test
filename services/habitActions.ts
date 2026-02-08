@@ -639,9 +639,9 @@ export function handleHabitDrop(habitId: string, fromTime: TimeOfDay, toTime: Ti
     );
 }
 
-export function requestHabitEndingFromModal(habitId: string) {
+export function requestHabitEndingFromModal(habitId: string, targetDateOverride?: string) {
     if (!state.initialSyncDone) return;
-    const h = _lockActionHabit(habitId), target = getSafeDate(state.selectedDate); if (!h) return;
+    const h = _lockActionHabit(habitId), target = getSafeDate(targetDateOverride || state.selectedDate); if (!h) return;
     ActionContext.ending = { habitId, targetDate: target };
     showConfirmationModal(t('confirmEndHabit', { habitName: getHabitDisplayInfo(h, target).name, date: formatDate(parseUTCIsoDate(target), { day: 'numeric', month: 'long', timeZone: 'UTC' }) }), 
         () => { _requestFutureScheduleChange(habitId, target, s => ({ ...s, endDate: target }), true); ActionContext.reset(); }, { confirmButtonStyle: 'danger', confirmText: t('endButton'), onCancel: () => ActionContext.reset() });
@@ -687,9 +687,9 @@ export function setGoalOverride(habitId: string, d: string, t: TimeOfDay, v: num
         saveState(); document.dispatchEvent(new CustomEvent('card-goal-changed', { detail: { habitId, time: t, date: d } })); _notifyPartialUIRefresh(d, [habitId]); 
     } catch (e) { logger.error('setGoalOverride failed', e); } 
 }
-export function requestHabitTimeRemoval(habitId: string, time: TimeOfDay) {
+export function requestHabitTimeRemoval(habitId: string, time: TimeOfDay, targetDateOverride?: string) {
     if (!state.initialSyncDone) return;
-    const h = _lockActionHabit(habitId), target = getSafeDate(state.selectedDate); if (!h) return;
+    const h = _lockActionHabit(habitId), target = getSafeDate(targetDateOverride || state.selectedDate); if (!h) return;
     ActionContext.removal = { habitId, time, targetDate: target };
     showConfirmationModal(t('confirmRemoveTimePermanent', { habitName: getHabitDisplayInfo(h, target).name, time: getTimeOfDayName(time) }), () => { ensureHabitDailyInfo(target, habitId).dailySchedule = undefined; _requestFutureScheduleChange(habitId, target, s => ({ ...s, times: s.times.filter(x => x !== time) as readonly TimeOfDay[] }), true); ActionContext.reset(); }, { title: t('modalRemoveTimeTitle'), confirmText: t('deleteButton'), confirmButtonStyle: 'danger', onCancel: () => ActionContext.reset() });
 }

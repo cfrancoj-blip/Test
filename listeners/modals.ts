@@ -58,7 +58,7 @@ import {
 } from '../services/habitActions';
 import { t, setLanguage } from '../i18n';
 import { setupReelRotary } from '../render/rotary';
-import { simpleMarkdownToHTML, pushToOneSignal, getContrastColor, addDays, parseUTCIsoDate, toUTCIsoDateString, triggerHaptic, logger, escapeHTML, sanitizeText } from '../utils';
+import { simpleMarkdownToHTML, pushToOneSignal, getContrastColor, addDays, parseUTCIsoDate, toUTCIsoDateString, triggerHaptic, logger, escapeHTML, sanitizeText, getTodayUTCIso } from '../utils';
 import { setTextContent } from '../render/dom';
 
 // --- STATIC HELPERS ---
@@ -164,7 +164,7 @@ const _handleHabitListClick = (e: MouseEvent) => {
     triggerHaptic('light');
 
     if (button.classList.contains('end-habit-btn')) {
-        requestHabitEndingFromModal(habitId);
+        requestHabitEndingFromModal(habitId, getTodayUTCIso());
     } else if (button.classList.contains('permanent-delete-habit-btn')) {
         requestHabitPermanentDeletion(habitId);
     } else if (button.classList.contains('graduate-habit-btn')) {

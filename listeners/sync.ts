@@ -15,6 +15,7 @@ import { SYNC_ENABLE_RETRY_MS, SYNC_COPY_FEEDBACK_MS, SYNC_INPUT_FOCUS_MS } from
 import { getPersistableState, state, clearActiveHabitsCache } from "../state";
 import { mergeStates } from "../services/dataMerge";
 
+
 function showView(view: 'inactive' | 'enterKey' | 'displayKey' | 'active') {
     ui.syncInactiveView.style.display = 'none';
     ui.syncEnterKeyView.style.display = 'none';
@@ -137,8 +138,14 @@ const _handleDiagnostics = (e: Event) => { openSyncDebugModal(); };
 
 function _refreshViewState() {
     const hasKey = hasLocalSyncKey();
-    if (hasKey) { showView('active'); if (state.syncState === 'syncInitial') { setSyncStatus('syncSynced'); } }
-    else { showView('inactive'); setSyncStatus('syncInitial'); }
+    if (hasKey) { 
+        showView('active'); 
+        if (state.syncState === 'syncInitial') { setSyncStatus('syncSynced'); } 
+    }
+    else { 
+        showView('inactive'); 
+        setSyncStatus('syncInitial'); 
+    }
 }
 
 export function initSync() {

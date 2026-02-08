@@ -14,7 +14,7 @@ import { state, TimeOfDay } from '../state';
 import { getCurrentGoalForInstance, getEffectiveScheduleForHabitOnDate } from '../services/selectors';
 import { openNotesModal, renderExploreHabits, openModal } from '../render';
 import { toggleHabitStatus, setGoalOverride, requestHabitTimeRemoval, requestHabitEndingFromModal } from '../services/habitActions';
-import { triggerHaptic } from '../utils';
+import { triggerHaptic, getTodayUTCIso } from '../utils';
 import { DOM_SELECTORS, CSS_CLASSES } from '../render/constants';
 
 const GOAL_STEP = 5, MAX_GOAL = 9999;
@@ -109,7 +109,7 @@ const _handleContainerClick = (e: MouseEvent) => {
         triggerHaptic('light');
         const h = state.habits.find(x => x.id === hId);
         if (h && getEffectiveScheduleForHabitOnDate(h, state.selectedDate).length <= 1) requestHabitEndingFromModal(hId);
-        else requestHabitTimeRemoval(hId, t);
+        else requestHabitTimeRemoval(hId, t, getTodayUTCIso());
         return;
     }
 
