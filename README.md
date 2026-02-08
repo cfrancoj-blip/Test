@@ -22,7 +22,7 @@
 <br>
 
 <div style="margin-top: 10px;" align="center">
-  <img src="https://img.shields.io/badge/tests-236%20passing-brightgreen?style=flat-square" alt="Tests" />
+  <img src="https://img.shields.io/badge/tests-350%20passing-brightgreen?style=flat-square" alt="Tests" />
   <img src="https://img.shields.io/badge/coverage-90%25-green?style=flat-square" alt="Coverage" />
   <img src="https://img.shields.io/badge/license-ISC-lightgrey?style=flat-square" alt="License" />
   <img src="https://img.shields.io/badge/offline--first-100%25-blue?style=flat-square" alt="Offline First" />
@@ -324,7 +324,7 @@ Ao contrário de projetos que acumulam centenas de unit tests isolados, o Askesi
 
 <h3>📊 Cobertura de Testes (Test Suites)</h3>
 
-O projeto possui **16 suites de testes especializadas**, totalizando **236 testes** que validam:
+O projeto possui **21 suites de testes especializadas**, totalizando **350 testes** que validam:
 
 #### 🎯 **Teste de Cenario 1: Jornada do Usuário** (3 testes)
 Valida o ciclo de vida completo de um hábito desde a criação até a graduação:
@@ -338,7 +338,7 @@ Simula sincronização multi-dispositivo com conflitos:
 - Serialização/Desserialização de dados criptografados
 - Garante que nenhum progresso é perdido em sincronizações concorrentes
 
-#### ⚡ **Teste de Cenario 3: Performance e Estresse** (10 testes)
+#### ⚡ **Teste de Cenario 3: Performance e Estresse** (9 testes)
 Benchmarks com budgets rigorosos de performance:
 - **100 hábitos criados** em < 100ms
 - **3 anos de histórico** (54.750 registros) populados em < 500ms
@@ -369,6 +369,18 @@ Chaos Engineering - valida resiliência em cenários extremos:
 - Validação de migração entre versões antigas
 - Feedback claro para o usuário em situações de erro
 
+#### 🔴 **Teste de Cenario 6: Segurança (Pentest)** (41 testes)
+Validação de resiliência contra vetores de ataque comuns:
+- Sanitização de HTML/Markdown e prevenção de XSS
+- Proteção contra prototype pollution, injeções e SSRF
+- Hardening de import/export, worker e API client
+
+#### 🟠 **Teste de Cenario 7: Cloud e Resiliência de Rede** (33 testes)
+Valida sync e consistência sob falhas de rede e volume extremo:
+- Merge de estados complexos e partições de rede
+- Resiliência em erros de API e limites de quota
+- Integridade de caches, migrações e seleção de dados
+
 #### 🔥 **Nuclear QA: Fuzzing & Oracle (HabitService)** (10 testes)
 Property-based testing com geração aleatória de inputs:
 - **Oracle Test:** 1.000 operações aleatórias comparadas contra implementação "ingênua" correta
@@ -382,7 +394,7 @@ Property-based testing com geração aleatória de inputs:
 - **Bit Corruption:** BigInt inválidos tratados graciosamente
 - **Versionamento:** Dados antigos + novos coexistem sem conflitos
 
-#### 🧠 **Nuclear QA: Distributed Chaos (dataMerge)** (8 testes)
+#### 🧠 **Nuclear QA: Distributed Chaos (dataMerge)** (11 testes)
 Validação de algoritmos de sincronização distribuída:
 - **Three-Body Problem:** 3 clientes divergentes convergem após sincronização multi-salto
 - **Future-From-The-Past Attack:** Timestamps futuros com dados corrompidos não destroem histórico
@@ -392,6 +404,11 @@ Validação de algoritmos de sincronização distribuída:
 - **Race Conditions:** Writes simultâneos resolvidos via LWW (Last-Write-Wins)
 - **Idempotência:** Merge(A,B) = Merge(Merge(A,B), B)
 - **Roundtrip Serialization:** BigInt serializa/desserializa sem perda
+
+#### 🧩 **Testes Unitarios: HabitService Core** (6 testes)
+Validação do núcleo de bitmasks (`services/HabitService.test.ts`):
+- Leitura/escrita de status em dias e turnos diferentes
+- Tombstone e serialização para nuvem
 
 #### 🔐 **Testes Unitários: Criptografia** (14 testes)
 Validação completa do módulo AES-GCM (`services/crypto.ts`):
@@ -459,7 +476,7 @@ Validação do algoritmo de recomendação contextual (`services/quoteEngine.ts`
 - Histerese de performance (reação a estados triumph/defeat)
 - Stickiness: mantém citação se tempo mínimo não passou
 
-#### ⚙️ **Testes Unitários: Lógica de Negócios** (17 testes)
+#### ⚙️ **Testes Unitários: Lógica de Negócios** (19 testes)
 Validação do controlador principal (`services/habitActions.ts`):
 - Boot lock: operações bloqueadas antes de `initialSyncDone`
 - Ciclo de toggle: NULL→DONE→DEFERRED→NULL
@@ -467,6 +484,23 @@ Validação do controlador principal (`services/habitActions.ts`):
 - Graduação de hábitos (marcos de 21 e 66 dias)
 - Formatação de celebrações com interpolação i18n
 - Reordenação e atualização de hábitos
+
+#### 📦 **Testes Unitários: Importação/Exportação** (1 teste)
+Validação do fluxo de backup/restore (`services/importExport.test.ts`):
+- Reidratação de `monthlyLogsSerialized` antes de carregar estado
+- Garantia de integridade no round-trip de importação
+
+#### ☁️ **Testes Unitários: Sincronização Cloud (Básico)** (2 testes)
+Validação do sync com shards (`services/cloud.test.ts`):
+- Envio de shards `core` e `logs` quando há mudanças
+- Merge e aplicação de estado remoto mais recente
+
+#### 🔒 **Testes de Consistência: Estado ↔ UI** (35 testes)
+Validação de invariantes entre fontes da verdade e UI (`services/stateUIConsistency.test.ts`):
+- Bitmask ↔ status visual
+- `scheduleHistory` ↔ propriedades visuais
+- `dailyData` ↔ metadados (notas, goalOverride)
+- Fluxos críticos: toggle, drag & drop, edição, deleção, ressurreição e import/export
 
 <h3>🎯 Métricas de Qualidade</h3>
 
@@ -483,7 +517,7 @@ Validação do controlador principal (`services/habitActions.ts`):
 <h3>🚀 Executando os Testes</h3>
 
 ```bash
-# Suite completa (236 testes)
+# Suite completa (350 testes)
 npm test
 
 # Apenas testes de cenario (cenários de integração)

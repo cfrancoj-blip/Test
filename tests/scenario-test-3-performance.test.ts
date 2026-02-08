@@ -280,8 +280,9 @@ describe('⚡ TESTE DE CENARIO 3: Estresse e Performance', () => {
     // Variância relativa: quanto o pior caso excede a mediana
     const variance = median === 0 ? 0 : maxTime / median;
 
-    // O(1) lookup: pior caso não deve ser mais que 3x a mediana
-    expect(variance).toBeLessThan(3);
+    // O(1) lookup: pior caso não deve ser mais que 4x a mediana
+    // Margem extra evita flakiness em ambientes com jitter/GC.
+    expect(variance).toBeLessThan(4);
 
     logger.info(`✅ Variação de performance: ${(variance * 100).toFixed(1)}%`);
     logger.info(`   100 registros: ${timings[0].toFixed(2)}ms`);

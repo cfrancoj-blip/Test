@@ -7,7 +7,7 @@ Esta suíte de testes combina duas abordagens complementares:
 1. **Testes de Cenario (Integration-First):** Validam jornadas completas do usuário, combinando múltiplos subsistemas.
 2. **Testes Unitários:** Cobertura detalhada de cada módulo crítico do sistema.
 
-**Total: 16 arquivos de teste | 236 testes | 16 suites**
+**Total: 21 arquivos de teste | 350 testes | 21 suites**
 
 ## Os Testes de Cenario
 
@@ -155,7 +155,7 @@ Testa resiliência do sistema sob condições extremas (Chaos Engineering).
 
 ---
 
-## � Testes Unitários (9 suites)
+## � Testes Unitários (12 suites)
 
 ### 🔐 Criptografia AES-GCM (14 testes)
 **Arquivo:** `services/crypto.test.ts`
@@ -278,8 +278,27 @@ Valida o algoritmo de recomendação contextual.
 
 ---
 
-### ⚙️ Lógica de Negócios (17 testes)
+### ⚙️ Lógica de Negócios (19 testes)
 **Arquivo:** `services/habitActions.test.ts`
+
+### 📦 Importação/Exportação (1 teste)
+**Arquivo:** `services/importExport.test.ts`
+
+Valida o round-trip de importação/backup com reidratação de `monthlyLogsSerialized`.
+
+---
+
+### ☁️ Sincronização Cloud (Básico) (2 testes)
+**Arquivo:** `services/cloud.test.ts`
+
+Valida envio de shards (core/logs) e merge de estado remoto mais recente.
+
+---
+
+### 🔒 Consistência Estado ↔ UI (35 testes)
+**Arquivo:** `services/stateUIConsistency.test.ts`
+
+Testes de invariantes entre bitmask, `scheduleHistory`, `dailyData` e estado visual.
 
 Valida o controlador principal de ações.
 
@@ -453,8 +472,8 @@ Para o Askesis, as vantagens superam as desvantagens.
 ✅ Teste de Cenario 3: Estresse e Performance       (9 testes)
 ✅ Teste de Cenario 4: Acessibilidade Total         (12 testes)
 ✅ Teste de Cenario 5: Recuperação de Desastres     (10 testes)
-✅ Teste de Cenario 6: Segurança (Pentest)
-✅ Teste de Cenario 7: Cloud e Resiliência de Rede
+✅ Teste de Cenario 6: Segurança (Pentest)          (41 testes)
+✅ Teste de Cenario 7: Cloud e Resiliência de Rede  (33 testes)
 ✅ Nuclear QA: HabitService (Fuzzing & Oracle)      (16 testes)
 ✅ Nuclear QA: dataMerge (Distributed Chaos)        (11 testes)
 ✅ Unitário: Criptografia AES-GCM                  (14 testes)
@@ -465,8 +484,11 @@ Para o Askesis, as vantagens superam as desvantagens.
 ✅ Unitário: Cliente API                            (14 testes)
 ✅ Unitário: Internacionalização                    (22 testes)
 ✅ Unitário: Motor de Citações Estoicas             (10 testes)
-✅ Unitário: Lógica de Negócios                     (17 testes)
-                                          Total:   236 testes
+✅ Unitário: Lógica de Negócios                     (19 testes)
+✅ Unitário: Importação/Exportação                  (1 teste)
+✅ Unitário: Sincronização Cloud (Básico)           (2 testes)
+✅ Teste: Consistência Estado ↔ UI                  (35 testes)
+                                          Total:   350 testes
 
 Cobertura: 90%+
 Performance budgets: Todos passando
@@ -474,4 +496,4 @@ A11y compliance: WCAG 2.1 AA
 Chaos scenarios: 10 cenários
 ```
 
-**Status:** 🟢 Todos os 236 testes passando
+**Status:** 🟢 Todos os 350 testes passando
