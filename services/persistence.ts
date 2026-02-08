@@ -82,7 +82,11 @@ let syncHandler: ((state: AppState, immediate?: boolean) => void) | null = null;
 export const registerSyncHandler = (h: (s: AppState, immediate?: boolean) => void) => syncHandler = h;
 
 function pruneOrphanedDailyData(habits: readonly Habit[], dailyData: Record<string, Record<string, HabitDailyInfo>>) {
-    if (habits.length === 0) return; 
+    if (habits.length === 0) {
+        // Mitigation: only clear after loadState fully assigns habits.
+        Object.keys(dailyData).forEach(date => delete dailyData[date]);
+        return;
+    }
     const validIds = new Set(habits.map(h => h.id));
     for (const date in dailyData) {
         for (const id in dailyData[date]) {
