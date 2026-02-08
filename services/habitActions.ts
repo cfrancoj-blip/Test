@@ -326,30 +326,20 @@ export function saveHabitFromModal() {
     }
     
     if (isNew) {
-        // RESURRECTION LOGIC: 
-        // Search for ANY habit with this name, prioritizing Active > Ended > Deleted.
+        // RESURRECTION LOGIC:
+        // Only reuse an ACTIVE habit that already covers the target date.
         const candidates = state.habits.filter(h => {
              const info = getHabitDisplayInfo(h, targetDate);
              const lastName = h.scheduleHistory[h.scheduleHistory.length - 1]?.name || info.name;
              return (lastName || '').trim().toLowerCase() === nameToUse.trim().toLowerCase();
         });
 
-        // Pick priority: 
+        // Pick priority:
         // 1. Active (not deleted, not graduated, covers targetDate or has no endDate)
-        // 2. Ended (not deleted, but endDate < targetDate)
-        // 3. Deleted/Graduated
         let existingHabit = candidates.find(h => 
             !h.deletedOn && !h.graduatedOn && 
             (!h.scheduleHistory[h.scheduleHistory.length-1].endDate || h.scheduleHistory[h.scheduleHistory.length-1].endDate! > targetDate)
         );
-        
-        if (!existingHabit) {
-            existingHabit = candidates.find(h => !h.deletedOn); // Find ended/graduated but not deleted
-        }
-        
-        if (!existingHabit) {
-            existingHabit = candidates[0]; // Fallback to deleted if only one exists
-        }
 
         if (existingHabit) {
             // Restore Logical state
