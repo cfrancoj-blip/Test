@@ -90,7 +90,7 @@ function _notifyChanges(fullRebuild = false, immediate = false) {
     });
 }
 
-function _notifyPartialUIRefresh(date: string, habitIds: string[]) {
+function _notifyPartialUIRefresh(date: string) {
     // [OPTIMIZATION 2025-06-07] Surgical Update:
     // Em vez de marcar o calendário inteiro como sujo (uiDirtyState.calendarVisuals = true),
     // invalidamos os caches de dados e chamamos updateDayVisuals() diretamente para o dia afetado.
@@ -603,7 +603,7 @@ export function toggleHabitStatus(habitId: string, time: TimeOfDay, dateISO: str
     else if (nextStatus === HABIT_STATE.DEFERRED) triggerHaptic('medium');
     else triggerHaptic('selection');
     document.dispatchEvent(new CustomEvent('card-status-changed', { detail: { habitId, time, date: dateISO } }));
-    _notifyPartialUIRefresh(dateISO, [habitId]);
+    _notifyPartialUIRefresh(dateISO);
 }
 
 export function markAllHabitsForDate(dateISO: string, status: 'completed' | 'snoozed'): boolean {
@@ -713,7 +713,7 @@ export function setGoalOverride(habitId: string, d: string, t: TimeOfDay, v: num
              if (props?.goal?.total && v > props.goal.total) { if (currentStatus !== HABIT_STATE.DONE_PLUS) HabitService.setStatus(habitId, d, t, HABIT_STATE.DONE_PLUS); }
              else { if (currentStatus !== HABIT_STATE.DONE) HabitService.setStatus(habitId, d, t, HABIT_STATE.DONE); }
         }
-        saveState(); document.dispatchEvent(new CustomEvent('card-goal-changed', { detail: { habitId, time: t, date: d } })); _notifyPartialUIRefresh(d, [habitId]); 
+        saveState(); document.dispatchEvent(new CustomEvent('card-goal-changed', { detail: { habitId, time: t, date: d } })); _notifyPartialUIRefresh(d); 
     } catch (e) { logger.error('setGoalOverride failed', e); } 
 }
 export function requestHabitTimeRemoval(habitId: string, time: TimeOfDay, targetDateOverride?: string) {
