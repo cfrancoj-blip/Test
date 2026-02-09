@@ -268,12 +268,14 @@ async function performSync() {
     if (!syncKey) { setSyncStatus('syncError'); isSyncInProgress = false; return; }
 
     try {
+        const perfStart = performance.now();
         const rawShards = splitIntoShards(appState);
         const encryptedShards: Record<string, string> = {};
         
         const pendingHashUpdates = new Map<string, string>();
         let changeCount = 0;
 
+        const encryptStart = performance.now();
         for (const shardName in rawShards) {
             const currentHash = murmurHash3(JSON.stringify(rawShards[shardName]));
             const lastHash = lastSyncedHashes.get(shardName);
@@ -285,8 +287,10 @@ async function performSync() {
                 changeCount++;
             }
         }
+        const encryptEnd = performance.now();
 
         if (changeCount === 0) {
+            logger.info(`[Sync Perf] encrypt=${(encryptEnd - encryptStart).toFixed(1)}ms total=${(performance.now() - perfStart).toFixed(1)}ms (no changes)`);
             setSyncStatus('syncSynced');
             isSyncInProgress = false;
             return;
@@ -295,11 +299,17 @@ async function performSync() {
         addSyncLog(`Sincronizando ${changeCount} pacotes...`, "info");
         const safeTs = appState.lastModified || Date.now();
         
+        const payloadStart = performance.now();
         const payload = { lastModified: safeTs, shards: encryptedShards };
+        const payloadBody = JSON.stringify(payload);
+        const payloadEnd = performance.now();
+
+        const postStart = performance.now();
         const response = await apiFetch('/api/sync', { 
             method: 'POST', 
-            body: JSON.stringify(payload) 
+            body: payloadBody 
         }, true);
+        const postEnd = performance.now();
 
         if (response.status === 409) {
             clearSyncHashCache();
@@ -323,6 +333,7 @@ async function performSync() {
             const raw = errorData.raw ? ` raw=${JSON.stringify(errorData.raw)}` : '';
             throw new Error((errorData.error || `Erro ${response.status}`) + code + detail + raw);
         }
+        logger.info(`[Sync Perf] encrypt=${(encryptEnd - encryptStart).toFixed(1)}ms payload=${(payloadEnd - payloadStart).toFixed(1)}ms post=${(postEnd - postStart).toFixed(1)}ms total=${(performance.now() - perfStart).toFixed(1)}ms`);
     } catch (error: any) {
         addSyncLog(`Falha no envio: ${error.message}`, "error");
         setSyncStatus('syncError');
