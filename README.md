@@ -1,8 +1,62 @@
+<div align="center" style="margin: 0 0 10px 0;">
+  <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-start; margin-left: 20px;">
+    <a href="#pt-br" style="text-decoration: none; padding: 3px; border-radius: 7px; border: 1px solid #2a2a2a; background: #151515; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
+      <svg width="30" height="18" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; width: min(100%, clamp(20px, 4vw, 28px)); height: auto; border-radius: 4px; border: 1px solid #2a2a2a;">
+        <rect width="44" height="30" fill="#1e8449"/>
+        <polygon points="22,3 41,15 22,27 3,15" fill="#f4d03f"/>
+        <circle cx="22" cy="15" r="6.5" fill="#1f4b99"/>
+        <rect x="15" y="14" width="14" height="2" fill="#ffffff" opacity="0.9"/>
+      </svg>
+    </a>
+    <a href="#en" style="text-decoration: none; padding: 3px; border-radius: 7px; border: 1px solid #2a2a2a; background: #151515; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
+      <svg width="30" height="18" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; width: min(100%, clamp(20px, 4vw, 28px)); height: auto; border-radius: 4px; border: 1px solid #2a2a2a;">
+        <rect width="44" height="30" fill="#ffffff"/>
+        <g fill="#b22234">
+          <rect y="0" width="44" height="3"/>
+          <rect y="6" width="44" height="3"/>
+          <rect y="12" width="44" height="3"/>
+          <rect y="18" width="44" height="3"/>
+          <rect y="24" width="44" height="3"/>
+        </g>
+        <rect width="20" height="16" fill="#3c3b6e"/>
+        <g fill="#ffffff">
+          <circle cx="3" cy="3" r="0.8"/>
+          <circle cx="7" cy="3" r="0.8"/>
+          <circle cx="11" cy="3" r="0.8"/>
+          <circle cx="15" cy="3" r="0.8"/>
+          <circle cx="19" cy="3" r="0.8"/>
+          <circle cx="5" cy="6" r="0.8"/>
+          <circle cx="9" cy="6" r="0.8"/>
+          <circle cx="13" cy="6" r="0.8"/>
+          <circle cx="17" cy="6" r="0.8"/>
+          <circle cx="3" cy="9" r="0.8"/>
+          <circle cx="7" cy="9" r="0.8"/>
+          <circle cx="11" cy="9" r="0.8"/>
+          <circle cx="15" cy="9" r="0.8"/>
+          <circle cx="19" cy="9" r="0.8"/>
+          <circle cx="5" cy="12" r="0.8"/>
+          <circle cx="9" cy="12" r="0.8"/>
+          <circle cx="13" cy="12" r="0.8"/>
+          <circle cx="17" cy="12" r="0.8"/>
+        </g>
+      </svg>
+    </a>
+    <a href="#es" style="text-decoration: none; padding: 3px; border-radius: 7px; border: 1px solid #2a2a2a; background: #151515; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
+      <svg width="30" height="18" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; width: min(100%, clamp(20px, 4vw, 28px)); height: auto; border-radius: 4px; border: 1px solid #2a2a2a;">
+        <rect width="44" height="30" fill="#aa151b"/>
+        <rect y="7" width="44" height="16" fill="#f1bf00"/>
+        <rect x="10" y="10" width="6" height="10" fill="#b71c1c"/>
+        <rect x="12" y="12" width="2" height="6" fill="#f1bf00"/>
+      </svg>
+    </a>
+  </div>
+</div>
+
 <div align="center" style="background-color: #000000; color: #e5e5e5; padding: 0; border-radius: 8px;">
   <table border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: none; background-color: #000000; color: #e5e5e5; width: 100%;">
     <tr>
       <td width="90%" align="left" valign="middle" style="border: none; color: #e5e5e5; padding: 8px 0;">
-        <div style="display: flex; align-items: center; gap: 4px; justify-content: flex-start; transform: translateY(15px);">
+        <div style="display: flex; align-items: center; gap: 4px; justify-content: flex-start; transform: translateY(10px);">
           <a href="https://askesis-psi.vercel.app/" style="text-decoration: none; color: #e5e5e5; margin-left: 20px; margin-top: 10px; display: inline-block;">
             <img src="icons/icon-512.svg" width="40" alt="Askesis Logo" style="border-radius: 12px; transform: scale(2); transform-origin: left center;">
           </a>
@@ -13,59 +67,7 @@
           </div>
         </div>
       </td>
-      <td width="10%" align="center" valign="middle" style="border: none; text-align: center; border-left: 3px solid #ffffff; padding: 8px 0;">
-        <div style="display: flex; flex-direction: column; gap: 2px; align-items: center; justify-content: center; transform: translateY(15px);">
-          <a href="#pt-br" style="text-decoration: none; padding: 3px; border-radius: 7px; border: 1px solid #2a2a2a; background: #151515; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
-            <svg width="32" height="19" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; width: min(100%, clamp(23px, 4.6vw, 32px)); height: auto; border-radius: 4px; border: 1px solid #2a2a2a;">
-              <rect width="44" height="30" fill="#1e8449"/>
-              <polygon points="22,3 41,15 22,27 3,15" fill="#f4d03f"/>
-              <circle cx="22" cy="15" r="6.5" fill="#1f4b99"/>
-              <rect x="15" y="14" width="14" height="2" fill="#ffffff" opacity="0.9"/>
-            </svg>
-          </a>
-          <a href="#en" style="text-decoration: none; padding: 3px; border-radius: 7px; border: 1px solid #2a2a2a; background: #151515; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
-            <svg width="32" height="19" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; width: min(100%, clamp(23px, 4.6vw, 32px)); height: auto; border-radius: 4px; border: 1px solid #2a2a2a;">
-              <rect width="44" height="30" fill="#ffffff"/>
-              <g fill="#b22234">
-                <rect y="0" width="44" height="3"/>
-                <rect y="6" width="44" height="3"/>
-                <rect y="12" width="44" height="3"/>
-                <rect y="18" width="44" height="3"/>
-                <rect y="24" width="44" height="3"/>
-              </g>
-              <rect width="20" height="16" fill="#3c3b6e"/>
-              <g fill="#ffffff">
-                <circle cx="3" cy="3" r="0.8"/>
-                <circle cx="7" cy="3" r="0.8"/>
-                <circle cx="11" cy="3" r="0.8"/>
-                <circle cx="15" cy="3" r="0.8"/>
-                <circle cx="19" cy="3" r="0.8"/>
-                <circle cx="5" cy="6" r="0.8"/>
-                <circle cx="9" cy="6" r="0.8"/>
-                <circle cx="13" cy="6" r="0.8"/>
-                <circle cx="17" cy="6" r="0.8"/>
-                <circle cx="3" cy="9" r="0.8"/>
-                <circle cx="7" cy="9" r="0.8"/>
-                <circle cx="11" cy="9" r="0.8"/>
-                <circle cx="15" cy="9" r="0.8"/>
-                <circle cx="19" cy="9" r="0.8"/>
-                <circle cx="5" cy="12" r="0.8"/>
-                <circle cx="9" cy="12" r="0.8"/>
-                <circle cx="13" cy="12" r="0.8"/>
-                <circle cx="17" cy="12" r="0.8"/>
-              </g>
-            </svg>
-          </a>
-          <a href="#es" style="text-decoration: none; padding: 3px; border-radius: 7px; border: 1px solid #2a2a2a; background: #151515; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
-            <svg width="32" height="19" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; width: min(100%, clamp(23px, 4.6vw, 32px)); height: auto; border-radius: 4px; border: 1px solid #2a2a2a;">
-              <rect width="44" height="30" fill="#aa151b"/>
-              <rect y="7" width="44" height="16" fill="#f1bf00"/>
-              <rect x="10" y="10" width="6" height="10" fill="#b71c1c"/>
-              <rect x="12" y="12" width="2" height="6" fill="#f1bf00"/>
-            </svg>
-          </a>
-        </div>
-      </td>
+      <td width="10%" align="center" valign="middle" style="border: none; text-align: center; border-left: 3px solid #ffffff; padding: 8px 0;"></td>
     </tr>
     <tr>
       <td width="90%" style="border: none; padding: 0;">
@@ -122,6 +124,34 @@
 ---
 
 ## PT-BR
+
+## Fluxo da Aplicação
+
+O gráfico abaixo representa o fluxo lógico implementado na interface:
+
+```mermaid
+graph TD
+    subgraph Daily Cycle
+        Start((Início)) --> S1[Preparação Estoica]
+        S1 --> S2{Registro de Status}
+        
+        S2 -- "Pendente / Adiado" --> S2
+        S2 -- "Feito" --> S3[Indicar Quantidade]
+        
+        S3 --> S4[Diário de Gratidão]
+        S4 -.-> S5[Ver Progresso]
+        S5 --> End((Fim do Ciclo))
+    end
+
+    style S1 fill:#f0fdf4,stroke:#16a34a,stroke-width:2px
+    style S2 fill:#fff,stroke:#16a34a,stroke-width:2px
+    style S3 fill:#fff,stroke:#16a34a,stroke-width:2px
+    style S4 fill:#fff,stroke:#16a34a,stroke-width:2px,stroke-dasharray: 5 5
+    style S5 fill:#fff,stroke:#16a34a,stroke-width:2px
+    
+    classDef default font-family:Inter,sans-serif;
+```
+
 
 ### Resumo
 
