@@ -1,99 +1,31 @@
 <div align="center" style="margin: 0 0 10px 0;">
   <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-start; margin-left: 20px;">
-    <a href="#pt-br" style="text-decoration: none; padding: 3px; border-radius: 7px; border: 1px solid #2a2a2a; background: #151515; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
-      <svg width="30" height="18" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; width: min(100%, clamp(20px, 4vw, 28px)); height: auto; border-radius: 4px; border: 1px solid #2a2a2a;">
-        <rect width="44" height="30" fill="#1e8449"/>
-        <polygon points="22,3 41,15 22,27 3,15" fill="#f4d03f"/>
-        <circle cx="22" cy="15" r="6.5" fill="#1f4b99"/>
-        <rect x="15" y="14" width="14" height="2" fill="#ffffff" opacity="0.9"/>
-      </svg>
+    <a href="#pt-br">
+      <img src="assets/flags/pt-br.svg" width="30" height="18" alt="PT-BR">
     </a>
-    <a href="#en" style="text-decoration: none; padding: 3px; border-radius: 7px; border: 1px solid #2a2a2a; background: #151515; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
-      <svg width="30" height="18" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; width: min(100%, clamp(20px, 4vw, 28px)); height: auto; border-radius: 4px; border: 1px solid #2a2a2a;">
-        <rect width="44" height="30" fill="#ffffff"/>
-        <g fill="#b22234">
-          <rect y="0" width="44" height="3"/>
-          <rect y="6" width="44" height="3"/>
-          <rect y="12" width="44" height="3"/>
-          <rect y="18" width="44" height="3"/>
-          <rect y="24" width="44" height="3"/>
-        </g>
-        <rect width="20" height="16" fill="#3c3b6e"/>
-        <g fill="#ffffff">
-          <circle cx="3" cy="3" r="0.8"/>
-          <circle cx="7" cy="3" r="0.8"/>
-          <circle cx="11" cy="3" r="0.8"/>
-          <circle cx="15" cy="3" r="0.8"/>
-          <circle cx="19" cy="3" r="0.8"/>
-          <circle cx="5" cy="6" r="0.8"/>
-          <circle cx="9" cy="6" r="0.8"/>
-          <circle cx="13" cy="6" r="0.8"/>
-          <circle cx="17" cy="6" r="0.8"/>
-          <circle cx="3" cy="9" r="0.8"/>
-          <circle cx="7" cy="9" r="0.8"/>
-          <circle cx="11" cy="9" r="0.8"/>
-          <circle cx="15" cy="9" r="0.8"/>
-          <circle cx="19" cy="9" r="0.8"/>
-          <circle cx="5" cy="12" r="0.8"/>
-          <circle cx="9" cy="12" r="0.8"/>
-          <circle cx="13" cy="12" r="0.8"/>
-          <circle cx="17" cy="12" r="0.8"/>
-        </g>
-      </svg>
+    <a href="#en">
+      <img src="assets/flags/en.svg" width="30" height="18" alt="EN">
     </a>
-    <a href="#es" style="text-decoration: none; padding: 3px; border-radius: 7px; border: 1px solid #2a2a2a; background: #151515; box-shadow: 0 2px 6px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center;">
-      <svg width="30" height="18" viewBox="0 0 44 30" xmlns="http://www.w3.org/2000/svg" style="display: inline-block; width: min(100%, clamp(20px, 4vw, 28px)); height: auto; border-radius: 4px; border: 1px solid #2a2a2a;">
-        <rect width="44" height="30" fill="#aa151b"/>
-        <rect y="7" width="44" height="16" fill="#f1bf00"/>
-        <rect x="10" y="10" width="6" height="10" fill="#b71c1c"/>
-        <rect x="12" y="12" width="2" height="6" fill="#f1bf00"/>
-      </svg>
+    <a href="#es">
+      <img src="assets/flags/es.svg" width="30" height="18" alt="ES">
     </a>
   </div>
 </div>
 
-<div align="center" style="background-color: #000000; color: #e5e5e5; padding: 0; border-radius: 8px;">
-  <table border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: none; background-color: #000000; color: #e5e5e5; width: 100%;">
-    <tr>
-      <td width="90%" align="left" valign="middle" style="border: none; color: #e5e5e5; padding: 8px 0;">
-        <div style="display: flex; align-items: center; gap: 4px; justify-content: flex-start; transform: translateY(10px);">
-          <a href="https://askesis-psi.vercel.app/" style="text-decoration: none; color: #e5e5e5; margin-left: 20px; margin-top: 10px; display: inline-block;">
-            <img src="icons/icon-512.svg" width="40" alt="Askesis Logo" style="border-radius: 12px; transform: scale(2); transform-origin: left center;">
-          </a>
-          <div style="text-align: left; margin: 35px 0 0 45px;">
-            <h1 style="margin: 0; line-height: 0.5; font-size: 86px; letter-spacing: 2px;">
-              <span style="color: #27ae60;">A</span><span style="color: #ffffff;">skes</span><span style="color: #27ae60;">I</span><span style="color: #ffffff;">s</span>
-            </h1>
-          </div>
-        </div>
-      </td>
-      <td width="10%" align="center" valign="middle" style="border: none; text-align: center; border-left: 3px solid #ffffff; padding: 8px 0;"></td>
-    </tr>
-    <tr>
-      <td width="90%" style="border: none; padding: 0;">
-        <div style="height: 3px; background: #ffffff; width: 100%; margin: 30px 0 0 0;"></div>
-      </td>
-      <td width="10%" style="border: none; padding: 0; border-left: 3px solid #ffffff;">
-        <div style="height: 3px; background: #ffffff; width: 100%; margin: 30px 0 0 0;"></div>
-      </td>
-    </tr>
-    <tr>
-      <td width="90%" style="border: none; padding: 0;">
-        <div style="display: flex; flex-wrap: wrap; gap: -1; align-items: center; justify-content: flex-start; margin: 0; padding: -5; line-height: 0;">
-          <img src="https://img.shields.io/badge/Offline--First-000000?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Offline-first" style="height: clamp(16px, 2.3vw, 39px); width: auto;" />
-          <img src="https://img.shields.io/badge/PWA-27ae60?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" style="height: clamp(16px, 2.3vw, 39px); width: auto;" />
-          <img src="https://img.shields.io/badge/Google_Gemini-ffffff?style=for-the-badge&logo=google-gemini&logoColor=000000" alt="Gemini AI" style="height: clamp(16px, 2.3vw, 39px); width: auto;" />
-          <img src="https://img.shields.io/badge/TypeScript-ffffff?style=for-the-badge&logo=typescript&logoColor=000000" alt="TypeScript" style="height: clamp(16px, 2.3vw, 39px); width: auto;" />
-          <img src="https://img.shields.io/badge/WCAG%202.1%20AA-ffffff?style=for-the-badge&logo=accessibilityinsights&logoColor=000000" alt="WCAG 2.1 AA" style="height: clamp(16px, 2.3vw, 39px); width: auto;" />
-          <img src="https://img.shields.io/badge/AES--GCM-ffffff?style=for-the-badge&logo=securityscorecard&logoColor=000000" alt="AES-GCM" style="height: clamp(16px, 2.3vw, 39px); width: auto;" />
-          <img src="https://img.shields.io/badge/ISC%20License-27ae60?style=for-the-badge&logo=opensourceinitiative&logoColor=000000" alt="ISC License" style="height: clamp(16px, 2.3vw, 39px); width: auto;" />
-          <img src="https://img.shields.io/badge/i18n-000000?style=for-the-badge&logo=googletranslate&logoColor=white" alt="i18n" style="height: clamp(16px, 2.3vw, 39px); width: auto;" />
-        </div>
-      </td>
-      <td width="10%" style="border: none; padding: 0;"></td>
-    </tr>
-  </table>
-</div>
+<p align="center">
+  <img src="assets/header.svg" alt="Askesis" width="100%">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Offline--First-000000?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Offline-first" />
+  <img src="https://img.shields.io/badge/PWA-27ae60?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" />
+  <img src="https://img.shields.io/badge/Google_Gemini-ffffff?style=for-the-badge&logo=google-gemini&logoColor=000000" alt="Gemini AI" />
+  <img src="https://img.shields.io/badge/TypeScript-ffffff?style=for-the-badge&logo=typescript&logoColor=000000" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/WCAG%202.1%20AA-ffffff?style=for-the-badge&logo=accessibilityinsights&logoColor=000000" alt="WCAG 2.1 AA" />
+  <img src="https://img.shields.io/badge/AES--GCM-ffffff?style=for-the-badge&logo=securityscorecard&logoColor=000000" alt="AES-GCM" />
+  <img src="https://img.shields.io/badge/ISC%20License-27ae60?style=for-the-badge&logo=opensourceinitiative&logoColor=000000" alt="ISC License" />
+  <img src="https://img.shields.io/badge/i18n-000000?style=for-the-badge&logo=googletranslate&logoColor=white" alt="i18n" />
+</p>
 
 <div align="center">
   <table border="0" cellspacing="10" cellpadding="0" style="border-collapse: separate; border-spacing: 10px;">
