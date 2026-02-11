@@ -14,10 +14,38 @@ import { state, getHabitDailyInfoForDate, TimeOfDay } from '../state';
 import { runWorkerTask } from './cloud';
 import { apiFetch } from './api';
 import { t, getAiLanguageName } from '../i18n';
-import { logger } from '../utils';
+import { logger, MS_PER_DAY } from '../utils';
 import { saveState } from './persistence';
 
 const _analysisInFlight = new Map<string, Promise<any>>();
+const MIN_AI_CONTEXT_DAYS = 7;
+const AI_MIN_INTERVAL_DAYS = 7;
+
+function _hasSufficientHistory(dateISO: string): boolean {
+    let count = 0;
+    for (const dayKey of Object.keys(state.dailyData)) {
+        if (dayKey > dateISO) continue;
+        const day = state.dailyData[dayKey];
+        const hasInstances = !!day && Object.values(day).some(info => info && Object.keys(info.instances || {}).length > 0);
+        if (hasInstances) {
+            count++;
+            if (count >= MIN_AI_CONTEXT_DAYS) return true;
+        }
+    }
+    return false;
+}
+
+function _hasRecentAiAnalysis(): boolean {
+    const now = Date.now();
+    let latest = 0;
+    for (const diagnosis of Object.values(state.dailyDiagnoses)) {
+        if (diagnosis?.timestamp && diagnosis.timestamp > latest) {
+            latest = diagnosis.timestamp;
+        }
+    }
+    if (!latest) return false;
+    return (now - latest) < (AI_MIN_INTERVAL_DAYS * MS_PER_DAY);
+}
 
 export async function checkAndAnalyzeDayContext(dateISO: string) {
     if (state.dailyDiagnoses[dateISO] || _analysisInFlight.has(dateISO)) {
@@ -34,6 +62,8 @@ export async function checkAndAnalyzeDayContext(dateISO: string) {
             }));
             
             if (!notes.trim() || !navigator.onLine) return;
+            if (!_hasSufficientHistory(dateISO)) return;
+            if (_hasRecentAiAnalysis()) return;
 
             const promptPayload = { 
                 notes, 
