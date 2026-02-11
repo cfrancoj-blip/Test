@@ -11,8 +11,8 @@ export const config = {
 };
 
 const MAX_PROMPT_SIZE = 150 * 1024; // 150KB
-const CACHE_TTL_MS = 6 * 60 * 60 * 1000; // 6 hours
-const CACHE_MAX_ENTRIES = 200;
+const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12 hours
+const CACHE_MAX_ENTRIES = 500;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -22,9 +22,8 @@ const CORS_HEADERS = {
 
 // ROBUSTNESS: Support both standard naming conventions
 const API_KEY = process.env.API_KEY || process.env.GEMINI_API_KEY;
-// MODEL UPDATE: Reverted to standard Gemini 2.0 Flash.
-// The previous specific preview version caused 404s.
-const MODEL_NAME = 'gemini-2.0-flash';
+// MODEL UPDATE: Use Gemini 3.0 Flash.
+const MODEL_NAME = 'gemini-3.0-flash';
 
 let aiClient: GoogleGenAI | null = null;
 const responseCache = new Map<string, { value: string; ts: number }>();

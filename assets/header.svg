@@ -6,10 +6,13 @@
       <path fill="#ffffff" d="M16 55h22v4H16z M18 59l-2 5h22l-2-5z M19 64h16v21H19z M17 85h20v5H17z M39 35h22v4H39z M41 39l-2 5h22l-2-5z M42 44h16v41H42z M40 85h20v5H40z M62 15h22v4H62z M64 19l-2 5h22l-2-5z M65 24h16v61H65z M63 85h20v5H63z"/>
     </g>
   </g>
-  <g font-family="Arial, sans-serif" font-size="140" font-weight="700" letter-spacing="2">
-    <text x="270" y="175" fill="#27ae60">A</text>
-    <text x="350" y="175" fill="#ffffff">skes</text>
-    <text x="665" y="175" fill="#27ae60">I</text>
-    <text x="725" y="175" fill="#ffffff">s</text>
+  <g font-family="Arial, sans-serif" font-size="140" font-weight="700">
+    <text x="270" y="175" fill="#27ae60" letter-spacing="0">A</text>
+    <text x="330" y="175" fill="#ffffff" letter-spacing="2">s</text>
+    <text x="400" y="175" fill="#ffffff" letter-spacing="2">k</text>
+    <text x="470" y="175" fill="#ffffff" letter-spacing="2">e</text>
+    <text x="540" y="175" fill="#ffffff" letter-spacing="2">s</text>
+    <text x="610" y="175" fill="#27ae60" letter-spacing="2">I</text>
+    <text x="680" y="175" fill="#ffffff" letter-spacing="-2">s</text>
   </g>
 </svg>
