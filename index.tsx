@@ -30,6 +30,7 @@ import { hasLocalSyncKey, initAuth } from './services/api';
 import { updateAppBadge } from './services/badge';
 import { setupMidnightLoop, logger } from './utils';
 import { BOOT_RELOAD_DELAY_MS, BOOT_SYNC_TIMEOUT_MS } from './constants';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 // --- AUTO-HEALING & INTEGRITY CHECK ---
 const BOOT_ATTEMPTS_KEY = 'askesis_boot_attempts';
@@ -140,6 +141,8 @@ function finalizeInit(loader: HTMLElement | null) {
         performArchivalCheck();
         if (process.env.NODE_ENV === 'production') {
             import('./services/analytics').then(({ initAnalytics }) => initAnalytics()).catch(() => {});
+            // Initialize Vercel Speed Insights
+            injectSpeedInsights();
         }
     };
     if ((window as any).scheduler?.postTask) {
